@@ -38,6 +38,7 @@ public class ClientService {
         }
         existing.setName(p.getName());
         existing.setContact(p.getContact());
+        existing.setEnabled(p.isEnabled());
         dao.update(existing);
     }
 }

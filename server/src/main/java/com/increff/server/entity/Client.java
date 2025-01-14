@@ -4,17 +4,20 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Column;
 
 @Entity
-public class Client {
+public class Client extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
     private int id;
     private String name;
     private String contact;
+    
+    @Column(nullable = false)
+    private boolean enabled = true;  // Default to true
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -37,5 +40,13 @@ public class Client {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

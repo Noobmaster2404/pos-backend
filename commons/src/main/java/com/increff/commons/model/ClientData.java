@@ -5,6 +5,7 @@ public class ClientData {
     private int id;
     private String name;
     private String contact;
+    private boolean enabled;
 
     // Getters and Setters
     public int getId() {
@@ -29,6 +30,14 @@ public class ClientData {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
 

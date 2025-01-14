@@ -53,6 +53,7 @@ public class ClientController {
         d.setId(p.getId());
         d.setName(p.getName());
         d.setContact(p.getContact());
+        d.setEnabled(p.isEnabled());
         return d;
     }
 
@@ -60,6 +61,7 @@ public class ClientController {
         Client p = new Client();
         p.setName(f.getName());
         p.setContact(f.getContact());
+        p.setEnabled(f.isEnabled());
         return p;
     }
 }
