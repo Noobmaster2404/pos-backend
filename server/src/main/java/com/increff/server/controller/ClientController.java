@@ -54,6 +54,9 @@ public class ClientController {
         d.setName(p.getName());
         d.setContact(p.getContact());
         d.setEnabled(p.isEnabled());
+        d.setCreatedAt(p.getCreatedAt());
+        d.setUpdatedAt(p.getUpdatedAt());
+        d.setVersion(p.getVersion());
         return d;
     }
 
