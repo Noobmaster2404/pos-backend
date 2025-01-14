@@ -24,14 +24,14 @@ public class ClientController {
     private ClientService service;
 
     @ApiOperation(value = "Adds a client")
-    @PostMapping
+    @PostMapping("/add")
     public void add(@RequestBody ClientForm form) throws ApiException {
         Client p = convert(form);
         service.add(p);
     }
 
     @ApiOperation(value = "Gets a list of all clients")
-    @GetMapping
+    @GetMapping("/get")
     public List<ClientData> getAll() {
         List<Client> list = service.getAll();
         List<ClientData> list2 = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ClientController {
     }
 
     @ApiOperation(value = "Updates a client")
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public void update(@PathVariable int id, @RequestBody ClientForm form) throws ApiException {
         Client p = convert(form);
         service.update(id, p);
