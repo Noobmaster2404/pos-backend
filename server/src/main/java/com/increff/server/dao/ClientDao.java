@@ -15,6 +15,7 @@ import com.increff.server.entity.Client;
 public class ClientDao {
 
     private static final String SELECT_ALL = "SELECT p FROM Client p";
+    private static final String SELECT_BY_NAME = "select p from Client p where p.name=:name";
 
     @PersistenceContext
     private EntityManager em;
@@ -36,5 +37,12 @@ public class ClientDao {
 
     public Client select(int id) {
         return em.find(Client.class, id);
+    }
+
+    public Client selectByName(String name) {
+        TypedQuery<Client> query = em.createQuery(SELECT_BY_NAME, Client.class);
+        query.setParameter("name", name);
+        List<Client> clients = query.getResultList();
+        return clients.isEmpty() ? null : clients.get(0);
     }
 }

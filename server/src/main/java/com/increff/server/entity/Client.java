@@ -16,7 +16,7 @@ public class Client extends BaseEntity {
     private String contact;
     
     @Column(nullable = false)
-    private boolean enabled = true;  // Default to true
+    private boolean enabled = true;
 
     public int getId() {
         return id;
