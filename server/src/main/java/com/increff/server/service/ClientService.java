@@ -2,7 +2,7 @@ package com.increff.server.service;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.increff.commons.exception.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class ClientService {
     @Autowired
     private ClientDao dao;
 
-    @Transactional(rollbackOn = ApiException.class)
+    @Transactional(rollbackFor = ApiException.class)
     public void add(Client p) throws ApiException {
         if (p.getName() == null || p.getName().isEmpty()) {
             throw new ApiException("Client name cannot be empty");
@@ -34,7 +34,7 @@ public class ClientService {
         return dao.selectAll();
     }
 
-    @Transactional(rollbackOn = ApiException.class)
+    @Transactional(rollbackFor = ApiException.class)
     public void update(int id, Client p) throws ApiException {
         Client existing = dao.select(id);
         if (existing == null) {
@@ -54,5 +54,14 @@ public class ClientService {
         existing.setContact(p.getContact());
         existing.setEnabled(p.isEnabled());
         dao.update(existing);
+    }
+
+    @Transactional(readOnly = true)
+    public Client get(int id) throws ApiException {
+        Client client = dao.select(id);
+        if (client == null) {
+            throw new ApiException("Client with id " + id + " not found");
+        }
+        return client;
     }
 }
