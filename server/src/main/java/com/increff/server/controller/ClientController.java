@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.increff.commons.model.ClientData;
 import com.increff.commons.model.ClientForm;
+import com.increff.server.api.ClientApi;
 import com.increff.server.entity.Client;
 import com.increff.commons.exception.ApiException;
-import com.increff.server.service.ClientService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,19 +22,19 @@ import io.swagger.annotations.ApiOperation;
 public class ClientController {
 
     @Autowired
-    private ClientService service;
+    private ClientApi api;
 
     @ApiOperation(value = "Create a new client")
     @PostMapping("/clients")
     public void add(@RequestBody ClientForm form) throws ApiException {
         Client p = convert(form);
-        service.add(p);
+        api.add(p);
     }
 
     @ApiOperation(value = "Get all clients")
     @GetMapping("/clients")
     public List<ClientData> getAll() {
-        List<Client> list = service.getAll();
+        List<Client> list = api.getAll();
         List<ClientData> list2 = new ArrayList<>();
         for (Client p : list) {
             list2.add(convert(p));
@@ -45,7 +45,7 @@ public class ClientController {
     @ApiOperation(value = "Get client by ID")
     @GetMapping("/client/{id}")
     public ClientData get(@PathVariable int id) throws ApiException {
-        Client client = service.get(id);
+        Client client = api.get(id);
         if (client == null) {
             throw new ApiException("Client with id " + id + " not found");
         }
@@ -56,7 +56,7 @@ public class ClientController {
     @PutMapping("/client/{id}")
     public void update(@PathVariable int id, @RequestBody ClientForm form) throws ApiException {
         Client p = convert(form);
-        service.update(id, p);
+        api.update(id, p);
     }
 
     private static ClientData convert(Client p) {

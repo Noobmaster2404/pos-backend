@@ -1,4 +1,4 @@
-package com.increff.server.service;
+package com.increff.server.api;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import com.increff.server.dao.ClientDao;
 import com.increff.server.entity.Client;
 
 @Service
-public class ClientService {
+public class ClientApi {
 
     @Autowired
     private ClientDao dao;
