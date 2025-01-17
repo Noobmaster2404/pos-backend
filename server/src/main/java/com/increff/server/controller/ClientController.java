@@ -1,22 +1,22 @@
 package com.increff.server.controller;
 
-import java.util.ArrayList;
+// import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+// import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.increff.commons.model.ClientData;
 import com.increff.commons.model.ClientForm;
-import com.increff.server.api.ClientApi;
-import com.increff.server.entity.Client;
+// import com.increff.server.api.ClientApi;
+// import com.increff.server.entity.Client;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.ClientDto;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+// import io.swagger.annotations.ApiOperation;
 
 @Api
 @RestController
@@ -24,29 +24,26 @@ import io.swagger.annotations.ApiOperation;
 public class ClientController {
 
     @Autowired
-    private ClientApi api;
+    private ClientDto dto;
 
     @PostMapping
     public void add(@RequestBody ClientForm form) throws ApiException {
-        Client client = ClientDto.fromForm(form);
-        api.add(client);
+        //@RequestBody is used to bind the request body to the form object
+        dto.add(form);
     }
 
     @GetMapping
     public List<ClientData> getAll() {
-        return api.getAll().stream()
-                 .map(ClientDto::toData)
-                 .collect(Collectors.toList());
+        return dto.getAll();
     }
 
     @GetMapping("/{id}")
     public ClientData get(@PathVariable int id) throws ApiException {
-        return ClientDto.toData(api.get(id));
+        return dto.get(id);
     }
 
     @PutMapping("/{id}")
     public void update(@PathVariable int id, @RequestBody ClientForm form) throws ApiException {
-        Client client = ClientDto.fromForm(form);
-        api.update(id, client);
+        dto.update(id, form);
     }
 }

@@ -1,7 +1,6 @@
 package com.increff.server.dto;
 
 import com.increff.commons.exception.ApiException;
-
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 
@@ -42,6 +41,6 @@ public abstract class AbstractDto {
         }
     }
 
-    // Each DTO will define its own prefix for error messages
+    // Each DTO must define its prefix so that error messages are easier to understand
     protected abstract String getPrefix();
 }

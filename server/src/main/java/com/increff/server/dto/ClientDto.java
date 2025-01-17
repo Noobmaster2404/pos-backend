@@ -4,34 +4,67 @@ import javax.validation.constraints.NotNull;
 import com.increff.server.entity.Client;
 import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
+import com.increff.server.api.ClientApi;
 import com.increff.commons.exception.ApiException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class ClientDto extends AbstractDto {
     
+    @Autowired
+    private ClientApi api;
+
     @NotNull
     private String name;
     private String contact;
     private boolean enabled = true;
 
-    // Convert from Form to Entity
-    public static Client fromForm(ClientForm form) throws ApiException {
-        ClientDto dto = new ClientDto();
-        dto.setName(form.getName());
-        dto.setContact(form.getContact());
-        dto.setEnabled(form.isEnabled());
+    public void add(ClientForm form) throws ApiException {
+        setName(form.getName());
+        setContact(form.getContact());
+        setEnabled(form.isEnabled());
         
-        dto.normalize();
-        dto.validate();
+        normalize();  // From AbstractDto
+        validate();   // From AbstractDto
         
+        Client client = convert();
+        api.add(client);
+    }
+
+    public List<ClientData> getAll() {
+        return api.getAll().stream()
+                 .map(this::convertToData)
+                 .collect(Collectors.toList());
+    }
+
+    public ClientData get(int id) throws ApiException {
+        return convertToData(api.get(id));
+    }
+
+    public void update(int id, ClientForm form) throws ApiException {
+        setName(form.getName());
+        setContact(form.getContact());
+        setEnabled(form.isEnabled());
+        
+        normalize();  // From AbstractDto
+        validate();   // From AbstractDto
+        
+        Client client = convert();
+        api.update(id, client);
+    }
+
+    private Client convert() {
         Client client = new Client();
-        client.setName(dto.getName());
-        client.setContact(dto.getContact());
-        client.setEnabled(dto.isEnabled());
+        client.setName(getName());
+        client.setContact(getContact());
+        client.setEnabled(isEnabled());
         return client;
     }
 
-    // Convert from Entity to Data
-    public static ClientData toData(Client client) {
+    private ClientData convertToData(Client client) {
         ClientData data = new ClientData();
         data.setId(client.getId());
         data.setName(client.getName());
@@ -41,11 +74,18 @@ public class ClientDto extends AbstractDto {
     }
 
     @Override
-    protected String getPrefix() {
-        return "Client ";
+    protected void validate() throws ApiException {
+        if (getName() == null || getName().isEmpty()) {
+            throw new ApiException("Client name cannot be empty");
+        }
     }
 
-    // Standard getters and setters
+    @Override
+    protected String getPrefix() {
+        return "Client: ";
+    }
+
+    // Getters and setters
     public String getName() {
         return name;
     }

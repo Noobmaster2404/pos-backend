@@ -15,7 +15,7 @@ import com.increff.server.entity.Client;
 public class ClientDao {
 
     private static final String SELECT_ALL = "SELECT p FROM Client p";
-    private static final String SELECT_BY_NAME = "select p from Client p where p.name=:name";
+    private static final String SELECT_BY_NAME = "SELECT p FROM Client p WHERE p.name=:name";
 
     @PersistenceContext
     private EntityManager em;
