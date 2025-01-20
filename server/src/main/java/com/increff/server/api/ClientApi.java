@@ -1,6 +1,7 @@
 package com.increff.server.api;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +19,15 @@ public class ClientApi {
     private ClientDao dao;
 
     @Transactional(rollbackFor = ApiException.class)
-    public void add(Client p) throws ApiException {
-        if (p.getName() == null || p.getName().isEmpty()) {
+    public void add(Client client) throws ApiException {
+        if (Objects.nonNull(client.getName())) {
             throw new ApiException("Client name cannot be empty");
         }
-        Client existing = dao.selectByName(p.getName());
-        if (existing != null) {
-            throw new ApiException("Client with name '" + p.getName() + "' already exists");
+        Client existing = dao.selectByName(client.getName());
+        if (Objects.nonNull(existing)) {
+            throw new ApiException("Client with name '" + client.getName() + "' already exists");
         }
-        dao.insert(p);
+        dao.insert(client);
     }
 
     @Transactional
@@ -35,31 +36,32 @@ public class ClientApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void update(int id, Client p) throws ApiException {
-        Client existing = dao.select(id);
-        if (existing == null) {
+    public void update(int id, Client client) throws ApiException {
+        Client existingClient = dao.select(id);
+        if (Objects.isNull(existingClient)) {
             throw new ApiException("Client with given ID does not exist");
         }
         
         // Check if name is being changed
-        if (!existing.getName().equals(p.getName())) {
+        if (!existingClient.getName().equals(client.getName())) {
             // Check if new name already exists
-            Client duplicateCheck = dao.selectByName(p.getName());
-            if (duplicateCheck != null) {
-                throw new ApiException("Client with name '" + p.getName() + "' already exists");
+            Client duplicateCheck = dao.selectByName(client.getName());
+            if (Objects.nonNull(duplicateCheck)) {
+                throw new ApiException("Client with name '" + client.getName() + "' already exists");
             }
         }
+        //todo make validateUpdate method
         
-        existing.setName(p.getName());
-        existing.setContact(p.getContact());
-        existing.setEnabled(p.isEnabled());
-        dao.update(existing);
+        existingClient.setName(client.getName());
+        existingClient.setContact(client.getContact());
+        existingClient.setEnabled(client.isEnabled());
+        dao.update(existingClient);
     }
 
     @Transactional(readOnly = true)
     public Client get(int id) throws ApiException {
         Client client = dao.select(id);
-        if (client == null) {
+        if (Objects.isNull(client)) {
             throw new ApiException("Client with id " + id + " not found");
         }
         return client;
