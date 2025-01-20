@@ -20,7 +20,7 @@ public class ClientController {
     @Autowired
     private ClientDto dto;
 
-
+    //TODO: ask if we use RequestMapping instead of GetMapping and PutMapping
     @RequestMapping(method = RequestMethod.POST)
     public void add(@RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object

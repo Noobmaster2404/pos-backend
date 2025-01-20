@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.transaction.annotation.Transactional;
-
-import com.increff.commons.exception.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.increff.server.dao.ClientDao;
 import com.increff.server.entity.Client;
+import com.increff.commons.exception.ApiException;
 
 @Service
 public class ClientApi {
