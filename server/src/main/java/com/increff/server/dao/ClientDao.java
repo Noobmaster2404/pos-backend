@@ -6,6 +6,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
@@ -13,10 +16,8 @@ import com.increff.server.entity.Client;
 
 @Repository
 public class ClientDao {
-
-    private static final String SELECT_ALL = "SELECT p FROM Client p";
-    private static final String SELECT_BY_NAME = "SELECT p FROM Client p WHERE p.name=:name";
-
+    //Use typed query only when you know the exact structure of the query
+    
     @PersistenceContext
     private EntityManager em;
 
@@ -26,7 +27,11 @@ public class ClientDao {
     }
 
     public List<Client> selectAll() {
-        TypedQuery<Client> query = em.createQuery(SELECT_ALL, Client.class);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Client> cq = cb.createQuery(Client.class);
+        Root<Client> root = cq.from(Client.class);
+        cq.select(root);
+        TypedQuery<Client> query = em.createQuery(cq);
         return query.getResultList();
     }
 
@@ -40,8 +45,12 @@ public class ClientDao {
     }
 
     public Client selectByName(String name) {
-        TypedQuery<Client> query = em.createQuery(SELECT_BY_NAME, Client.class);
-        query.setParameter("name", name);
+        // Using CriteriaBuilder to create a query for selecting a client by name
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Client> cq = cb.createQuery(Client.class);
+        Root<Client> root = cq.from(Client.class);
+        cq.select(root).where(cb.equal(root.get("name"), name));
+        TypedQuery<Client> query = em.createQuery(cq);
         List<Client> clients = query.getResultList();
         return clients.isEmpty() ? null : clients.get(0);
     }
