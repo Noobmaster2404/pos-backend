@@ -7,9 +7,11 @@ import lombok.Setter;
 @Setter
 public class ClientData {
 
+    //TODO: ask if we use integer instead of int
     private int id;
     private String name;
-    private String contact;
+    private String phone;
+    private String email;
     private Boolean enabled;
 }
 

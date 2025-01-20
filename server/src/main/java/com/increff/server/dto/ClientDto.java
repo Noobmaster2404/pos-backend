@@ -47,8 +47,9 @@ public class ClientDto extends AbstractDto {
     private Client convert(ClientForm form) {
         Client client = new Client();
         client.setName(form.getName());
-        client.setContact(form.getContact());
-        client.setEnabled(form.isEnabled());
+        client.setPhone(form.getPhone());
+        client.setEmail(form.getEmail());
+        client.setEnabled(form.getEnabled());
         return client;
     }
 
@@ -56,15 +57,18 @@ public class ClientDto extends AbstractDto {
         ClientData data = new ClientData();
         data.setId(client.getId());
         data.setName(client.getName());
-        data.setContact(client.getContact());
-        data.setEnabled(client.isEnabled());
+        data.setPhone(client.getPhone());
+        data.setEmail(client.getEmail());
+        data.setEnabled(client.getEnabled());
         return data;
     }
 
     @Override
     protected void validate(ClientForm form) throws ApiException {
-        if (Objects.isNull(form.getName()) || Objects.isNull(form.getContact())) {
-            throw new ApiException("Client name and contact cannot be empty");
+        if (Objects.isNull(form.getName())
+        || Objects.isNull(form.getPhone())
+        || Objects.isNull(form.getEmail())) {
+            throw new ApiException("Client name, phone and email cannot be empty");
         }
     }
 

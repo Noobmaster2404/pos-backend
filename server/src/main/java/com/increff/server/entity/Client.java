@@ -1,52 +1,25 @@
 package com.increff.server.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Column;
+import javax.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class Client extends BaseEntity {
 
+    //TODO add table generation method instead of identity
+    //TODO use box type
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
     private int id;
+    private String phone;
+    private String email;
     private String name;
-    private String contact;
+    // TODO to add min length and mx length validations here only
     
     @Column(nullable = false)
-    private boolean enabled = true;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    private Boolean enabled = true;
+    //TODO: Primitive boolean supports isEnabled but Object doesn’t
 }

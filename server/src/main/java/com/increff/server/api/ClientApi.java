@@ -52,8 +52,9 @@ public class ClientApi {
         //todo make validateUpdate method
         
         existingClient.setName(client.getName());
-        existingClient.setContact(client.getContact());
-        existingClient.setEnabled(client.isEnabled());
+        existingClient.setPhone(client.getPhone());
+        existingClient.setEmail(client.getEmail());
+        existingClient.setEnabled(client.getEnabled());
         dao.update(existingClient);
     }
 

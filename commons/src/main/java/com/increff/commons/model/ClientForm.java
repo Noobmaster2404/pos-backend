@@ -8,6 +8,7 @@ import lombok.Setter;
 public class ClientForm {
 
     private String name;
-    private String contact;
+    private String phone;
+    private String email;
     private Boolean enabled = true; 
 }
