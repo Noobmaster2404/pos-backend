@@ -1,6 +1,5 @@
 package com.increff.server.dto;
 
-import javax.validation.constraints.NotNull;
 import com.increff.server.entity.Client;
 import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
@@ -18,20 +17,11 @@ public class ClientDto extends AbstractDto {
     @Autowired
     private ClientFlow clientFlow;
 
-    @NotNull
-    private String name;
-    private String contact;
-    private boolean enabled = true;
-
     public void add(ClientForm form) throws ApiException {
-//        setName(form.getName());
-//        setContact(form.getContact());
-//        setEnabled(form.isEnabled());
-        // TODO remove global variables and normalise and validate form directly
-        normalize();  // From AbstractDto
-        validate();   // From AbstractDto
+        normalize(form);
+        validate(form);
         
-        Client client = convert();
+        Client client = convert(form);
         clientFlow.add(client);
     }
 
@@ -47,22 +37,18 @@ public class ClientDto extends AbstractDto {
     }
 
     public void update(int id, ClientForm form) throws ApiException {
-        setName(form.getName());
-        setContact(form.getContact());
-        setEnabled(form.isEnabled());
+        normalize(form);
+        validate(form);
         
-        normalize();  // From AbstractDto
-        validate();   // From AbstractDto
-        
-        Client client = convert();
+        Client client = convert(form);
         clientFlow.update(id, client);
     }
 
-    private Client convert() {
+    private Client convert(ClientForm form) {
         Client client = new Client();
-        client.setName(getName());
-        client.setContact(getContact());
-        client.setEnabled(isEnabled());
+        client.setName(form.getName());
+        client.setContact(form.getContact());
+        client.setEnabled(form.isEnabled());
         return client;
     }
 
@@ -76,39 +62,14 @@ public class ClientDto extends AbstractDto {
     }
 
     @Override
-    protected void validate() throws ApiException {
-        if (Objects.isNull(getName()) || getName().isEmpty()) {
-            throw new ApiException("Client name cannot be empty");
+    protected void validate(ClientForm form) throws ApiException {
+        if (Objects.isNull(form.getName()) || Objects.isNull(form.getContact())) {
+            throw new ApiException("Client name and contact cannot be empty");
         }
     }
 
     @Override
     protected String getPrefix() {
         return "Client: ";
-    }
-
-    // Getters and setters
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

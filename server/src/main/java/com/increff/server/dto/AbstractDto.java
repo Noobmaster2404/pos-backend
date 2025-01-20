@@ -1,20 +1,21 @@
 package com.increff.server.dto;
 
 import com.increff.commons.exception.ApiException;
+import com.increff.commons.model.ClientForm;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 public abstract class AbstractDto {
     
-    protected void normalize() {
+    protected void normalize(ClientForm form) {
         try {
-            for (Field field : this.getClass().getDeclaredFields()) {
+            for (Field field : form.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 if (Objects.equals(field.getType(), String.class)) {
-                    String value = (String) field.get(this);
+                    String value = (String) field.get(form);
                     if (Objects.nonNull(value)) {
-                        field.set(this, value.trim().toLowerCase());
+                        field.set(form, value.trim().toLowerCase());
                     }
                 }
             }
@@ -23,12 +24,12 @@ public abstract class AbstractDto {
         }
     }
 
-    protected void validate() throws ApiException {
+    protected void validate(ClientForm form) throws ApiException {
         try {
-            for (Field field : this.getClass().getDeclaredFields()) {
+            for (Field field : form.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 if (field.isAnnotationPresent(NotNull.class)) {
-                    Object value = field.get(this);
+                    Object value = field.get(form);
                     if (Objects.isNull(value)) {
                         throw new ApiException(getPrefix() + field.getName() + " cannot be null");
                     }
