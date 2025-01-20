@@ -4,18 +4,19 @@ import javax.validation.constraints.NotNull;
 import com.increff.server.entity.Client;
 import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
-import com.increff.server.api.ClientApi;
+import com.increff.server.flow.ClientFlow;
 import com.increff.commons.exception.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Component
 public class ClientDto extends AbstractDto {
     
     @Autowired
-    private ClientApi api;
+    private ClientFlow clientFlow;
 
     @NotNull
     private String name;
@@ -23,25 +24,26 @@ public class ClientDto extends AbstractDto {
     private boolean enabled = true;
 
     public void add(ClientForm form) throws ApiException {
-        setName(form.getName());
-        setContact(form.getContact());
-        setEnabled(form.isEnabled());
-        
+//        setName(form.getName());
+//        setContact(form.getContact());
+//        setEnabled(form.isEnabled());
+        // TODO remove global variables and normalise and validate form directly
         normalize();  // From AbstractDto
         validate();   // From AbstractDto
         
         Client client = convert();
-        api.add(client);
+        clientFlow.add(client);
     }
 
     public List<ClientData> getAll() {
-        return api.getAll().stream()
-                 .map(this::convertToData)
-                 .collect(Collectors.toList());
+        return clientFlow.getAll()
+                .stream()
+                .map(this::convertToData)
+                .collect(Collectors.toList());
     }
 
     public ClientData get(int id) throws ApiException {
-        return convertToData(api.get(id));
+        return convertToData(clientFlow.get(id));
     }
 
     public void update(int id, ClientForm form) throws ApiException {
@@ -53,7 +55,7 @@ public class ClientDto extends AbstractDto {
         validate();   // From AbstractDto
         
         Client client = convert();
-        api.update(id, client);
+        clientFlow.update(id, client);
     }
 
     private Client convert() {
@@ -75,7 +77,7 @@ public class ClientDto extends AbstractDto {
 
     @Override
     protected void validate() throws ApiException {
-        if (getName() == null || getName().isEmpty()) {
+        if (Objects.isNull(getName()) || getName().isEmpty()) {
             throw new ApiException("Client name cannot be empty");
         }
     }

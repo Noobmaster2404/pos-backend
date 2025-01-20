@@ -3,6 +3,7 @@ package com.increff.server.dto;
 import com.increff.commons.exception.ApiException;
 import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 public abstract class AbstractDto {
     
@@ -10,9 +11,9 @@ public abstract class AbstractDto {
         try {
             for (Field field : this.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
-                if (field.getType() == String.class) {
+                if (Objects.equals(field.getType(), String.class)) {
                     String value = (String) field.get(this);
-                    if (value != null) {
+                    if (Objects.nonNull(value)) {
                         field.set(this, value.trim().toLowerCase());
                     }
                 }
@@ -28,7 +29,7 @@ public abstract class AbstractDto {
                 field.setAccessible(true);
                 if (field.isAnnotationPresent(NotNull.class)) {
                     Object value = field.get(this);
-                    if (value == null) {
+                    if (Objects.isNull(value)) {
                         throw new ApiException(getPrefix() + field.getName() + " cannot be null");
                     }
                     if (value instanceof String && ((String) value).isEmpty()) {
