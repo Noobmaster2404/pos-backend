@@ -9,23 +9,26 @@ import lombok.Setter;
 @Setter
 public class Client extends BaseEntity {
 
-    //TODO add table generation method instead of identity
-    //TODO use box type
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
-    //fetches last id everytime which makes it slow
-   
-    // @GeneratedValue(strategy = GenerationType.TABLE, 
-    //                 generator = "client_generator")
-    // @TableGenerator(
-    //     name = "client_generator",
-    //     table = "sequence_table",
-    //     pkColumnName = "seq_name",
-    //     valueColumnName = "seq_value",
-    //     pkColumnValue = "client_seq",
-    //     initialValue = 1,
-    //     allocationSize = 1
-    // )
+    @GeneratedValue(strategy = GenerationType.TABLE, 
+                    generator = "client_generator")
+    @TableGenerator(
+        name = "client_generator",
+        table = "sequence_table",
+        pkColumnName = "seq_name",
+        valueColumnName = "seq_value",
+        pkColumnValue = "client_seq",
+        initialValue = 1,
+        allocationSize = 50,
+        //allocationSize is the number of IDs to be allocated in one go
+        //They are kept in cache and are allocated in chunks
+        //This is better than identity because it doesn't need to query the database for the last ID on every insert
+        //There is only one issue, if the system crashes, the IDs are lost
+        //But thats a tradeoff for better performance
+        //Hence its better than the identity strategy
+        schema = "pos"
+    )
+    
     private int id;
     @Column(length = 10, nullable = false)
     private String phone;

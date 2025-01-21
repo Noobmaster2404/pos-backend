@@ -24,6 +24,7 @@ public class ClientController {
     @RequestMapping(method = RequestMethod.POST)
     public void add(@Valid @RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object
+        //@Valid is used to check the annotations in the form object
         dto.add(form);
     }
 
