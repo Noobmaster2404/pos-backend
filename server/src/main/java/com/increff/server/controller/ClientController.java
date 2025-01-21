@@ -1,7 +1,7 @@
 package com.increff.server.controller;
 
-
 import java.util.List;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class ClientController {
 
     //TODO: ask if we use RequestMapping instead of GetMapping and PutMapping
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@RequestBody ClientForm form) throws ApiException {
+    public void add(@Valid @RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object
         dto.add(form);
     }

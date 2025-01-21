@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
+@Transactional
 public abstract class AbstractDao<T> {
 
     @PersistenceContext
@@ -19,7 +20,6 @@ public abstract class AbstractDao<T> {
         this.entityClass = entityClass;
     }
 
-    @Transactional
     public void insert(T entity) {
         em.persist(entity);
     }
@@ -32,7 +32,6 @@ public abstract class AbstractDao<T> {
         return em.createQuery(cq).getResultList();
     }
 
-    @Transactional
     public void update(T entity) {
         em.merge(entity);
     }

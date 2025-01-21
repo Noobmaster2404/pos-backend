@@ -9,7 +9,16 @@
     <artifactId>commons</artifactId>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
+    
+    <properties>
+        <spring.boot.version>2.5.4</spring.boot.version>
+    </properties>
+
     <dependencies>
-        <!-- No specific dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
     </dependencies>
 </project>

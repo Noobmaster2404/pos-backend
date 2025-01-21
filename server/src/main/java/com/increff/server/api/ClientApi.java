@@ -11,6 +11,8 @@ import com.increff.server.dao.ClientDao;
 import com.increff.server.entity.Client;
 import com.increff.commons.exception.ApiException;
 
+//throw excpetions here enot in dao layer
+//api, dto and flow
 @Service
 public class ClientApi {
 

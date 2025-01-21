@@ -1,9 +1,12 @@
 package com.increff.server.entity;
 
+import lombok.Getter;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
+@Getter
 @MappedSuperclass
+@EntityListeners(BaseEntity.class)
 public abstract class BaseEntity {
 
     @Column(nullable = false, updatable = false)
@@ -24,17 +27,5 @@ public abstract class BaseEntity {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = ZonedDateTime.now();
-    }
-
-    public ZonedDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public ZonedDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 }

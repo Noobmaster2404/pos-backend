@@ -5,11 +5,12 @@ import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
 import com.increff.server.flow.ClientFlow;
 import com.increff.commons.exception.ApiException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Objects;
 
 @Component
 public class ClientDto extends AbstractDto {
@@ -19,7 +20,6 @@ public class ClientDto extends AbstractDto {
 
     public void add(ClientForm form) throws ApiException {
         normalize(form);
-        validate(form);
         
         Client client = convert(form);
         clientFlow.add(client);
@@ -38,7 +38,6 @@ public class ClientDto extends AbstractDto {
 
     public void update(int id, ClientForm form) throws ApiException {
         normalize(form);
-        validate(form);
         
         Client client = convert(form);
         clientFlow.update(id, client);
@@ -61,15 +60,6 @@ public class ClientDto extends AbstractDto {
         data.setEmail(client.getEmail());
         data.setEnabled(client.getEnabled());
         return data;
-    }
-
-    @Override
-    protected void validate(ClientForm form) throws ApiException {
-        if (Objects.isNull(form.getName())
-        || Objects.isNull(form.getPhone())
-        || Objects.isNull(form.getEmail())) {
-            throw new ApiException("Client name, phone and email cannot be empty");
-        }
     }
 
     @Override
