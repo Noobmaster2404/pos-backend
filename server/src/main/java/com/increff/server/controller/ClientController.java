@@ -20,7 +20,6 @@ public class ClientController {
     @Autowired
     private ClientDto dto;
 
-    //TODO: ask if we use RequestMapping instead of GetMapping and PutMapping
     @RequestMapping(method = RequestMethod.POST)
     public void add(@Valid @RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object
@@ -39,7 +38,7 @@ public class ClientController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public void update(@PathVariable int id, @RequestBody ClientForm form) throws ApiException {
+    public void update(@PathVariable int id, @Valid @RequestBody ClientForm form) throws ApiException {
         dto.update(id, form);
     }
 }
