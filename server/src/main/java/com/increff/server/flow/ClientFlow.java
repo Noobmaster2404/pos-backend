@@ -20,7 +20,7 @@ public class ClientFlow {
         clientApi.add(client);
     }
 
-    public List<Client> getAll() {
+    public List<Client> getAll() throws ApiException {
         return clientApi.getAll();
     }
 

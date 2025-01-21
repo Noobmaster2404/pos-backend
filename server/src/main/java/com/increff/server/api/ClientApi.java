@@ -28,9 +28,13 @@ public class ClientApi {
         dao.insert(client);
     }
 
-    @Transactional
-    public List<Client> getAll() {
-        return dao.selectAll();
+    @Transactional(readOnly = true)
+    public List<Client> getAll() throws ApiException {
+        try {
+            return dao.selectAll();
+        } catch (Exception e) {
+            throw new ApiException("Error while fetching clients: " + e.getMessage());
+        }
     }
 
     @Transactional(rollbackFor = ApiException.class)

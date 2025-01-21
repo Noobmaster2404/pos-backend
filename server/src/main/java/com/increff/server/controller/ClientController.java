@@ -28,7 +28,7 @@ public class ClientController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<ClientData> getAll() {
+    public List<ClientData> getAll() throws ApiException {
         return dto.getAll();
     }
 
