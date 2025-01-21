@@ -2,7 +2,7 @@ package com.increff.commons.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Email;
 
@@ -10,17 +10,17 @@ import javax.validation.constraints.Email;
 @Setter
 public class ClientForm {
 
-    @NotEmpty(message = "Name cannot be empty")
-    private String name;
-    //@NotEmpty contains a null check by default
+    @NotBlank(message = "Client name cannot be empty")
+    private String clientName;
+    //@NotBlank = not null, not empty, and not only whitespace
     
-    @NotEmpty(message = "Phone cannot be empty")
+    @NotBlank(message = "Client phone cannot be empty")
     @Pattern(regexp = "\\d{10}", message = "Phone must be exactly 10 digits")
-    private String phone;
+    private String clientPhone;
     
-    @NotEmpty(message = "Email cannot be empty")
+    @NotBlank(message = "Client email cannot be empty")
     @Email(message = "Invalid email format")
-    private String email;
+    private String clientEmail;
     
-    private Boolean enabled = true; 
+    private Boolean clientEnabled = true; 
 }

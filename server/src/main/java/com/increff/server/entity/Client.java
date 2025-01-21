@@ -29,13 +29,13 @@ public class Client extends BaseEntity {
         schema = "pos"
     )
     
-    private int id;
+    private Integer clientId;
     @Column(length = 10, nullable = false)
-    private String phone;
+    private String clientPhone;
     @Column(length = 256, nullable = false)
-    private String email;
+    private String clientEmail;
     @Column(length = 256, nullable = false)
-    private String name;
+    private String clientName;
     @Column(nullable = false)
-    private Boolean enabled = true;
+    private Boolean clientEnabled = true;
 }

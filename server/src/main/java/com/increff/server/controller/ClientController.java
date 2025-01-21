@@ -33,12 +33,12 @@ public class ClientController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public ClientData get(@PathVariable int id) throws ApiException {
-        return dto.get(id);
+    public ClientData get(@PathVariable Integer clientId) throws ApiException {
+        return dto.get(clientId);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public void update(@PathVariable int id, @Valid @RequestBody ClientForm form) throws ApiException {
-        dto.update(id, form);
+    public void update(@PathVariable Integer clientId, @Valid @RequestBody ClientForm form) throws ApiException {
+        dto.update(clientId, form);
     }
 }

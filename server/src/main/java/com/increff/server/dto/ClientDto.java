@@ -32,33 +32,33 @@ public class ClientDto extends AbstractDto {
                 .collect(Collectors.toList());
     }
 
-    public ClientData get(int id) throws ApiException {
-        return convertToData(clientFlow.get(id));
+    public ClientData get(Integer clientId) throws ApiException {
+        return convertToData(clientFlow.get(clientId));
     }
 
-    public void update(int id, ClientForm form) throws ApiException {
+    public void update(Integer clientId, ClientForm form) throws ApiException {
         normalize(form);
         
         Client client = convert(form);
-        clientFlow.update(id, client);
+        clientFlow.update(clientId, client);
     }
 
     private Client convert(ClientForm form) {
         Client client = new Client();
-        client.setName(form.getName());
-        client.setPhone(form.getPhone());
-        client.setEmail(form.getEmail());
-        client.setEnabled(form.getEnabled());
+        client.setClientName(form.getClientName());
+        client.setClientPhone(form.getClientPhone());
+        client.setClientEmail(form.getClientEmail());
+        client.setClientEnabled(form.getClientEnabled());
         return client;
     }
 
     private ClientData convertToData(Client client) {
         ClientData data = new ClientData();
-        data.setId(client.getId());
-        data.setName(client.getName());
-        data.setPhone(client.getPhone());
-        data.setEmail(client.getEmail());
-        data.setEnabled(client.getEnabled());
+        data.setClientId(client.getClientId());
+        data.setClientName(client.getClientName());
+        data.setClientPhone(client.getClientPhone());
+        data.setClientEmail(client.getClientEmail());
+        data.setClientEnabled(client.getClientEnabled());
         return data;
     }
 

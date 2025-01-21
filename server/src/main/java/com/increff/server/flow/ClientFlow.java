@@ -24,11 +24,11 @@ public class ClientFlow {
         return clientApi.getAll();
     }
 
-    public Client get(int id) throws ApiException {
-        return clientApi.get(id);
+    public Client get(Integer clientId) throws ApiException {
+        return clientApi.get(clientId);
     }
 
-    public void update(int id, Client client) throws ApiException {
-        clientApi.update(id, client);
+    public void update(Integer clientId, Client client) throws ApiException {
+        clientApi.update(clientId, client);
     }
 }
