@@ -7,17 +7,20 @@ import com.increff.server.flow.ClientFlow;
 import com.increff.server.flow.ProductFlow;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Client;
+import com.increff.server.entity.Inventory;
+import com.increff.server.flow.InventoryFlow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Optional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class ProductDto extends AbstractDto {
@@ -27,6 +30,9 @@ public class ProductDto extends AbstractDto {
 
     @Autowired
     private ClientFlow clientFlow;
+
+    @Autowired
+    private InventoryFlow inventoryFlow;
 
     public void add(ProductForm form) throws ApiException {
         try {
@@ -43,7 +49,26 @@ public class ProductDto extends AbstractDto {
                 .stream()
                 .map(product -> {
                     try {
-                        return convertToData(product);
+                        ProductData data = convertToData(product);
+                        
+                        // Get and set client name
+                        Client client = clientFlow.get(product.getClient().getClientId());
+                        data.setClientName(client.getClientName());
+                        
+                        // Get and set inventory quantity
+                        try {
+                            List<Inventory> inventories = inventoryFlow.getAll();
+                            Optional<Inventory> inventory = inventories.stream()
+                                .filter(inv -> inv.getProduct().getProductId().equals(product.getProductId()))
+                                .findFirst();
+                            
+                            data.setQuantity(inventory.map(inv -> inv.getQuantity().toString())
+                                                    .orElse("0"));
+                        } catch (Exception e) {
+                            data.setQuantity("0");
+                        }
+                        
+                        return data;
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
