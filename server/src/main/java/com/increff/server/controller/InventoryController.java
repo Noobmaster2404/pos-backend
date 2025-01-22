@@ -4,6 +4,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 
@@ -12,7 +13,7 @@ import com.increff.commons.model.InventoryForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.InventoryDto;
 
-@Api
+@Api(tags = "Inventory Management")
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
@@ -20,6 +21,7 @@ public class InventoryController {
     @Autowired
     private InventoryDto dto;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
     public void add(@Valid @RequestBody InventoryForm form) throws ApiException {
         dto.add(form);

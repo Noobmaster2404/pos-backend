@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
@@ -23,17 +23,16 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
+import org.springframework.lang.NonNull;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Configuration
 @EnableWebMvc
 @EnableSwagger2
-public class ControllerConfig extends WebMvcConfigurerAdapter {
+public class ControllerConfig implements WebMvcConfigurer {
 
 	public static final String PACKAGE_CONTROLLER = "com.increff.server.controller";
-
 
 	private ApplicationContext applicationContext;
 
@@ -52,14 +51,14 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
 
 	// Add configuration for Swagger
 	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
 		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
 		registry.addResourceHandler("/static/**").addResourceLocations("/static/");
 	}
 
 	@Override
-	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+	public void configureDefaultServletHandling(@NonNull DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}
 
@@ -98,7 +97,7 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     	}
 
 	@Override
-	public void addCorsMappings(CorsRegistry registry) {
+	public void addCorsMappings(@NonNull CorsRegistry registry) {
 		registry.addMapping("/**")
 			.allowedOrigins("http://localhost:4200")
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

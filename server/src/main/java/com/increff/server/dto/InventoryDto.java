@@ -62,8 +62,8 @@ public class InventoryDto extends AbstractDto {
         InventoryData data = new InventoryData();
         data.setInventoryId(inventory.getInventoryId());
         data.setProductId(inventory.getProduct().getProductId());
-        data.setProductBarcode(inventory.getProductBarcode());
         data.setQuantity(inventory.getQuantity());
+        data.setProductBarcode(inventory.getProductBarcode());
         return data;
     }
 

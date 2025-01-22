@@ -6,7 +6,6 @@ import java.time.ZonedDateTime;
 
 @Getter
 @MappedSuperclass
-@EntityListeners(BaseEntity.class)
 public abstract class BaseEntity {
 
     @Column(nullable = false, updatable = false)

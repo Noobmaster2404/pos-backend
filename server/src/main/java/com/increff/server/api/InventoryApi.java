@@ -60,7 +60,7 @@ public class InventoryApi {
         if (Objects.isNull(inventory.getProduct())) {
             throw new ApiException("Product reference cannot be null");
         }
-        if (StringUtils.isEmpty(inventory.getProductBarcode())) {
+        if (!StringUtils.hasText(inventory.getProductBarcode())) {
             throw new ApiException("Product barcode cannot be empty");
         }
         if (Objects.isNull(inventory.getQuantity())) {

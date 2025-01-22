@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "products",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"barcode"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"product_barcode"})
 )
 public class Product extends BaseEntity {
 
@@ -28,7 +28,7 @@ public class Product extends BaseEntity {
     )
     private Integer productId;
 
-    @Column(length = 255, nullable = false, unique = true)
+    @Column(name = "product_barcode", length = 255, nullable = false, unique = true)
     private String productBarcode;
 
     @Column(length = 255, nullable = false)

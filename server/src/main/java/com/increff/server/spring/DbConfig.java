@@ -1,6 +1,6 @@
 package com.increff.server.spring;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +45,8 @@ public class DbConfig {
 		bean.setPassword(jdbcPassword);
 		bean.setInitialSize(2);
 		bean.setDefaultAutoCommit(false);
+		bean.setMaxTotal(20);
+		bean.setMaxWaitMillis(10000);
 		//bean.setMaxTotal(10);
 		bean.setMinIdle(2);
 		bean.setValidationQuery("Select 1");

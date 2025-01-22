@@ -155,7 +155,8 @@ public class ProductDto extends AbstractDto {
         if (Objects.isNull(file) || file.isEmpty()) {
             throw new ApiException(getPrefix() + "File cannot be empty");
         }
-        if (!file.getOriginalFilename().endsWith(".tsv")) {
+        String originalFilename = file.getOriginalFilename();
+        if (Objects.isNull(originalFilename) || !originalFilename.endsWith(".tsv")) {
             throw new ApiException(getPrefix() + "Only TSV files are allowed");
         }
     }

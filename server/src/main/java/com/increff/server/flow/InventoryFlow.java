@@ -6,23 +6,14 @@ import com.increff.server.api.InventoryApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = ApiException.class)
 public class InventoryFlow {
 
     @Autowired
     private InventoryApi inventoryApi;
-    
-    @Autowired
-
-    // Protected method to be used only by ProductFlow
-    protected void addInitial(Inventory inventory) throws ApiException {
-        inventoryApi.add(inventory);
-    }
 
     public void add(Inventory inventory) throws ApiException {
         inventoryApi.add(inventory);
