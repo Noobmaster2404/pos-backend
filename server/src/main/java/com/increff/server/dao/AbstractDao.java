@@ -36,20 +36,7 @@ public abstract class AbstractDao<T> {
         em.merge(entity);
     }
 
-    public T select(Integer clientId) {
-        return em.find(entityClass, clientId);
-    }
-
-    public T selectByName(String clientName) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(entityClass);
-        Root<T> root = cq.from(entityClass);
-        cq.select(root).where(cb.equal(root.get("clientName"), clientName));
-        
-        return em.createQuery(cq)
-                 .getResultList()
-                 .stream()
-                 .findFirst()
-                 .orElse(null);
+    public T select(Integer id) {
+        return em.find(entityClass, id);
     }
 }

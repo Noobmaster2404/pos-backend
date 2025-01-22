@@ -46,6 +46,7 @@ public class ClientApi {
         }
         
         if (!existingClient.getClientName().equals(client.getClientName())) {
+            //name is being changed
             Client duplicateCheck = dao.selectByName(client.getClientName());
             if (Objects.nonNull(duplicateCheck)) {
                 throw new ApiException("Client with name '" + client.getClientName() + "' already exists");

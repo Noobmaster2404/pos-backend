@@ -1,7 +1,6 @@
 package com.increff.server.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,23 +13,40 @@ import lombok.Setter;
 )
 public class Product extends BaseEntity {
 
-    @NotNull
-    @Column(nullable = false)
-    private String barcode;
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE, 
+                    generator = "product_generator")
+    @TableGenerator(
+        name = "product_generator",
+        table = "sequence_table",
+        pkColumnName = "seq_name",
+        valueColumnName = "seq_value",
+        pkColumnValue = "product_seq",
+        initialValue = 1,
+        allocationSize = 50,
+        schema = "pos"
+    )
+    private Integer productId;
 
-    @NotNull
-    @Column(nullable = false)
-    private String name;
+    @Column(length = 255, nullable = false, unique = true)
+    private String productBarcode;
 
-    @NotNull
+    @Column(length = 255, nullable = false)
+    private String productName;
+
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
+    //check client_id
     private Client client;
+    //While in the database, this is stored as a foreign key (client_id)
+    //In the Java code, using the actual Client object instead of just clientId provides several benefits
+    //You can directly access client properties through the Product object (e.g., product.getClient().getName())
+    //PA automatically handles the database joins when you need client information
 
-    private String imagePath;
+    @Column(length = 1000)
+    private String productImagePath;
 
-    @NotNull
     @Column(nullable = false)
-    private Double mrp;
+    private Double productMrp;
 
 }

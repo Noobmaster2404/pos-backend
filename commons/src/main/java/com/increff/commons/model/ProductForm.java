@@ -11,18 +11,18 @@ import lombok.Setter;
 public class ProductForm {
     
     @NotBlank(message = "Barcode cannot be empty")
-    private String barcode;
+    private String productBarcode;
     
     @NotBlank(message = "Name cannot be empty")
-    private String name;
+    private String productName;
     
     @NotNull(message = "Client ID cannot be null")
     private Integer clientId;
     
-    private String imagePath;
+    private String productImagePath;
     
     @NotNull(message = "MRP cannot be null")
     @Positive(message = "MRP must be positive")
-    private Double mrp;
+    private Double productMrp;
 
 }

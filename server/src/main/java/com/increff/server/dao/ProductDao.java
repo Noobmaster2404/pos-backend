@@ -1,43 +1,36 @@
 package com.increff.server.dao;
 
 import com.increff.server.entity.Product;
+
 import org.springframework.stereotype.Repository;
-import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
-import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 @Repository
-public class ProductDao extends AbstractDao {
-
-    private static final String SELECT_BY_BARCODE = "select p from ProductPojo p where p.barcode=:barcode";
-    private static final String SELECT_BY_CLIENT = "select p from ProductPojo p where p.client.id=:clientId";
-
-    @Transactional
-    public void insert(Product product) {
-        em.persist(product);
-    }
-
-    public Product select(Integer id) {
-        return em.find(Product.class, id);
-    }
-
-    public List<Product> selectAll() {
-        return select(Product.class);
+public class ProductDao extends AbstractDao<Product> {
+    public ProductDao() {
+        super(Product.class);
     }
 
     public Product selectByBarcode(String barcode) {
-        TypedQuery<Product> query = getQuery(SELECT_BY_BARCODE, Product.class);
-        query.setParameter("barcode", barcode);
-        return getSingle(query);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+        cq.select(root).where(cb.equal(root.get("productBarcode"), barcode));
+        
+        return em.createQuery(cq)
+                 .getResultList()
+                 .stream()
+                 .findFirst()
+                 .orElse(null);
     }
 
-    public List<Product> selectByClient(Integer clientId) {
-        TypedQuery<Product> query = getQuery(SELECT_BY_CLIENT, Product.class);
-        query.setParameter("clientId", clientId);
-        return query.getResultList();
-    }
-
-    public void update(Product product) {
-        em.merge(product);
-    }
+    // @Transactional
+    // public List<Product> selectByClient(Integer clientId) {
+    //     TypedQuery<Product> query = getQuery(SELECT_BY_CLIENT, Product.class);
+    //     query.setParameter("clientId", clientId);
+    //     return query.getResultList();
+    // }
 }
