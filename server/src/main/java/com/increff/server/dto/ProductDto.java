@@ -59,7 +59,7 @@ public class ProductDto extends AbstractDto {
                         ProductData data = convertToData(product);
                         Client client = clientFlow.get(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
-
+                        data.setClientId(client.getClientId());
                         try {
                             List<Inventory> inventories = inventoryFlow.getAll();
                             Optional<Inventory> inventory = inventories.stream()
@@ -112,6 +112,7 @@ public class ProductDto extends AbstractDto {
         ProductData data = convertToData(product);
         Client client = clientFlow.get(product.getClient().getClientId());
         data.setClientName(client.getClientName());
+        data.setClientId(client.getClientId());
         try {
             Inventory inventory = inventoryFlow.get(productId);
             data.setQuantity(inventory.getQuantity().toString());
