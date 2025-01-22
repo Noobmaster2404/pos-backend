@@ -30,13 +30,13 @@ public class InventoryController {
         return dto.getAll();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public InventoryData get(@PathVariable Integer id) throws ApiException {
-        return dto.get(id);
+    @RequestMapping(method = RequestMethod.GET, value = "/{inventoryId}")
+    public InventoryData get(@PathVariable Integer inventoryId) throws ApiException {
+        return dto.get(inventoryId);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-    public void update(@PathVariable Integer id, @Valid @RequestBody InventoryForm form) throws ApiException {
-        dto.update(id, form);
+    @RequestMapping(method = RequestMethod.PUT, value = "/{inventoryId}")
+    public void update(@PathVariable Integer inventoryId, @Valid @RequestBody InventoryForm form) throws ApiException {
+        dto.update(inventoryId, form);
     }
 }

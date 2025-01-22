@@ -32,12 +32,18 @@ public class ClientController {
         return dto.getAll();
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
     public ClientData get(@PathVariable Integer clientId) throws ApiException {
         return dto.get(clientId);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}")
+    //can also do this
+    // @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    // public ClientData get(@PathVariable("id") Integer clientId) throws ApiException {
+    //     return dto.get(clientId);
+    // }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/{clientId}")
     public void update(@PathVariable Integer clientId, @Valid @RequestBody ClientForm form) throws ApiException {
         dto.update(clientId, form);
     }

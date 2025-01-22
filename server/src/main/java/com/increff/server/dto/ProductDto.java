@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -44,18 +43,23 @@ public class ProductDto extends AbstractDto {
         }
     }
 
+    public void update(Integer productId, ProductForm form) throws ApiException {
+        normalize(form);
+        
+        Product product = convert(form);
+        productFlow.update(productId, product);
+    }
+
     public List<ProductData> getAll() throws ApiException {
+        //should adding the quantity to the product data be here or in convertToData?
         return productFlow.getAll()
                 .stream()
                 .map(product -> {
                     try {
                         ProductData data = convertToData(product);
-                        
-                        // Get and set client name
                         Client client = clientFlow.get(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
-                        
-                        // Get and set inventory quantity
+
                         try {
                             List<Inventory> inventories = inventoryFlow.getAll();
                             Optional<Inventory> inventory = inventories.stream()
@@ -76,15 +80,46 @@ public class ProductDto extends AbstractDto {
                 .collect(Collectors.toList());
     }
 
-    public ProductData get(Integer productId) throws ApiException {
-        return convertToData(productFlow.get(productId));
-    }
-
-    public void update(Integer productId, ProductForm form) throws ApiException {
-        normalize(form);
+    //The method makes separate queries for each product to get client and inventory information.
+    //Consider using joins or batch fetching like below.
+    // public List<ProductData> getAll() throws ApiException {
+    //     List<Product> products = productFlow.getAll();
+    //     List<Inventory> inventories = inventoryFlow.getAll();
+    //     Map<Integer, Inventory> inventoryMap = inventories.stream()
+    //         .collect(Collectors.toMap(
+    //             inv -> inv.getProduct().getProductId(),
+    //             inv -> inv
+    //         ));
         
-        Product product = convert(form);
-        productFlow.update(productId, product);
+    //     return products.stream()
+    //             .map(product -> {
+    //                 try {
+    //                     ProductData data = convertToData(product);
+    //                     data.setClientName(product.getClient().getClientName()); // Client is already loaded due to @ManyToOne
+    //                     data.setQuantity(Optional.ofNullable(inventoryMap.get(product.getProductId()))
+    //                             .map(inv -> inv.getQuantity().toString())
+    //                             .orElse("0"));
+    //                     return data;
+    //                 } catch (ApiException e) {
+    //                     throw new RuntimeException(e);
+    //                 }
+    //             })
+    //             .collect(Collectors.toList());
+    // }
+
+    public ProductData get(Integer productId) throws ApiException {
+        Product product = productFlow.get(productId);
+        ProductData data = convertToData(product);
+        Client client = clientFlow.get(product.getClient().getClientId());
+        data.setClientName(client.getClientName());
+        try {
+            Inventory inventory = inventoryFlow.get(productId);
+            data.setQuantity(inventory.getQuantity().toString());
+        } catch (Exception e) {
+            data.setQuantity("0");
+        }
+        
+        return data;
     }
 
     // public List<ProductData> getByClient(Integer clientId) throws ApiException {
