@@ -10,6 +10,12 @@
     <packaging>war</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
+    <properties>
+        <spring.version>5.3.27</spring.version>
+        <spring.boot.version>2.7.12</spring.boot.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
+    </properties>
+
     <dependencies>
         <!-- Commons module -->
         <dependency>
@@ -37,6 +43,13 @@
                     <artifactId>tomcat-embed-websocket</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Spring Boot Starter Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <!-- Jetty Dependencies -->
@@ -110,25 +123,16 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>aopalliance</groupId>
-                    <artifactId>aopalliance</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
-        <!-- Spring ORM and Database -->
+        <!-- Spring ORM -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
+        <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>

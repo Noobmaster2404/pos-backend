@@ -7,6 +7,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+//In this case, the BaseEntity class contains lifecycle methods, and any class that extends BaseEntity will automatically inherit these lifecycle methods. 
+//The lifecycle methods will be triggered when an entity instance (like Person) is persisted or updated.
+//Hence we dont need EntityListeners
 public class Client extends BaseEntity {
 
     @Id
