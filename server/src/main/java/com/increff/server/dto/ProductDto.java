@@ -245,7 +245,14 @@ public class ProductDto extends AbstractDto {
         super.normalize(form);
         // Special handling for image path - keep original case
         if (Objects.nonNull(form.getProductImagePath())) {
-            form.setProductImagePath(form.getProductImagePath().trim());
+            String imagePath = form.getProductImagePath().trim();
+            String lowerCasePath = imagePath.toLowerCase();
+            if (!lowerCasePath.endsWith(".png") && 
+                !lowerCasePath.endsWith(".jpg") && 
+                !lowerCasePath.endsWith(".jpeg")) {
+                throw new ApiException(getPrefix() + "Invalid image format. Only PNG, JPG, and JPEG files are allowed");
+            }
+            form.setProductImagePath(imagePath);
         }
     }
 }
