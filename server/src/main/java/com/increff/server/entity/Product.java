@@ -9,7 +9,10 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "products",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"product_id"})
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"product_id"}),
+        @UniqueConstraint(columnNames = {"barcode"})
+    }
 )
 public class Product extends BaseEntity {
 

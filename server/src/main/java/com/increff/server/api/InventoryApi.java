@@ -22,10 +22,16 @@ public class InventoryApi {
     @Transactional(rollbackFor = ApiException.class)
     public Inventory addInventory(Inventory inventory) throws ApiException {
         checkValid(inventory);
-        Optional<Inventory> existing = dao.selectByProductId(inventory.getProduct().getProductId());
-        if (existing.isPresent()) {
+        Optional<Inventory> existingByProduct = dao.selectByProductId(inventory.getProduct().getProductId());
+        if (existingByProduct.isPresent()) {
             throw new ApiException("Inventory for product ID " + inventory.getProduct().getProductId() + " already exists");
         }
+        
+        Optional<Inventory> existingByBarcode = dao.selectByBarcode(inventory.getBarcode());
+        if (existingByBarcode.isPresent()) {
+            throw new ApiException("Inventory with barcode '" + inventory.getBarcode() + "' already exists");
+        }
+        
         dao.insert(inventory);
         return inventory;
     }
@@ -40,7 +46,15 @@ public class InventoryApi {
         checkValid(inventory);
         Inventory existingInventory = getInventoryById(productId);
         
+        if (!existingInventory.getBarcode().equals(inventory.getBarcode())) {
+            Optional<Inventory> duplicateCheck = dao.selectByBarcode(inventory.getBarcode());
+            if (duplicateCheck.isPresent()) {
+                throw new ApiException("Inventory with barcode '" + inventory.getBarcode() + "' already exists");
+            }
+        }
+        
         existingInventory.setProduct(inventory.getProduct());
+        existingInventory.setBarcode(inventory.getBarcode());
         existingInventory.setQuantity(inventory.getQuantity());
         dao.update(existingInventory);
         return existingInventory;

@@ -26,4 +26,16 @@ public class InventoryDao extends AbstractDao<Inventory> {
                  .stream()
                  .findFirst();
     }
+
+    public Optional<Inventory> selectByBarcode(String barcode) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
+        Root<Inventory> root = cq.from(Inventory.class);
+        cq.select(root).where(cb.equal(root.get("barcode"), barcode));
+        
+        return em.createQuery(cq)
+                 .getResultList()
+                 .stream()
+                 .findFirst();
+    }
 }
