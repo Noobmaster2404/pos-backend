@@ -27,7 +27,13 @@ public class ClientDto extends AbstractDto {
     public List<ClientData> getAllClients() throws ApiException {
         return clientFlow.getAllClients()
                 .stream()
-                .map(ConversionClass::convert)
+                .map(client -> {
+                    try {
+                        return ConversionClass.convert(client);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 

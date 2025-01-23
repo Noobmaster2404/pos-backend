@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,10 +62,12 @@ public class ProductFlow {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void bulkAddProducts(List<Product> products) throws ApiException {
+    public List<Product> bulkAddProducts(List<Product> products) throws ApiException {
+        List<Product> addedProducts = new ArrayList<>();
         for (Product product : products) {
-            addProduct(product);
+            addedProducts.add(addProduct(product));
         }
+        return addedProducts;
     }
 
     private void validateProduct(Product product) throws ApiException {

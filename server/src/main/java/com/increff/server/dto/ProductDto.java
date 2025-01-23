@@ -141,7 +141,7 @@ public class ProductDto extends AbstractDto {
     //instead of doing this, we can fetch all clients and then make the user select one
     //then we can fetch all products for that client and then make the user select one
 
-    public void bulkAddProducts(List<ProductForm> forms) throws ApiException {
+    public List<ProductData> bulkAddProducts(List<ProductForm> forms) throws ApiException {
         if (forms.size() > 5000) {
             throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
         }
@@ -150,7 +150,7 @@ public class ProductDto extends AbstractDto {
             normalize(form);
         }
         
-        productFlow.bulkAddProducts(forms.stream()
+        List<Product> addedProducts = productFlow.bulkAddProducts(forms.stream()
                 .map(form -> {
                     try {
                         Client client = clientFlow.getClientById(form.getClientId());
@@ -160,6 +160,21 @@ public class ProductDto extends AbstractDto {
                     }
                 })
                 .collect(Collectors.toList()));
+
+        return addedProducts.stream()
+                .map(product -> {
+                    try {
+                        ProductData data = ConversionClass.convert(product);
+                        Client client = product.getClient();
+                        data.setClientName(client.getClientName());
+                        data.setClientId(client.getClientId());
+                        data.setQuantity("0"); // New products start with 0 quantity
+                        return data;
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

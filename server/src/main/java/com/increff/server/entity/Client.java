@@ -9,7 +9,10 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "clients",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"client_id"})
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"client_id"}),
+        @UniqueConstraint(columnNames = {"client_name"})
+    }
 )
 //In this case, the BaseEntity class contains lifecycle methods, and any class that extends BaseEntity will automatically inherit these lifecycle methods. 
 //The lifecycle methods will be triggered when an entity instance (like Person) is persisted or updated.
@@ -37,7 +40,7 @@ public class Client extends BaseEntity {
     )
     
     private Integer clientId;
-    @Column(length = 256, nullable = false)
+    @Column(name = "client_name", length = 256, nullable = false, unique = true)
     private String clientName;
     @Column(length = 10, nullable = false)
     private String phone;

@@ -10,7 +10,6 @@ import io.swagger.annotations.ApiOperation;
 
 import com.increff.commons.model.InventoryData;
 import com.increff.commons.model.InventoryForm;
-import com.increff.commons.model.ProductForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.InventoryDto;
 
@@ -50,6 +49,6 @@ public class InventoryController {
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     @ApiOperation(value = "Bulk create products from JSON data")
     public List<InventoryData> bulkAddInventory(@RequestBody List<InventoryForm> forms) throws ApiException {
-        dto.bulkAddInventory(forms);
+        return dto.bulkAddInventory(forms);
     }
 }

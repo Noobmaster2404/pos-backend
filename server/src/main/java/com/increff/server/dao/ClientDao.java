@@ -27,4 +27,5 @@ public class ClientDao extends AbstractDao<Client> {
                  .findFirst()
                  .orElse(null);
     }
+    //since name is unique, there will be only one result, so change this above code
 }

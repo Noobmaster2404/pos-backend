@@ -46,6 +46,7 @@ public class ClientApi {
             throw new ApiException("Client with given ID does not exist");
         }
         
+        // Check for duplicate name only if name is being changed
         if (!existingClient.getClientName().equals(client.getClientName())) {
             //name is being changed
             Client duplicateCheck = dao.selectByName(client.getClientName());
@@ -57,8 +58,7 @@ public class ClientApi {
         existingClient.setClientName(client.getClientName());
         existingClient.setPhone(client.getPhone());
         existingClient.setEmail(client.getEmail());
-        existingClient.setEnabled(client.getEnabled());
-        dao.update(existingClient);
+        existingClient.setEnabled(client.getEnabled()); 
         return existingClient;
     }
 

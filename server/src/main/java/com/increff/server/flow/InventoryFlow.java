@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -30,5 +31,14 @@ public class InventoryFlow {
 
     public Inventory updateInventoryById(Integer productId, Inventory inventory) throws ApiException {
         return inventoryApi.updateInventoryById(productId, inventory);
+    }
+
+    @Transactional(rollbackFor = ApiException.class)
+    public List<Inventory> bulkAddInventory(List<Inventory> inventories) throws ApiException {
+        List<Inventory> addedInventories = new ArrayList<>();
+        for (Inventory inventory : inventories) {
+            addedInventories.add(addInventory(inventory));
+        }
+        return addedInventories;
     }
 }

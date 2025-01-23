@@ -49,7 +49,7 @@ public class ProductController {
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     @ApiOperation(value = "Bulk create products from JSON data")
     public List<ProductData> bulkAddProducts(@RequestBody List<ProductForm> forms) throws ApiException {
-        dto.bulkAddProducts(forms);
+        return dto.bulkAddProducts(forms);
     }
 
     // @RequestMapping(method = RequestMethod.GET, value = "/client/{clientId}")

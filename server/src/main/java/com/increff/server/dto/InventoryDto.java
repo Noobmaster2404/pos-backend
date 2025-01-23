@@ -34,7 +34,13 @@ public class InventoryDto extends AbstractDto {
     public List<InventoryData> getAllInventory() throws ApiException {
         return inventoryFlow.getAllInventory()
                 .stream()
-                .map(ConversionClass::convert)
+                .map(inventory -> {
+                    try {
+                        return ConversionClass.convert(inventory);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -49,6 +55,42 @@ public class InventoryDto extends AbstractDto {
         Inventory inventory = ConversionClass.convert(form, product);
         Inventory updatedInventory = inventoryFlow.updateInventoryById(productId, inventory);
         return ConversionClass.convert(updatedInventory);
+    }
+
+    public List<InventoryData> bulkAddInventory(List<InventoryForm> forms) throws ApiException {
+        if (forms.size() > 5000) {
+            throw new ApiException(getPrefix() + "Cannot process more than 5000 inventory items at once");
+        }
+
+        for (InventoryForm form : forms) {
+            normalize(form);
+        }
+        
+        List<Inventory> addedInventory = inventoryFlow.bulkAddInventory(forms.stream()
+                .map(form -> {
+                    try {
+                        Product product = productFlow.getProductById(form.getProductId());
+                        return ConversionClass.convert(form, product);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList()));
+
+        return addedInventory.stream()
+                .map(inventory -> {
+                    try {
+                        InventoryData data = ConversionClass.convert(inventory);
+                        Product product = inventory.getProduct();
+                        data.setBarcode(product.getBarcode());
+                        data.setProductId(product.getProductId());
+                        data.setQuantity(inventory.getQuantity());
+                        return data;
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -8,23 +8,31 @@ import java.util.Objects;
 public class ConversionClass {
 
     // Client conversions
-    public static Client convert(ClientForm form) {
-        Client client = new Client();
-        client.setClientName(form.getClientName());
-        client.setPhone(form.getPhone());
-        client.setEmail(form.getEmail());
-        client.setEnabled(form.getEnabled());
-        return client;
+    public static Client convert(ClientForm form) throws ApiException {
+        try {
+            Client client = new Client();
+            client.setClientName(form.getClientName());
+            client.setPhone(form.getPhone());
+            client.setEmail(form.getEmail());
+            client.setEnabled(form.getEnabled());
+            return client;
+        } catch (Exception e) {
+            throw new ApiException("Error converting client form: " + e.getMessage());
+        }
     }
 
-    public static ClientData convert(Client client) {
-        ClientData data = new ClientData();
-        data.setClientId(client.getClientId());
-        data.setClientName(client.getClientName());
-        data.setPhone(client.getPhone());
-        data.setEmail(client.getEmail());
-        data.setEnabled(client.getEnabled());
-        return data;
+    public static ClientData convert(Client client) throws ApiException {
+        try {
+            ClientData data = new ClientData();
+            data.setClientId(client.getClientId());
+            data.setClientName(client.getClientName());
+            data.setPhone(client.getPhone());
+            data.setEmail(client.getEmail());
+            data.setEnabled(client.getEnabled());
+            return data;
+        } catch (Exception e) {
+            throw new ApiException("Error converting client to data: " + e.getMessage());
+        }
     }
 
     // Product conversions
@@ -66,19 +74,27 @@ public class ConversionClass {
     }
 
     // Inventory conversions
-    public static Inventory convert(InventoryForm form, Product product) {
-        Inventory inventory = new Inventory();
-        inventory.setProduct(product);
-        inventory.setBarcode(product.getBarcode());
-        inventory.setQuantity(form.getQuantity());
-        return inventory;
+    public static Inventory convert(InventoryForm form, Product product) throws ApiException {
+        try {
+            Inventory inventory = new Inventory();
+            inventory.setProduct(product);
+            inventory.setBarcode(product.getBarcode());
+            inventory.setQuantity(form.getQuantity());
+            return inventory;
+        } catch (Exception e) {
+            throw new ApiException("Error converting inventory form: " + e.getMessage());
+        }
     }
 
-    public static InventoryData convert(Inventory inventory) {
-        InventoryData data = new InventoryData();
-        data.setProductId(inventory.getProduct().getProductId());
-        data.setQuantity(inventory.getQuantity());
-        data.setBarcode(inventory.getBarcode());
-        return data;
+    public static InventoryData convert(Inventory inventory) throws ApiException {
+        try {
+            InventoryData data = new InventoryData();
+            data.setProductId(inventory.getProduct().getProductId());
+            data.setQuantity(inventory.getQuantity());
+            data.setBarcode(inventory.getBarcode());
+            return data;
+        } catch (Exception e) {
+            throw new ApiException("Error converting inventory to data: " + e.getMessage());
+        }
     }
 }
