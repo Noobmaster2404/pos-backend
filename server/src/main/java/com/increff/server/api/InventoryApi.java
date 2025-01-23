@@ -20,24 +20,25 @@ public class InventoryApi {
     private InventoryDao dao;
 
     @Transactional(rollbackFor = ApiException.class)
-    public void add(Inventory inventory) throws ApiException {
+    public Inventory addInventory(Inventory inventory) throws ApiException {
         checkValid(inventory);
         Optional<Inventory> existing = dao.selectByProductId(inventory.getProduct().getProductId());
         if (existing.isPresent()) {
             throw new ApiException("Inventory for product ID " + inventory.getProduct().getProductId() + " already exists");
         }
         dao.insert(inventory);
+        return inventory;
     }
 
     @Transactional(readOnly = true)
-    public List<Inventory> getAll() {
+    public List<Inventory> getAllInventory() {
         return dao.selectAll();
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public Inventory update(Integer id, Inventory inventory) throws ApiException {
+    public Inventory updateInventoryById(Integer productId, Inventory inventory) throws ApiException {
         checkValid(inventory);
-        Inventory existingInventory = get(id);
+        Inventory existingInventory = getInventoryById(productId);
         
         existingInventory.setProduct(inventory.getProduct());
         existingInventory.setQuantity(inventory.getQuantity());
@@ -46,7 +47,7 @@ public class InventoryApi {
     }
 
     @Transactional(readOnly = true)
-    public Inventory get(Integer id) throws ApiException {
+    public Inventory getInventoryById(Integer id) throws ApiException {
         Inventory inventory = dao.select(id);
         if (Objects.isNull(inventory)) {
             throw new ApiException("Inventory with id " + id + " not found");
@@ -61,7 +62,7 @@ public class InventoryApi {
         if (Objects.isNull(inventory.getProduct())) {
             throw new ApiException("Product reference cannot be null");
         }
-        if (!StringUtils.hasText(inventory.getProductBarcode())) {
+        if (!StringUtils.hasText(inventory.getBarcode())) {
             throw new ApiException("Product barcode cannot be empty");
         }
         if (Objects.isNull(inventory.getQuantity())) {

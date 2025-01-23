@@ -3,6 +3,7 @@ package com.increff.server.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,30 +21,35 @@ public class ProductController {
     @Autowired
     private ProductDto dto;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@RequestBody ProductForm form) throws ApiException {
-        dto.add(form);
+    public ProductData addProduct(@RequestBody ProductForm form) throws ApiException {
+        return dto.addProduct(form);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
-    public List<ProductData> getAll() throws ApiException {
-        return dto.getAll();
+    public List<ProductData> getAllProducts() throws ApiException {
+        return dto.getAllProducts();
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{productId}")
-    public ProductData get(@PathVariable Integer productId) throws ApiException {
-        return dto.get(productId);
+    public ProductData getProductById(@PathVariable Integer productId) throws ApiException {
+        return dto.getProductById(productId);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
-    public ProductData update(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
-        return dto.update(productId, form);
+    public ProductData updateProductById(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
+        return dto.updateProductById(productId, form);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     @ApiOperation(value = "Bulk create products from JSON data")
-    public void bulkUpload(@RequestBody List<ProductForm> forms) throws ApiException {
-        dto.bulkAdd(forms);
+    public List<ProductData> bulkAddProducts(@RequestBody List<ProductForm> forms) throws ApiException {
+        dto.bulkAddProducts(forms);
     }
 
     // @RequestMapping(method = RequestMethod.GET, value = "/client/{clientId}")

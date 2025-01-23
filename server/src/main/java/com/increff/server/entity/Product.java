@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "products",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"product_barcode"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"product_id"})
 )
 public class Product extends BaseEntity {
 
@@ -29,7 +29,7 @@ public class Product extends BaseEntity {
     private Integer productId;
 
     @Column(name = "product_barcode", length = 255, nullable = false, unique = true)
-    private String productBarcode;
+    private String barcode;
 
     @Column(length = 255, nullable = false)
     private String productName;
@@ -44,9 +44,9 @@ public class Product extends BaseEntity {
     //PA automatically handles the database joins when you need client information
 
     @Column(length = 1000)
-    private String productImagePath;
+    private String imagePath;
 
     @Column(nullable = false)
-    private Double productMrp;
+    private Double mrp;
 
 }

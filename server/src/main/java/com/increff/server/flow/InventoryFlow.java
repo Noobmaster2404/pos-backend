@@ -16,19 +16,19 @@ public class InventoryFlow {
     @Autowired
     private InventoryApi inventoryApi;
 
-    public void add(Inventory inventory) throws ApiException {
-        inventoryApi.add(inventory);
+    public Inventory addInventory(Inventory inventory) throws ApiException {
+        return inventoryApi.addInventory(inventory);
     }
 
-    public List<Inventory> getAll() {
-        return inventoryApi.getAll();
+    public List<Inventory> getAllInventory() {
+        return inventoryApi.getAllInventory();
     }
 
-    public Inventory get(Integer id) throws ApiException {
-        return inventoryApi.get(id);
+    public Inventory getInventoryById(Integer productId) throws ApiException {
+        return inventoryApi.getInventoryById(productId);
     }
 
-    public Inventory update(Integer id, Inventory inventory) throws ApiException {
-        return inventoryApi.update(id, inventory);
+    public Inventory updateInventoryById(Integer productId, Inventory inventory) throws ApiException {
+        return inventoryApi.updateInventoryById(productId, inventory);
     }
 }

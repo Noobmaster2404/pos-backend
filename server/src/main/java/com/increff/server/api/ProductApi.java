@@ -19,49 +19,50 @@ public class ProductApi {
     private ProductDao dao;
 
     @Transactional(rollbackFor = ApiException.class)
-    public Product add(Product product) throws ApiException {
+    public Product addProduct(Product product) throws ApiException {
         checkValid(product);
-        Product existing = dao.selectByBarcode(product.getProductBarcode());
+        Product existing = dao.selectByBarcode(product.getBarcode());
         if (Objects.nonNull(existing)) {
-            throw new ApiException("Product with barcode '" + product.getProductBarcode() + "' already exists");
+            throw new ApiException("Product with barcode '" + product.getBarcode() + "' already exists");
         }
         dao.insert(product);
         return product;
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getAll() {
+    public List<Product> getAllProducts() {
         return dao.selectAll();
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void update(Integer id, Product product) throws ApiException {
+    public Product updateProductById(Integer productId, Product product) throws ApiException {
         checkValid(product);
-        Product existingProduct = dao.select(id);
+        Product existingProduct = dao.select(productId);
         if (Objects.isNull(existingProduct)) {
             throw new ApiException("Product with given ID does not exist");
         }
         
-        if (!existingProduct.getProductBarcode().equals(product.getProductBarcode())) {
-            Product duplicateCheck = dao.selectByBarcode(product.getProductBarcode());
+        if (!existingProduct.getBarcode().equals(product.getBarcode())) {
+            Product duplicateCheck = dao.selectByBarcode(product.getBarcode());
             if (Objects.nonNull(duplicateCheck)) {
-                throw new ApiException("Product with barcode '" + product.getProductBarcode() + "' already exists");
+                throw new ApiException("Product with barcode '" + product.getBarcode() + "' already exists");
             }
         }
         
-        existingProduct.setProductBarcode(product.getProductBarcode());
+        existingProduct.setBarcode(product.getBarcode());
         existingProduct.setProductName(product.getProductName());
         existingProduct.setClient(product.getClient());
-        existingProduct.setProductImagePath(product.getProductImagePath());
-        existingProduct.setProductMrp(product.getProductMrp());
+        existingProduct.setImagePath(product.getImagePath());
+        existingProduct.setMrp(product.getMrp());
         dao.update(existingProduct);
+        return existingProduct;
     }
 
     @Transactional(readOnly = true)
-    public Product get(Integer id) throws ApiException {
-        Product product = dao.select(id);
+    public Product getProductById(Integer productId) throws ApiException {
+        Product product = dao.select(productId);
         if (Objects.isNull(product)) {
-            throw new ApiException("Product with id " + id + " not found");
+            throw new ApiException("Product with id " + productId + " not found");
         }
         return product;
     }
@@ -72,10 +73,10 @@ public class ProductApi {
         }
         
         // Barcode validation
-        if (StringUtils.isEmpty(product.getProductBarcode())) {
+        if (StringUtils.isEmpty(product.getBarcode())) {
             throw new ApiException("Product barcode cannot be empty");
         }
-        if (product.getProductBarcode().length() > 255) {
+        if (product.getBarcode().length() > 255) {
             throw new ApiException("Product barcode cannot exceed 255 characters");
         }
         
@@ -93,16 +94,16 @@ public class ProductApi {
         }
         
         // Image path validation (optional field)
-        if (Objects.nonNull(product.getProductImagePath()) && 
-            product.getProductImagePath().length() > 1000) {
+        if (Objects.nonNull(product.getImagePath()) && 
+            product.getImagePath().length() > 1000) {
             throw new ApiException("Product image path cannot exceed 1000 characters");
         }
         
         // MRP validation
-        if (Objects.isNull(product.getProductMrp())) {
+        if (Objects.isNull(product.getMrp())) {
             throw new ApiException("Product MRP cannot be null");
         }
-        if (product.getProductMrp() <= 0) {
+        if (product.getMrp() <= 0) {
             throw new ApiException("Product MRP must be positive");
         }
     }

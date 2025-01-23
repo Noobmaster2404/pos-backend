@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "inventory",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"product_id"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"inventory_id"})
 )
 public class Inventory extends BaseEntity {
 
@@ -26,14 +26,14 @@ public class Inventory extends BaseEntity {
         allocationSize = 50,
         schema = "pos"
     )
-    private Integer inventoryId;
 
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false, unique = true)
     private Product product;
 
     @Column(nullable = false)
-    private String productBarcode;
+    private String barcode;
+    //include it in the product object above
 
     @Column(nullable = false)
     private Integer quantity;

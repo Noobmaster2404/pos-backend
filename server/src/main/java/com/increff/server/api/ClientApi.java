@@ -19,17 +19,18 @@ public class ClientApi {
     private ClientDao dao;
 
     @Transactional(rollbackFor = ApiException.class)
-    public void add(Client client) throws ApiException {
+    public Client addClient(Client client) throws ApiException {
         checkValid(client);
         Client existing = dao.selectByName(client.getClientName());
         if (Objects.nonNull(existing)) {
             throw new ApiException("Client with name '" + client.getClientName() + "' already exists");
         }
         dao.insert(client);
+        return client;
     }
 
     @Transactional(readOnly = true)
-    public List<Client> getAll() throws ApiException {
+    public List<Client> getAllClients() throws ApiException {
         try {
             return dao.selectAll();
         } catch (Exception e) {
@@ -38,7 +39,7 @@ public class ClientApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public Client update(Integer clientId, Client client) throws ApiException {
+    public Client updateClientById(Integer clientId, Client client) throws ApiException {
         checkValid(client);
         Client existingClient = dao.select(clientId);
         if (Objects.isNull(existingClient)) {
@@ -62,7 +63,7 @@ public class ClientApi {
     }
 
     @Transactional(readOnly = true)
-    public Client get(Integer clientId) throws ApiException {
+    public Client getClientById(Integer clientId) throws ApiException {
         Client client = dao.select(clientId);
         if (Objects.isNull(client)) {
             throw new ApiException("Client with id " + clientId + " not found");

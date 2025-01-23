@@ -16,19 +16,19 @@ public class ClientFlow {
     @Autowired
     private ClientApi clientApi;
 
-    public void add(Client client) throws ApiException {
-        clientApi.add(client);
+    public Client addClient(Client client) throws ApiException {
+        return clientApi.addClient(client);
     }
 
-    public List<Client> getAll() throws ApiException {
-        return clientApi.getAll();
+    public List<Client> getAllClients() throws ApiException {
+        return clientApi.getAllClients();
     }
 
-    public Client get(Integer clientId) throws ApiException {
-        return clientApi.get(clientId);
+    public Client getClientById(Integer clientId) throws ApiException {
+        return clientApi.getClientById(clientId);
     }
 
-    public Client update(Integer clientId, Client client) throws ApiException {
-        return clientApi.update(clientId, client);
+    public Client updateClientById(Integer clientId, Client client) throws ApiException {
+        return clientApi.updateClientById(clientId, client);
     }
 }

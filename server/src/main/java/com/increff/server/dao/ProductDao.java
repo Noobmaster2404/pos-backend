@@ -18,7 +18,7 @@ public class ProductDao extends AbstractDao<Product> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
         Root<Product> root = cq.from(Product.class);
-        cq.select(root).where(cb.equal(root.get("productBarcode"), barcode));
+        cq.select(root).where(cb.equal(root.get("barcode"), barcode));
         
         return em.createQuery(cq)
                  .getResultList()

@@ -14,7 +14,7 @@ public class ProductForm {
     
     @NotBlank(message = "Product barcode cannot be blank")
     @Size(max = 255, message = "Product barcode cannot exceed 255 characters")
-    private String productBarcode;
+    private String barcode;
 
     @NotBlank(message = "Product name cannot be blank")
     @Size(max = 255, message = "Product name cannot exceed 255 characters")
@@ -25,10 +25,10 @@ public class ProductForm {
     private Integer clientId;
     
     @Size(max = 1000, message = "Product image path cannot exceed 1000 characters")
-    private String productImagePath;
+    private String imagePath;
     
     @NotNull(message = "Product MRP cannot be null")
     @Min(value = 0, message = "Product MRP must be positive")
-    private Double productMrp;
+    private Double mrp;
 
 }

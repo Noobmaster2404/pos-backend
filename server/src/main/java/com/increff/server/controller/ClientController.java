@@ -3,6 +3,7 @@ package com.increff.server.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 
@@ -19,21 +20,23 @@ public class ClientController {
     @Autowired
     private ClientDto dto;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@RequestBody ClientForm form) throws ApiException {
+    public ClientData addClient(@RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object
-        //@Valid is used to check the annotations in the form object
-        dto.add(form);
+        return dto.addClient(form);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
-    public List<ClientData> getAll() throws ApiException {
-        return dto.getAll();
+    public List<ClientData> getAllClients() throws ApiException {
+        return dto.getAllClients();
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
-    public ClientData get(@PathVariable Integer clientId) throws ApiException {
-        return dto.get(clientId);
+    public ClientData getClientById(@PathVariable Integer clientId) throws ApiException {
+        return dto.getClientById(clientId);
     }
 
     //can also do this
@@ -42,8 +45,9 @@ public class ClientController {
     //     return dto.get(clientId);
     // }
 
+    @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{clientId}")
-    public ClientData update(@PathVariable Integer clientId, @RequestBody ClientForm form) throws ApiException {
-        return dto.update(clientId, form);
+    public ClientData updateClientById(@PathVariable Integer clientId, @RequestBody ClientForm form) throws ApiException {
+        return dto.updateClientById(clientId, form);
     }
 }

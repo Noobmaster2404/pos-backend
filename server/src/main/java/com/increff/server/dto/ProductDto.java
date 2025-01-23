@@ -29,29 +29,29 @@ public class ProductDto extends AbstractDto {
     @Autowired
     private InventoryFlow inventoryFlow;
 
-    public void add(ProductForm form) throws ApiException {
+    public ProductData addProduct(ProductForm form) throws ApiException {
         try {
             checkValid(form);
             normalize(form);
-            Client client = clientFlow.get(form.getClientId());
+            Client client = clientFlow.getClientById(form.getClientId());
             Product product = ConversionClass.convert(form, client);
-            productFlow.add(product);
+            return ConversionClass.convert(productFlow.addProduct(product));
         } catch (Exception e) {
             throw new ApiException(getPrefix() + e.getMessage());
         }
     }
 
-    public ProductData update(Integer productId, ProductForm form) throws ApiException {
+    public ProductData updateProductById(Integer productId, ProductForm form) throws ApiException {
         checkValid(form);
         normalize(form);
-        Client client = clientFlow.get(form.getClientId());
+        Client client = clientFlow.getClientById(form.getClientId());
         Product product = ConversionClass.convert(form, client);
-        Product updatedProduct = productFlow.update(productId, product);
+        Product updatedProduct = productFlow.updateProductById(productId, product);
         ProductData data = ConversionClass.convert(updatedProduct);
         data.setClientName(client.getClientName());
         data.setClientId(client.getClientId());
         try {
-            Inventory inventory = inventoryFlow.get(productId);
+            Inventory inventory = inventoryFlow.getInventoryById(productId);
             data.setQuantity(inventory.getQuantity().toString());
         } catch (Exception e) {
             data.setQuantity("0");
@@ -59,18 +59,18 @@ public class ProductDto extends AbstractDto {
         return data;
     }
 
-    public List<ProductData> getAll() throws ApiException {
+    public List<ProductData> getAllProducts() throws ApiException {
         //should adding the quantity to the product data be here or in convertToData?
-        return productFlow.getAll()
+        return productFlow.getAllProducts()
                 .stream()
                 .map(product -> {
                     try {
                         ProductData data = ConversionClass.convert(product);
-                        Client client = clientFlow.get(product.getClient().getClientId());
+                        Client client = clientFlow.getClientById(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
                         try {
-                            List<Inventory> inventories = inventoryFlow.getAll();
+                            List<Inventory> inventories = inventoryFlow.getAllInventory();
                             Optional<Inventory> inventory = inventories.stream()
                                 .filter(inv -> inv.getProduct().getProductId().equals(product.getProductId()))
                                 .findFirst();
@@ -116,14 +116,14 @@ public class ProductDto extends AbstractDto {
     //             .collect(Collectors.toList());
     // }
 
-    public ProductData get(Integer productId) throws ApiException {
-        Product product = productFlow.get(productId);
+    public ProductData getProductById(Integer productId) throws ApiException {
+        Product product = productFlow.getProductById(productId);
         ProductData data = ConversionClass.convert(product);
-        Client client = clientFlow.get(product.getClient().getClientId());
+        Client client = clientFlow.getClientById(product.getClient().getClientId());
         data.setClientName(client.getClientName());
         data.setClientId(client.getClientId());
         try {
-            Inventory inventory = inventoryFlow.get(productId);
+            Inventory inventory = inventoryFlow.getInventoryById(productId);
             data.setQuantity(inventory.getQuantity().toString());
         } catch (Exception e) {
             data.setQuantity("0");
@@ -141,7 +141,7 @@ public class ProductDto extends AbstractDto {
     //instead of doing this, we can fetch all clients and then make the user select one
     //then we can fetch all products for that client and then make the user select one
 
-    public void bulkAdd(List<ProductForm> forms) throws ApiException {
+    public void bulkAddProducts(List<ProductForm> forms) throws ApiException {
         if (forms.size() > 5000) {
             throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
         }
@@ -150,10 +150,10 @@ public class ProductDto extends AbstractDto {
             normalize(form);
         }
         
-        productFlow.bulkAdd(forms.stream()
+        productFlow.bulkAddProducts(forms.stream()
                 .map(form -> {
                     try {
-                        Client client = clientFlow.get(form.getClientId());
+                        Client client = clientFlow.getClientById(form.getClientId());
                         return ConversionClass.convert(form, client);
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
@@ -170,15 +170,15 @@ public class ProductDto extends AbstractDto {
     private void normalize(ProductForm form) throws ApiException {
         super.normalize(form);
         // Special handling for image path - keep original case
-        if (Objects.nonNull(form.getProductImagePath())) {
-            String imagePath = form.getProductImagePath().trim();
+        if (Objects.nonNull(form.getImagePath())) {
+            String imagePath = form.getImagePath().trim();
             String lowerCasePath = imagePath.toLowerCase();
             if (!lowerCasePath.endsWith(".png") && 
                 !lowerCasePath.endsWith(".jpg") && 
                 !lowerCasePath.endsWith(".jpeg")) {
                 throw new ApiException(getPrefix() + "Invalid image format. Only PNG, JPG, and JPEG files are allowed");
             }
-            form.setProductImagePath(imagePath);
+            form.setImagePath(imagePath);
         }
     }
 }

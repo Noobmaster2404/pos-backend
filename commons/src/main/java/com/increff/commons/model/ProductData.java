@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class ProductData extends ProductForm {
     private Integer productId;
-    private Double productMrp;
-    private String productBarcode;
+    private Double mrp;
+    private String barcode;
     private String productName;
     private Integer clientId;
-    private String productImagePath;
+    private String imagePath;
 
     private String clientName;
     private String quantity;

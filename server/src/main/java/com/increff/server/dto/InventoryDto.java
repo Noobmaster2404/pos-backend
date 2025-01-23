@@ -23,31 +23,31 @@ public class InventoryDto extends AbstractDto {
     @Autowired
     private ProductFlow productFlow;
 
-    public void add(InventoryForm form) throws ApiException {
+    public InventoryData addInventory(InventoryForm form) throws ApiException {
         checkValid(form);
         normalize(form);
-        Product product = productFlow.get(form.getProductId());
+        Product product = productFlow.getProductById(form.getProductId());
         Inventory inventory = ConversionClass.convert(form, product);
-        inventoryFlow.add(inventory);
+        return ConversionClass.convert(inventoryFlow.addInventory(inventory));
     }
 
-    public List<InventoryData> getAll() throws ApiException {
-        return inventoryFlow.getAll()
+    public List<InventoryData> getAllInventory() throws ApiException {
+        return inventoryFlow.getAllInventory()
                 .stream()
                 .map(ConversionClass::convert)
                 .collect(Collectors.toList());
     }
 
-    public InventoryData get(Integer inventoryId) throws ApiException {
-        return ConversionClass.convert(inventoryFlow.get(inventoryId));
+    public InventoryData getInventoryById(Integer productId) throws ApiException {
+        return ConversionClass.convert(inventoryFlow.getInventoryById(productId));
     }
 
-    public InventoryData update(Integer inventoryId, InventoryForm form) throws ApiException {
+    public InventoryData updateInventoryById(Integer productId, InventoryForm form) throws ApiException {
         checkValid(form);
         normalize(form);
-        Product product = productFlow.get(form.getProductId());
+        Product product = productFlow.getProductById(form.getProductId());
         Inventory inventory = ConversionClass.convert(form, product);
-        Inventory updatedInventory = inventoryFlow.update(inventoryId, inventory);
+        Inventory updatedInventory = inventoryFlow.updateInventoryById(productId, inventory);
         return ConversionClass.convert(updatedInventory);
     }
 

@@ -31,14 +31,14 @@ public class ConversionClass {
     public static Product convert(ProductForm form, Client client) throws ApiException {
         try {
             Product product = new Product();
-            product.setProductBarcode(form.getProductBarcode());
+            product.setBarcode(form.getBarcode());
             product.setProductName(form.getProductName());
             if (Objects.isNull(client)) {
                 throw new ApiException("Client not found with ID: " + form.getClientId());
             }
             product.setClient(client);
-            product.setProductImagePath(form.getProductImagePath());
-            product.setProductMrp(form.getProductMrp());
+            product.setImagePath(form.getImagePath());
+            product.setMrp(form.getMrp());
             return product;
         } catch (ApiException e) {
             throw e;
@@ -51,14 +51,14 @@ public class ConversionClass {
         try {
             ProductData data = new ProductData();
             data.setProductId(product.getProductId());
-            data.setProductBarcode(product.getProductBarcode());
+            data.setBarcode(product.getBarcode());
             data.setProductName(product.getProductName());
             if (Objects.isNull(product.getClient())) {
                 throw new ApiException("Product has no associated client");
             }
             data.setClientId(product.getClient().getClientId());
-            data.setProductImagePath(product.getProductImagePath());
-            data.setProductMrp(product.getProductMrp());
+            data.setImagePath(product.getImagePath());
+            data.setMrp(product.getMrp());
             return data;
         } catch (Exception e) {
             throw new ApiException("Error converting product to data: " + e.getMessage());
@@ -69,17 +69,16 @@ public class ConversionClass {
     public static Inventory convert(InventoryForm form, Product product) {
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
-        inventory.setProductBarcode(product.getProductBarcode());
+        inventory.setBarcode(product.getBarcode());
         inventory.setQuantity(form.getQuantity());
         return inventory;
     }
 
     public static InventoryData convert(Inventory inventory) {
         InventoryData data = new InventoryData();
-        data.setInventoryId(inventory.getInventoryId());
         data.setProductId(inventory.getProduct().getProductId());
         data.setQuantity(inventory.getQuantity());
-        data.setProductBarcode(inventory.getProductBarcode());
+        data.setBarcode(inventory.getBarcode());
         return data;
     }
 }
