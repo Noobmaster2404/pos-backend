@@ -32,7 +32,8 @@ public class ProductDto extends AbstractDto {
     public void add(ProductForm form) throws ApiException {
         try {
             normalize(form);
-            Product product = convert(form);
+            Client client = clientFlow.get(form.getClientId());
+            Product product = ConversionClass.convert(form, client);
             productFlow.add(product);
         } catch (ApiException e) {
             throw new ApiException(getPrefix() + e.getMessage());
@@ -41,8 +42,8 @@ public class ProductDto extends AbstractDto {
 
     public void update(Integer productId, ProductForm form) throws ApiException {
         normalize(form);
-        
-        Product product = convert(form);
+        Client client = clientFlow.get(form.getClientId());
+        Product product = ConversionClass.convert(form, client);
         productFlow.update(productId, product);
     }
 
@@ -52,7 +53,7 @@ public class ProductDto extends AbstractDto {
                 .stream()
                 .map(product -> {
                     try {
-                        ProductData data = convertToData(product);
+                        ProductData data = ConversionClass.convert(product);
                         Client client = clientFlow.get(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
@@ -105,7 +106,7 @@ public class ProductDto extends AbstractDto {
 
     public ProductData get(Integer productId) throws ApiException {
         Product product = productFlow.get(productId);
-        ProductData data = convertToData(product);
+        ProductData data = ConversionClass.convert(product);
         Client client = clientFlow.get(product.getClient().getClientId());
         data.setClientName(client.getClientName());
         data.setClientId(client.getClientId());
@@ -140,50 +141,13 @@ public class ProductDto extends AbstractDto {
         productFlow.bulkAdd(forms.stream()
                 .map(form -> {
                     try {
-                        return convert(form);
+                        Client client = clientFlow.get(form.getClientId());
+                        return ConversionClass.convert(form, client);
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
                 })
                 .collect(Collectors.toList()));
-    }
-
-    private Product convert(ProductForm form) throws ApiException {
-        try {
-            Product product = new Product();
-            product.setProductBarcode(form.getProductBarcode());
-            product.setProductName(form.getProductName());
-            Client client = clientFlow.get(form.getClientId());
-            if (Objects.isNull(client)) {
-                throw new ApiException("Client not found with ID: " + form.getClientId());
-            }
-            product.setClient(client);
-            product.setProductImagePath(form.getProductImagePath());
-            product.setProductMrp(form.getProductMrp());
-            return product;
-        } catch (ApiException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApiException("Error converting product form: " + e.getMessage());
-        }
-    }
-
-    private ProductData convertToData(Product product) throws ApiException {
-        try {
-            ProductData data = new ProductData();
-            data.setProductId(product.getProductId());
-            data.setProductBarcode(product.getProductBarcode());
-            data.setProductName(product.getProductName());
-            if (Objects.isNull(product.getClient())) {
-                throw new ApiException("Product has no associated client");
-            }
-            data.setClientId(product.getClient().getClientId());
-            data.setProductImagePath(product.getProductImagePath());
-            data.setProductMrp(product.getProductMrp());
-            return data;
-        } catch (Exception e) {
-            throw new ApiException("Error converting product to data: " + e.getMessage());
-        }
     }
 
     @Override
