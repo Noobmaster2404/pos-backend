@@ -5,8 +5,8 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import com.increff.commons.model.ProductData;
 import com.increff.commons.model.ProductForm;
@@ -42,8 +42,9 @@ public class ProductController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    public void bulkUpload(@RequestParam("file") MultipartFile file) throws ApiException {
-        dto.bulkUpload(file);
+    @ApiOperation(value = "Bulk create products from JSON data")
+    public void bulkUpload(@Valid @RequestBody List<ProductForm> forms) throws ApiException {
+        dto.bulkAdd(forms);
     }
 
     // @RequestMapping(method = RequestMethod.GET, value = "/client/{clientId}")

@@ -54,9 +54,9 @@ public class ClientApi {
         }
         
         existingClient.setClientName(client.getClientName());
-        existingClient.setClientPhone(client.getClientPhone());
-        existingClient.setClientEmail(client.getClientEmail());
-        existingClient.setClientEnabled(client.getClientEnabled());
+        existingClient.setPhone(client.getPhone());
+        existingClient.setEmail(client.getEmail());
+        existingClient.setEnabled(client.getEnabled());
         dao.update(existingClient);
     }
 
@@ -74,10 +74,10 @@ public class ClientApi {
         if (StringUtils.isEmpty(client.getClientName())) {
             throw new ApiException("Client name cannot be empty");
         }
-        if (StringUtils.isEmpty(client.getClientPhone())) {
+        if (StringUtils.isEmpty(client.getPhone())) {
             throw new ApiException("Client phone cannot be empty");
         }
-        if (StringUtils.isEmpty(client.getClientEmail())) {
+        if (StringUtils.isEmpty(client.getEmail())) {
             throw new ApiException("Client email cannot be empty");
         }
 
@@ -85,10 +85,10 @@ public class ClientApi {
         if (client.getClientName().length() > 256) {
             throw new ApiException("Client name cannot exceed 256 characters");
         }
-        if (!client.getClientPhone().matches("\\d{10}")) {
+        if (!client.getPhone().matches("\\d{10}")) {
             throw new ApiException("Phone must be exactly 10 digits");
         }
-        if (client.getClientEmail().length() > 256 || !client.getClientEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+        if (client.getEmail().length() > 256 || !client.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             throw new ApiException("Invalid email format or length");
         }
     }

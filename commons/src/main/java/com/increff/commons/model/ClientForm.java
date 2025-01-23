@@ -16,11 +16,11 @@ public class ClientForm {
     
     @NotBlank(message = "Client phone cannot be empty")
     @Pattern(regexp = "\\d{10}", message = "Phone must be exactly 10 digits")
-    private String clientPhone;
+    private String phone;
     
     @NotBlank(message = "Client email cannot be empty")
     @Email(message = "Invalid email format")
-    private String clientEmail;
+    private String email;
     
-    private Boolean clientEnabled = true; 
+    private Boolean enabled = true; 
 }

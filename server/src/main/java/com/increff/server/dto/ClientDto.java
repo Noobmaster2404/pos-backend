@@ -46,9 +46,9 @@ public class ClientDto extends AbstractDto {
     private Client convert(ClientForm form) {
         Client client = new Client();
         client.setClientName(form.getClientName());
-        client.setClientPhone(form.getClientPhone());
-        client.setClientEmail(form.getClientEmail());
-        client.setClientEnabled(form.getClientEnabled());
+        client.setPhone(form.getPhone());
+        client.setEmail(form.getEmail());
+        client.setEnabled(form.getEnabled());
         return client;
     }
 
@@ -56,9 +56,9 @@ public class ClientDto extends AbstractDto {
         ClientData data = new ClientData();
         data.setClientId(client.getClientId());
         data.setClientName(client.getClientName());
-        data.setClientPhone(client.getClientPhone());
-        data.setClientEmail(client.getClientEmail());
-        data.setClientEnabled(client.getClientEnabled());
+        data.setPhone(client.getPhone());
+        data.setEmail(client.getEmail());
+        data.setEnabled(client.getEnabled());
         return data;
     }
 

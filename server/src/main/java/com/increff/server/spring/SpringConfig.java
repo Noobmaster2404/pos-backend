@@ -1,5 +1,6 @@
 package com.increff.server.spring;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -8,10 +9,18 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.lang.NonNull;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @ComponentScan("com.increff.server")
 @EnableWebMvc
+@EnableSwagger2
 @PropertySources({ //
 		@PropertySource(value = "file:./pos.properties", ignoreResourceNotFound = true) //
 })
@@ -20,5 +29,24 @@ public class SpringConfig implements WebMvcConfigurer {
 	@Override
 	public void configureDefaultServletHandling(@NonNull DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
+	}
+
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.SWAGGER_2)
+				.select()
+				.apis(RequestHandlerSelectors.basePackage("com.increff.server.controller"))
+				.paths(PathSelectors.any())
+				.build()
+				.apiInfo(apiInfo())
+				.useDefaultResponseMessages(false);
+	}
+
+	private ApiInfo apiInfo() {
+		return new ApiInfoBuilder()
+				.title("POS API")
+				.description("API for Point of Sale System")
+				.version("1.0")
+				.build();
 	}
 }

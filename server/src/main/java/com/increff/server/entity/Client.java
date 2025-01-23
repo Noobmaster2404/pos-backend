@@ -33,12 +33,12 @@ public class Client extends BaseEntity {
     )
     
     private Integer clientId;
-    @Column(length = 10, nullable = false)
-    private String clientPhone;
-    @Column(length = 256, nullable = false)
-    private String clientEmail;
     @Column(length = 256, nullable = false)
     private String clientName;
+    @Column(length = 10, nullable = false)
+    private String phone;
+    @Column(length = 256, nullable = false)
+    private String email;
     @Column(nullable = false)
-    private Boolean clientEnabled = true;
+    private Boolean enabled = true;
 }

@@ -12,14 +12,10 @@ import com.increff.server.flow.InventoryFlow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 @Component
 public class ProductDto extends AbstractDto {
@@ -132,10 +128,11 @@ public class ProductDto extends AbstractDto {
     //instead of doing this, we can fetch all clients and then make the user select one
     //then we can fetch all products for that client and then make the user select one
 
-    public void bulkUpload(MultipartFile file) throws ApiException {
-        validateFile(file);
-        List<ProductForm> forms = readTsvFile(file);
-        
+    public void bulkAdd(List<ProductForm> forms) throws ApiException {
+        if (forms.size() > 5000) {
+            throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
+        }
+
         for (ProductForm form : forms) {
             normalize(form);
         }
@@ -149,54 +146,6 @@ public class ProductDto extends AbstractDto {
                     }
                 })
                 .collect(Collectors.toList()));
-    }
-
-    private void validateFile(MultipartFile file) throws ApiException {
-        if (Objects.isNull(file) || file.isEmpty()) {
-            throw new ApiException(getPrefix() + "File cannot be empty");
-        }
-        String originalFilename = file.getOriginalFilename();
-        if (Objects.isNull(originalFilename) || !originalFilename.endsWith(".tsv")) {
-            throw new ApiException(getPrefix() + "Only TSV files are allowed");
-        }
-    }
-
-    private List<ProductForm> readTsvFile(MultipartFile file) throws ApiException {
-        List<ProductForm> forms = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            int lineNumber = 0;
-            while (Objects.nonNull(line = reader.readLine())) {
-                lineNumber++;
-                if (lineNumber == 1) continue; // Skip header
-                if (lineNumber > 5000) {
-                    throw new ApiException(getPrefix() + "File exceeds maximum limit of 5000 products");
-                }
-                forms.add(parseTsvLine(line, lineNumber));
-            }
-        } catch (Exception e) {
-            throw new ApiException(getPrefix() + "Error reading file: " + e.getMessage());
-        }
-        return forms;
-    }
-
-    private ProductForm parseTsvLine(String line, int lineNumber) throws ApiException {
-        String[] fields = line.split("\t");
-        if (fields.length != 5) {
-            throw new ApiException(getPrefix() + "Invalid number of fields at line " + lineNumber);
-        }
-        
-        try {
-            ProductForm form = new ProductForm();
-            form.setProductBarcode(fields[0].trim());
-            form.setProductName(fields[1].trim());
-            form.setClientId(Integer.valueOf(fields[2].trim()));
-            form.setProductImagePath(fields[3].trim());
-            form.setProductMrp(Double.valueOf(fields[4].trim()));
-            return form;
-        } catch (NumberFormatException e) {
-            throw new ApiException(getPrefix() + "Invalid number format at line " + lineNumber);
-        }
     }
 
     private Product convert(ProductForm form) throws ApiException {

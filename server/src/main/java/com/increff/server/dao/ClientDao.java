@@ -18,8 +18,10 @@ public class ClientDao extends AbstractDao<Client> {
         CriteriaQuery<Client> cq = cb.createQuery(Client.class);
         Root<Client> root = cq.from(Client.class);
         cq.select(root).where(cb.equal(root.get("clientName"), clientName));
-        
+
         return em.createQuery(cq)
+//                .setFirstResult()
+//                .setMaxResults()
                  .getResultList()
                  .stream()
                  .findFirst()
