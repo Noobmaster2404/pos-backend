@@ -28,7 +28,7 @@ public class ClientFlow {
         return clientApi.get(clientId);
     }
 
-    public void update(Integer clientId, Client client) throws ApiException {
-        clientApi.update(clientId, client);
+    public Client update(Integer clientId, Client client) throws ApiException {
+        return clientApi.update(clientId, client);
     }
 }

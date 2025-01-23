@@ -40,11 +40,21 @@ public class ProductDto extends AbstractDto {
         }
     }
 
-    public void update(Integer productId, ProductForm form) throws ApiException {
+    public ProductData update(Integer productId, ProductForm form) throws ApiException {
         normalize(form);
         Client client = clientFlow.get(form.getClientId());
         Product product = ConversionClass.convert(form, client);
-        productFlow.update(productId, product);
+        Product updatedProduct = productFlow.update(productId, product);
+        ProductData data = ConversionClass.convert(updatedProduct);
+        data.setClientName(client.getClientName());
+        data.setClientId(client.getClientId());
+        try {
+            Inventory inventory = inventoryFlow.get(productId);
+            data.setQuantity(inventory.getQuantity().toString());
+        } catch (Exception e) {
+            data.setQuantity("0");
+        }
+        return data;
     }
 
     public List<ProductData> getAll() throws ApiException {

@@ -37,8 +37,8 @@ public class ProductController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
-    public void update(@PathVariable Integer productId, @Valid @RequestBody ProductForm form) throws ApiException {
-        dto.update(productId, form);
+    public ProductData update(@PathVariable Integer productId, @Valid @RequestBody ProductForm form) throws ApiException {
+        return dto.update(productId, form);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")

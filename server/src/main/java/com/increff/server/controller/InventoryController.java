@@ -38,7 +38,7 @@ public class InventoryController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{inventoryId}")
-    public void update(@PathVariable Integer inventoryId, @Valid @RequestBody InventoryForm form) throws ApiException {
-        dto.update(inventoryId, form);
+    public InventoryData update(@PathVariable Integer inventoryId, @Valid @RequestBody InventoryForm form) throws ApiException {
+        return dto.update(inventoryId, form);
     }
 }

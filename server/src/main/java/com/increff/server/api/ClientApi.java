@@ -38,7 +38,7 @@ public class ClientApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void update(Integer clientId, Client client) throws ApiException {
+    public Client update(Integer clientId, Client client) throws ApiException {
         checkValid(client);
         Client existingClient = dao.select(clientId);
         if (Objects.isNull(existingClient)) {
@@ -58,6 +58,7 @@ public class ClientApi {
         existingClient.setEmail(client.getEmail());
         existingClient.setEnabled(client.getEnabled());
         dao.update(existingClient);
+        return existingClient;
     }
 
     @Transactional(readOnly = true)

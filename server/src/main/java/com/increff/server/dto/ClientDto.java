@@ -34,10 +34,11 @@ public class ClientDto extends AbstractDto {
         return ConversionClass.convert(clientFlow.get(clientId));
     }
 
-    public void update(Integer clientId, ClientForm form) throws ApiException {
+    public ClientData update(Integer clientId, ClientForm form) throws ApiException {
         normalize(form);
         Client client = ConversionClass.convert(form);
-        clientFlow.update(clientId, client);
+        Client updatedClient = clientFlow.update(clientId, client);
+        return ConversionClass.convert(updatedClient);
     }
 
     @Override

@@ -54,10 +54,10 @@ public class ProductFlow {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void update(Integer id, Product product) throws ApiException {
+    public Product update(Integer id, Product product) throws ApiException {
         validateProduct(product);
         validateClient(product.getClient().getClientId());
-        productApi.update(id, product);
+        return productApi.update(id, product);
     }
 
     @Transactional(rollbackFor = ApiException.class)

@@ -28,7 +28,7 @@ public class InventoryFlow {
         return inventoryApi.get(id);
     }
 
-    public void update(Integer id, Inventory inventory) throws ApiException {
-        inventoryApi.update(id, inventory);
+    public Inventory update(Integer id, Inventory inventory) throws ApiException {
+        return inventoryApi.update(id, inventory);
     }
 }

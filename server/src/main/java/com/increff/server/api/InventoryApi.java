@@ -35,13 +35,14 @@ public class InventoryApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public void update(Integer id, Inventory inventory) throws ApiException {
+    public Inventory update(Integer id, Inventory inventory) throws ApiException {
         checkValid(inventory);
         Inventory existingInventory = get(id);
         
         existingInventory.setProduct(inventory.getProduct());
         existingInventory.setQuantity(inventory.getQuantity());
         dao.update(existingInventory);
+        return existingInventory;
     }
 
     @Transactional(readOnly = true)

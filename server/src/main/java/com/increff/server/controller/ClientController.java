@@ -44,7 +44,7 @@ public class ClientController {
     // }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{clientId}")
-    public void update(@PathVariable Integer clientId, @Valid @RequestBody ClientForm form) throws ApiException {
-        dto.update(clientId, form);
+    public ClientData update(@PathVariable Integer clientId, @Valid @RequestBody ClientForm form) throws ApiException {
+        return dto.update(clientId, form);
     }
 }
