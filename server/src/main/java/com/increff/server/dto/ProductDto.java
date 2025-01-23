@@ -31,16 +31,18 @@ public class ProductDto extends AbstractDto {
 
     public void add(ProductForm form) throws ApiException {
         try {
+            checkValid(form);
             normalize(form);
             Client client = clientFlow.get(form.getClientId());
             Product product = ConversionClass.convert(form, client);
             productFlow.add(product);
-        } catch (ApiException e) {
+        } catch (Exception e) {
             throw new ApiException(getPrefix() + e.getMessage());
         }
     }
 
     public ProductData update(Integer productId, ProductForm form) throws ApiException {
+        checkValid(form);
         normalize(form);
         Client client = clientFlow.get(form.getClientId());
         Product product = ConversionClass.convert(form, client);

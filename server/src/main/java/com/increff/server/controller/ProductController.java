@@ -1,7 +1,6 @@
 package com.increff.server.controller;
 
 import java.util.List;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,7 @@ import com.increff.commons.model.ProductForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.ProductDto;
 
-@Api
+@Api(tags = "Product Management")
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -22,7 +21,7 @@ public class ProductController {
     private ProductDto dto;
 
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@Valid @RequestBody ProductForm form) throws ApiException {
+    public void add(@RequestBody ProductForm form) throws ApiException {
         dto.add(form);
     }
 
@@ -37,13 +36,13 @@ public class ProductController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
-    public ProductData update(@PathVariable Integer productId, @Valid @RequestBody ProductForm form) throws ApiException {
+    public ProductData update(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
         return dto.update(productId, form);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
     @ApiOperation(value = "Bulk create products from JSON data")
-    public void bulkUpload(@Valid @RequestBody List<ProductForm> forms) throws ApiException {
+    public void bulkUpload(@RequestBody List<ProductForm> forms) throws ApiException {
         dto.bulkAdd(forms);
     }
 

@@ -1,7 +1,6 @@
 package com.increff.server.controller;
 
 import java.util.List;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class InventoryController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@Valid @RequestBody InventoryForm form) throws ApiException {
+    public void add(@RequestBody InventoryForm form) throws ApiException {
         dto.add(form);
     }
 
@@ -38,7 +37,7 @@ public class InventoryController {
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{inventoryId}")
-    public InventoryData update(@PathVariable Integer inventoryId, @Valid @RequestBody InventoryForm form) throws ApiException {
+    public InventoryData update(@PathVariable Integer inventoryId, @RequestBody InventoryForm form) throws ApiException {
         return dto.update(inventoryId, form);
     }
 }

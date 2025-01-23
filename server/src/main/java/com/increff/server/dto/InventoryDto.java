@@ -24,6 +24,7 @@ public class InventoryDto extends AbstractDto {
     private ProductFlow productFlow;
 
     public void add(InventoryForm form) throws ApiException {
+        checkValid(form);
         normalize(form);
         Product product = productFlow.get(form.getProductId());
         Inventory inventory = ConversionClass.convert(form, product);
@@ -42,6 +43,7 @@ public class InventoryDto extends AbstractDto {
     }
 
     public InventoryData update(Integer inventoryId, InventoryForm form) throws ApiException {
+        checkValid(form);
         normalize(form);
         Product product = productFlow.get(form.getProductId());
         Inventory inventory = ConversionClass.convert(form, product);

@@ -35,7 +35,7 @@ public class ProductApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public Product update(Integer id, Product product) throws ApiException {
+    public void update(Integer id, Product product) throws ApiException {
         checkValid(product);
         Product existingProduct = dao.select(id);
         if (Objects.isNull(existingProduct)) {
@@ -55,7 +55,6 @@ public class ProductApi {
         existingProduct.setProductImagePath(product.getProductImagePath());
         existingProduct.setProductMrp(product.getProductMrp());
         dao.update(existingProduct);
-        return existingProduct;
     }
 
     @Transactional(readOnly = true)

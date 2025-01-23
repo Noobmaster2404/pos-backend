@@ -1,7 +1,6 @@
 package com.increff.server.controller;
 
 import java.util.List;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,7 @@ import com.increff.commons.model.ClientForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.ClientDto;
 
-@Api
+@Api(tags = "Client Management")
 @RestController
 @RequestMapping("/api/clients")
 public class ClientController {
@@ -21,7 +20,7 @@ public class ClientController {
     private ClientDto dto;
 
     @RequestMapping(method = RequestMethod.POST)
-    public void add(@Valid @RequestBody ClientForm form) throws ApiException {
+    public void add(@RequestBody ClientForm form) throws ApiException {
         //@RequestBody is used to bind the request body to the form object
         //@Valid is used to check the annotations in the form object
         dto.add(form);
@@ -44,7 +43,7 @@ public class ClientController {
     // }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/{clientId}")
-    public ClientData update(@PathVariable Integer clientId, @Valid @RequestBody ClientForm form) throws ApiException {
+    public ClientData update(@PathVariable Integer clientId, @RequestBody ClientForm form) throws ApiException {
         return dto.update(clientId, form);
     }
 }

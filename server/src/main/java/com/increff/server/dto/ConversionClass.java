@@ -3,6 +3,7 @@ package com.increff.server.dto;
 import com.increff.commons.model.*;
 import com.increff.server.entity.*;
 import com.increff.commons.exception.ApiException;
+import java.util.Objects;
 
 public class ConversionClass {
 
@@ -32,7 +33,7 @@ public class ConversionClass {
             Product product = new Product();
             product.setProductBarcode(form.getProductBarcode());
             product.setProductName(form.getProductName());
-            if (client == null) {
+            if (Objects.isNull(client)) {
                 throw new ApiException("Client not found with ID: " + form.getClientId());
             }
             product.setClient(client);
@@ -52,7 +53,7 @@ public class ConversionClass {
             data.setProductId(product.getProductId());
             data.setProductBarcode(product.getProductBarcode());
             data.setProductName(product.getProductName());
-            if (product.getClient() == null) {
+            if (Objects.isNull(product.getClient())) {
                 throw new ApiException("Product has no associated client");
             }
             data.setClientId(product.getClient().getClientId());

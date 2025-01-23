@@ -18,6 +18,7 @@ public class ClientDto extends AbstractDto {
     private ClientFlow clientFlow;
 
     public void add(ClientForm form) throws ApiException {
+        checkValid(form);
         normalize(form);
         Client client = ConversionClass.convert(form);
         clientFlow.add(client);
@@ -35,6 +36,7 @@ public class ClientDto extends AbstractDto {
     }
 
     public ClientData update(Integer clientId, ClientForm form) throws ApiException {
+        checkValid(form);
         normalize(form);
         Client client = ConversionClass.convert(form);
         Client updatedClient = clientFlow.update(clientId, client);
