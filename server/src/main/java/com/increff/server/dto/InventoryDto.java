@@ -27,8 +27,8 @@ public class InventoryDto extends AbstractDto {
         checkValid(form);
         normalize(form);
         Product product = productFlow.getProductById(form.getProductId());
-        Inventory inventory = ConversionClass.convert(form, product);
-        return ConversionClass.convert(inventoryFlow.addInventory(inventory));
+        Inventory inventory = ConversionClass.convertToInventory(form, product);
+        return ConversionClass.convertToInventoryData(inventoryFlow.addInventory(inventory));
     }
 
     public List<InventoryData> getAllInventory() throws ApiException {
@@ -36,7 +36,7 @@ public class InventoryDto extends AbstractDto {
                 .stream()
                 .map(inventory -> {
                     try {
-                        return ConversionClass.convert(inventory);
+                        return ConversionClass.convertToInventoryData(inventory);
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
@@ -45,16 +45,16 @@ public class InventoryDto extends AbstractDto {
     }
 
     public InventoryData getInventoryById(Integer productId) throws ApiException {
-        return ConversionClass.convert(inventoryFlow.getInventoryById(productId));
+        return ConversionClass.convertToInventoryData(inventoryFlow.getInventoryById(productId));
     }
 
     public InventoryData updateInventoryById(Integer productId, InventoryForm form) throws ApiException {
         checkValid(form);
         normalize(form);
         Product product = productFlow.getProductById(form.getProductId());
-        Inventory inventory = ConversionClass.convert(form, product);
+        Inventory inventory = ConversionClass.convertToInventory(form, product);
         Inventory updatedInventory = inventoryFlow.updateInventoryById(productId, inventory);
-        return ConversionClass.convert(updatedInventory);
+        return ConversionClass.convertToInventoryData(updatedInventory);
     }
 
     public List<InventoryData> bulkAddInventory(List<InventoryForm> forms) throws ApiException {
@@ -70,7 +70,7 @@ public class InventoryDto extends AbstractDto {
                 .map(form -> {
                     try {
                         Product product = productFlow.getProductById(form.getProductId());
-                        return ConversionClass.convert(form, product);
+                        return ConversionClass.convertToInventory(form, product);
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
@@ -80,7 +80,7 @@ public class InventoryDto extends AbstractDto {
         return addedInventory.stream()
                 .map(inventory -> {
                     try {
-                        InventoryData data = ConversionClass.convert(inventory);
+                        InventoryData data = ConversionClass.convertToInventoryData(inventory);
                         Product product = inventory.getProduct();
                         data.setBarcode(product.getBarcode());
                         data.setProductId(product.getProductId());

@@ -2,6 +2,8 @@ package com.increff.server.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import com.increff.server.dto.ClientDto;
 @RequestMapping("/api/clients")
 public class ClientController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClientController.class);
+
     @Autowired
     private ClientDto dto;
 
@@ -30,13 +34,19 @@ public class ClientController {
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
     public List<ClientData> getAllClients() throws ApiException {
-        return dto.getAllClients();
+        logger.info("Getting all clients");
+        List<ClientData> clients = dto.getAllClients();
+        logger.info("Found {} clients", clients.size());
+        return clients;
     }
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
     public ClientData getClientById(@PathVariable Integer clientId) throws ApiException {
-        return dto.getClientById(clientId);
+        logger.info("Getting client with ID: {}", clientId);
+        ClientData client = dto.getClientById(clientId);
+        logger.info("Found client: {}", client.getClientName());
+        return client;
     }
 
     //can also do this

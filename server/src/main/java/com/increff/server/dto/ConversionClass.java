@@ -8,7 +8,7 @@ import java.util.Objects;
 public class ConversionClass {
 
     // Client conversions
-    public static Client convert(ClientForm form) throws ApiException {
+    public static Client convertToClient(ClientForm form) throws ApiException {
         try {
             Client client = new Client();
             client.setClientName(form.getClientName());
@@ -21,7 +21,7 @@ public class ConversionClass {
         }
     }
 
-    public static ClientData convert(Client client) throws ApiException {
+    public static ClientData convertToClientData(Client client) throws ApiException {
         try {
             ClientData data = new ClientData();
             data.setClientId(client.getClientId());
@@ -36,7 +36,7 @@ public class ConversionClass {
     }
 
     // Product conversions
-    public static Product convert(ProductForm form, Client client) throws ApiException {
+    public static Product convertToProduct(ProductForm form, Client client) throws ApiException {
         try {
             Product product = new Product();
             product.setBarcode(form.getBarcode());
@@ -55,7 +55,7 @@ public class ConversionClass {
         }
     }
 
-    public static ProductData convert(Product product) throws ApiException {
+    public static ProductData convertToProductData(Product product) throws ApiException {
         try {
             ProductData data = new ProductData();
             data.setProductId(product.getProductId());
@@ -74,7 +74,7 @@ public class ConversionClass {
     }
 
     // Inventory conversions
-    public static Inventory convert(InventoryForm form, Product product) throws ApiException {
+    public static Inventory convertToInventory(InventoryForm form, Product product) throws ApiException {
         try {
             Inventory inventory = new Inventory();
             inventory.setProduct(product);
@@ -85,8 +85,7 @@ public class ConversionClass {
             throw new ApiException("Error converting inventory form: " + e.getMessage());
         }
     }
-
-    public static InventoryData convert(Inventory inventory) throws ApiException {
+    public static InventoryData convertToInventoryData(Inventory inventory) throws ApiException {
         try {
             InventoryData data = new InventoryData();
             data.setProductId(inventory.getProduct().getProductId());

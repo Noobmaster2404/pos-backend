@@ -8,11 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(
-    name = "clients",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"client_id"}),
-        @UniqueConstraint(columnNames = {"client_name"})
-    }
+    name = "clients"
 )
 //In this case, the BaseEntity class contains lifecycle methods, and any class that extends BaseEntity will automatically inherit these lifecycle methods. 
 //The lifecycle methods will be triggered when an entity instance (like Person) is persisted or updated.
@@ -30,15 +26,9 @@ public class Client extends BaseEntity {
         pkColumnValue = "client_seq",
         initialValue = 1,
         allocationSize = 50,
-        //allocationSize is the number of IDs to be allocated in one go
-        //They are kept in cache and are allocated in chunks
-        //This is better than identity because it doesn't need to query the database for the last ID on every insert
-        //There is only one issue, if the system crashes, the IDs are lost
-        //But thats a tradeoff for better performance
-        //Hence its better than the identity strategy
         schema = "pos"
     )
-    
+    @Column(name = "client_id")
     private Integer clientId;
     @Column(name = "client_name", length = 256, nullable = false, unique = true)
     private String clientName;

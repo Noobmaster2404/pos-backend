@@ -34,8 +34,8 @@ public class ProductDto extends AbstractDto {
             checkValid(form);
             normalize(form);
             Client client = clientFlow.getClientById(form.getClientId());
-            Product product = ConversionClass.convert(form, client);
-            return ConversionClass.convert(productFlow.addProduct(product));
+            Product product = ConversionClass.convertToProduct(form, client);
+            return ConversionClass.convertToProductData(productFlow.addProduct(product));
         } catch (Exception e) {
             throw new ApiException(getPrefix() + e.getMessage());
         }
@@ -45,9 +45,9 @@ public class ProductDto extends AbstractDto {
         checkValid(form);
         normalize(form);
         Client client = clientFlow.getClientById(form.getClientId());
-        Product product = ConversionClass.convert(form, client);
+        Product product = ConversionClass.convertToProduct(form, client);
         Product updatedProduct = productFlow.updateProductById(productId, product);
-        ProductData data = ConversionClass.convert(updatedProduct);
+        ProductData data = ConversionClass.convertToProductData(updatedProduct);
         data.setClientName(client.getClientName());
         data.setClientId(client.getClientId());
         try {
@@ -65,7 +65,7 @@ public class ProductDto extends AbstractDto {
                 .stream()
                 .map(product -> {
                     try {
-                        ProductData data = ConversionClass.convert(product);
+                        ProductData data = ConversionClass.convertToProductData(product);
                         Client client = clientFlow.getClientById(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
@@ -118,7 +118,7 @@ public class ProductDto extends AbstractDto {
 
     public ProductData getProductById(Integer productId) throws ApiException {
         Product product = productFlow.getProductById(productId);
-        ProductData data = ConversionClass.convert(product);
+        ProductData data = ConversionClass.convertToProductData(product);
         Client client = clientFlow.getClientById(product.getClient().getClientId());
         data.setClientName(client.getClientName());
         data.setClientId(client.getClientId());
@@ -154,7 +154,7 @@ public class ProductDto extends AbstractDto {
                 .map(form -> {
                     try {
                         Client client = clientFlow.getClientById(form.getClientId());
-                        return ConversionClass.convert(form, client);
+                        return ConversionClass.convertToProduct(form, client);
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
@@ -164,7 +164,7 @@ public class ProductDto extends AbstractDto {
         return addedProducts.stream()
                 .map(product -> {
                     try {
-                        ProductData data = ConversionClass.convert(product);
+                        ProductData data = ConversionClass.convertToProductData(product);
                         Client client = product.getClient();
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());

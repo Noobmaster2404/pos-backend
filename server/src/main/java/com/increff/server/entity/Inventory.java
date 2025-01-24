@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(
-    name = "inventory",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"inventory_id"})
+    name = "inventory"
 )
 public class Inventory extends BaseEntity {
 
@@ -26,6 +25,8 @@ public class Inventory extends BaseEntity {
         allocationSize = 50,
         schema = "pos"
     )
+    @Column(name = "inventory_id")
+    private Integer inventoryId;
 
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false, unique = true)
