@@ -11,6 +11,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.spring4.SpringTemplateEngine;
@@ -33,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 public class ControllerConfig implements WebMvcConfigurer {
 
 	public static final String PACKAGE_CONTROLLER = "com.increff.server.controller";
+	public static final String API_BASE_PATH = "/api";
 
 	private ApplicationContext applicationContext;
 
@@ -42,11 +44,13 @@ public class ControllerConfig implements WebMvcConfigurer {
 	
 	@Bean
 	public Docket api() {
-		return new Docket(DocumentationType.SWAGGER_2)//
-				.useDefaultResponseMessages(false)//
-				.select().apis(RequestHandlerSelectors.basePackage(PACKAGE_CONTROLLER))//
-				.paths(PathSelectors.regex("/api/.*"))//
-				.build();
+		return new Docket(DocumentationType.SWAGGER_2)
+				.useDefaultResponseMessages(false)
+				.select()
+				.apis(RequestHandlerSelectors.basePackage(PACKAGE_CONTROLLER))
+				.paths(PathSelectors.any())
+				.build()
+				.host("localhost:9000");
 	}
 
 	// Add configuration for Swagger
@@ -102,5 +106,10 @@ public class ControllerConfig implements WebMvcConfigurer {
 			.allowedOrigins("http://localhost:4200")
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 			.allowedHeaders("*");
+	}
+
+	@Override
+	public void configurePathMatch(@NonNull PathMatchConfigurer configurer) {
+		configurer.addPathPrefix(API_BASE_PATH, c -> c.getPackage().getName().startsWith(PACKAGE_CONTROLLER));
 	}
 }

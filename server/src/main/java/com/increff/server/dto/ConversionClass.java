@@ -4,6 +4,8 @@ import com.increff.commons.model.*;
 import com.increff.server.entity.*;
 import com.increff.commons.exception.ApiException;
 import java.util.Objects;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConversionClass {
 
@@ -42,7 +44,7 @@ public class ConversionClass {
             product.setBarcode(form.getBarcode());
             product.setProductName(form.getProductName());
             if (Objects.isNull(client)) {
-                throw new ApiException("Client not found with ID: " + form.getClientId());
+                throw new ApiException("Client not found with name: " + form.getClientName());
             }
             product.setClient(client);
             product.setImagePath(form.getImagePath());
@@ -56,21 +58,14 @@ public class ConversionClass {
     }
 
     public static ProductData convertToProductData(Product product) throws ApiException {
-        try {
-            ProductData data = new ProductData();
-            data.setProductId(product.getProductId());
-            data.setBarcode(product.getBarcode());
-            data.setProductName(product.getProductName());
-            if (Objects.isNull(product.getClient())) {
-                throw new ApiException("Product has no associated client");
-            }
-            data.setClientId(product.getClient().getClientId());
-            data.setImagePath(product.getImagePath());
-            data.setMrp(product.getMrp());
-            return data;
-        } catch (Exception e) {
-            throw new ApiException("Error converting product to data: " + e.getMessage());
-        }
+        ProductData data = new ProductData();
+        data.setProductId(product.getProductId());
+        data.setBarcode(product.getBarcode());
+        data.setProductName(product.getProductName());
+        data.setClientName(product.getClient().getClientName());
+        data.setImagePath(product.getImagePath());
+        data.setMrp(product.getMrp());
+        return data;
     }
 
     // Inventory conversions
@@ -94,6 +89,54 @@ public class ConversionClass {
             return data;
         } catch (Exception e) {
             throw new ApiException("Error converting inventory to data: " + e.getMessage());
+        }
+    }
+
+    // Order conversions
+    public static OrderData convertToOrderData(Order order) throws ApiException {
+        try {
+            OrderData data = new OrderData();
+            data.setOrderId(order.getOrderId());
+            data.setOrderTime(order.getOrderTime());
+            data.setOrderTotal(order.getOrderTotal());
+            data.setInvoicePath(order.getInvoicePath());
+            
+            List<OrderItemData> itemDataList = order.getOrderItems()
+                    .stream()
+                    .map(item -> {
+                        try {
+                            return convertToOrderItemData(item);
+                        } catch (ApiException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+            data.setOrderItems(itemDataList);
+            
+            return data;
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof ApiException) {
+                throw (ApiException) e.getCause();
+            }
+            throw new ApiException("Error converting order to data: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException("Error converting order to data: " + e.getMessage());
+        }
+    }
+
+    public static OrderItemData convertToOrderItemData(OrderItem item) throws ApiException {
+        try {
+            OrderItemData data = new OrderItemData();
+            data.setOrderItemId(item.getOrderItemId());
+            data.setProductId(item.getProduct().getProductId());
+            data.setProductName(item.getProduct().getProductName());
+            data.setBarcode(item.getProduct().getBarcode());
+            data.setQuantity(item.getQuantity());
+            data.setSellingPrice(item.getSellingPrice());
+            data.setItemTotal(item.getQuantity() * item.getSellingPrice());
+            return data;
+        } catch (Exception e) {
+            throw new ApiException("Error converting order item to data: " + e.getMessage());
         }
     }
 }

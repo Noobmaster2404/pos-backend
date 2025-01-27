@@ -2,9 +2,9 @@ package com.increff.commons.model;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,11 +20,13 @@ public class ProductForm {
     @Size(max = 255, message = "Product name cannot exceed 255 characters")
     private String productName;
     
-    @Positive(message = "Client ID must be positive")
-    @NotNull(message = "Client ID cannot be null")
-    private Integer clientId;
+    @NotBlank(message = "Client name cannot be blank")
+    @Size(max = 255, message = "Client name cannot exceed 255 characters")
+    private String clientName;
     
-    @Size(max = 1000, message = "Product image path cannot exceed 1000 characters")
+    @Pattern(regexp = "^[\\w-]+\\.(jpg|jpeg|png)$", 
+            message = "Image path must be a valid filename with extension jpg, jpeg, or png")
+    @Size(max = 255, message = "Image path cannot exceed 255 characters")
     private String imagePath;
     
     @NotNull(message = "Product MRP cannot be null")

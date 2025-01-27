@@ -29,8 +29,8 @@ public class OrderApi {
     }
 
     @Transactional(readOnly = true)
-    public Order getOrder(Integer orderId) throws ApiException {
-        Order order = orderDao.select(orderId);
+    public Order getOrderById(Integer orderId) throws ApiException {
+        Order order = orderDao.selectWithItems(orderId);
         if (Objects.isNull(order)) {
             throw new ApiException("Order with ID " + orderId + " not found");
         }
@@ -44,21 +44,25 @@ public class OrderApi {
 
     @Transactional(rollbackFor = ApiException.class)
     public void updateInvoicePath(Integer orderId, String invoicePath) throws ApiException {
-        Order order = getOrder(orderId);
+        Order order = getOrderById(orderId);
         order.setInvoicePath(invoicePath);
         orderDao.update(order);
     }
 
-    public Order getOrderById(Integer orderId) throws ApiException {
-        Order order = orderDao.select(orderId);
-        if (order == null) {
-            throw new ApiException("Order with ID " + orderId + " not found");
-        }
-        return order;
-    }
-
     public List<Order> getAllOrders() throws ApiException {
         return orderDao.selectAll();
+    }
+
+    @Transactional(rollbackFor = ApiException.class)
+    public Order updateOrder(Order order) throws ApiException {
+        if (Objects.isNull(order.getOrderId())) {
+            throw new ApiException("Order ID cannot be null");
+        }
+        
+        Order existingOrder = getOrderById(order.getOrderId());
+        existingOrder.setInvoicePath(order.getInvoicePath());
+        orderDao.update(existingOrder);
+        return existingOrder;
     }
 
     private void validateOrder(Order order) throws ApiException {

@@ -20,7 +20,7 @@ public class ClientForm {
     
     @NotNull(message = "Phone number cannot be null")
     @NotBlank(message = "Phone number cannot be blank")
-    @Pattern(regexp = "\\\\d{10}$", message = "Phone number must be 10 digits")
+    @Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits")
     private String phone;
     
 

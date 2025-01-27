@@ -9,6 +9,7 @@ import javax.validation.ConstraintViolation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class AbstractDto {
@@ -26,7 +27,7 @@ public abstract class AbstractDto {
                 field.setAccessible(true);
                 if (field.getType() == String.class) {
                     String value = (String) field.get(form);
-                    if (value != null) {
+                    if (Objects.nonNull(value)) {
                         field.set(form, value.trim().toLowerCase());
                     }
                 }

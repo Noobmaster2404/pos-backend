@@ -91,4 +91,15 @@ public class ProductFlow {
             throw new ApiException("Client with id " + clientId + " does not exist");
         }
     }
+
+    public List<Product> getProductsByNameOrBarcode(String query, String searchBy) throws ApiException {
+        return productApi.getProductsByNameOrBarcode(query, searchBy);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByClientId(Integer clientId) throws ApiException {
+        // Verify client exists
+        clientApi.getClientById(clientId);
+        return productApi.getProductsByClientId(clientId);
+    }
 }

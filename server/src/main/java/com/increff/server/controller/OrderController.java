@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.net.MalformedURLException;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import java.time.ZonedDateTime;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Objects;
 
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
@@ -30,22 +28,22 @@ import com.increff.server.dto.OrderDto;
 
 @Api(tags = "Order Management")
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 public class OrderController {
 
     @Autowired
     private OrderDto dto;
 
+    @ApiOperation(value = "Create a new order")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    @ApiOperation(value = "Create a new order")
     public OrderData createOrder(@RequestBody OrderForm form) throws ApiException {
         return dto.createOrder(form);
     }
 
+    @ApiOperation(value = "Get order by ID")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{orderId}")
-    @ApiOperation(value = "Get order by ID")
     public OrderData getOrder(@PathVariable Integer orderId) throws ApiException {
         return dto.getOrder(orderId);
     }
@@ -60,13 +58,13 @@ public class OrderController {
     //     return dto.getOrdersByDateRange(startDate, endDate);
     // }
 
+    @ApiOperation(value = "Download order invoice")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{orderId}/invoice")
-    @ApiOperation(value = "Download order invoice")
     public ResponseEntity<Resource> downloadInvoice(@PathVariable Integer orderId) throws ApiException {
         OrderData order = dto.getOrder(orderId);
         
-        if (order.getInvoicePath() == null) {
+        if (Objects.isNull(order.getInvoicePath())) {
             throw new ApiException("Invoice not yet generated for order: " + orderId);
         }
 
@@ -82,5 +80,13 @@ public class OrderController {
         } catch (MalformedURLException e) {
             throw new ApiException("Error downloading invoice: " + e.getMessage());
         }
+    }
+
+    @ApiOperation(value = "Generate invoice for order")
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.POST, value = "/{orderId}/generate-invoice")
+    public void generateInvoice(@PathVariable Integer orderId) throws ApiException {
+        OrderData order = dto.getOrder(orderId);
+        dto.generateInvoice(order);
     }
 } 

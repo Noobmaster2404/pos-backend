@@ -1,12 +1,11 @@
 package com.increff.server.api;
 
-import java.util.List;
-import java.util.Objects;
-
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
+import java.util.List;
+import java.util.Objects;
 
 import com.increff.server.dao.ClientDao;
 import com.increff.server.entity.Client;
@@ -69,6 +68,14 @@ public class ClientApi {
             throw new ApiException("Client with id " + clientId + " not found");
         }
         return client;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Client> getClientsByName(String namePrefix) throws ApiException {
+        if (StringUtils.isEmpty(namePrefix)) {
+            return getAllClients();
+        }
+        return dao.selectByNamePrefix(namePrefix);
     }
 
     private void checkValid(Client client) throws ApiException {

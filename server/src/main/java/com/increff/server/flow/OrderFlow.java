@@ -8,16 +8,21 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
+import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.io.File;
 
 import com.increff.server.api.OrderApi;
 import com.increff.server.entity.Order;
+import com.increff.commons.model.OrderData;
 import com.increff.server.entity.OrderItem;
 import com.increff.server.entity.Product;
 import com.increff.server.entity.Inventory;
 import com.increff.commons.exception.ApiException;
+import com.increff.invoice.service.InvoiceGenerator;
+import com.increff.server.dto.ConversionClass;
 
 @Service
 @Transactional(rollbackFor = ApiException.class)
@@ -32,11 +37,16 @@ public class OrderFlow {
     @Autowired
     private InventoryFlow inventoryFlow;
 
+    @Autowired
+    private InvoiceGenerator invoiceGenerator;
+
     @Value("${invoice.baseUrl}")
     private String invoiceBaseUrl;
 
+    @Value("${invoice.storage.path}")
+    private String invoiceStoragePath;
+
     public Order createOrder(Order order) throws ApiException {
-        // Validate inventory and update quantities
         for (OrderItem item : order.getOrderItems()) {
             Product product = productFlow.getProductById(item.getProduct().getProductId());
             item.setProduct(product);
@@ -45,51 +55,46 @@ public class OrderFlow {
             if (inventory.getQuantity() < item.getQuantity()) {
                 throw new ApiException("Insufficient inventory for product: " + product.getBarcode());
             }
-            
-            // Update inventory
             inventory.setQuantity(inventory.getQuantity() - item.getQuantity());
             inventoryFlow.updateInventoryById(product.getProductId(), inventory);
         }
-
-        // Create order
         Order savedOrder = orderApi.createOrder(order);
 
-        // Generate invoice asynchronously
-        CompletableFuture.runAsync(() -> {
-            try {
-                generateAndSaveInvoice(savedOrder);
-            } catch (ApiException e) {
-                // Log error but don't fail the order creation
-                e.printStackTrace();
-            }
-        });
-
+        // Generate invoice synchronously for now to debug
+        generateAndSaveInvoice(savedOrder);
+        
         return savedOrder;
     }
 
-    private void generateAndSaveInvoice(Order order) throws ApiException {
+    public void generateAndSaveInvoice(Order order) throws ApiException {
         try {
-            // Call invoice service
-            RestTemplate restTemplate = new RestTemplate();
-            String invoiceBase64 = restTemplate.postForObject(
-                invoiceBaseUrl + "/api/invoice/generate",
-                order,
-                String.class
-            );
-
-            // Save PDF locally
+            // Convert Order to OrderData
+            OrderData orderData = ConversionClass.convertToOrderData(order);
+            
+            // Generate PDF bytes
+            byte[] pdfBytes = invoiceGenerator.generatePDF(orderData);
+            
+            // Create directory if it doesn't exist
+            File directory = new File(invoiceStoragePath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            
+            // Save PDF file
             String fileName = "invoice_" + order.getOrderId() + ".pdf";
-            String filePath = "invoices/" + fileName;
-            byte[] decodedBytes = Base64.getDecoder().decode(invoiceBase64);
-            Files.write(Paths.get(filePath), decodedBytes);
-
+            String filePath = invoiceStoragePath + File.separator + fileName;
+            Files.write(Paths.get(filePath), pdfBytes);
+            
             // Update order with invoice path
-            orderApi.updateInvoicePath(order.getOrderId(), filePath);
+            order.setInvoicePath(filePath);
+            orderApi.updateOrder(order);
+            
         } catch (Exception e) {
-            throw new ApiException("Failed to generate invoice: " + e.getMessage());
+            throw new ApiException("Error generating invoice: " + e.getMessage());
         }
     }
 
+    @Transactional(readOnly = true)
     public Order getOrderById(Integer orderId) throws ApiException {
         return orderApi.getOrderById(orderId);
     }

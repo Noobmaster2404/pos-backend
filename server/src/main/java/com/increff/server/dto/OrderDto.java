@@ -2,6 +2,7 @@ package com.increff.server.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -16,10 +17,6 @@ import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Order;
 import com.increff.server.entity.OrderItem;
 import com.increff.server.entity.Product;
-import com.increff.server.entity.Inventory;
-import com.increff.server.api.ProductApi;
-import com.increff.server.api.InventoryApi;
-import com.increff.commons.model.OrderItemData;
 import com.increff.commons.model.OrderItemForm;
 
 @Component
@@ -33,6 +30,7 @@ public class OrderDto extends AbstractDto {
 
     public OrderData createOrder(OrderForm form) throws ApiException {
         checkValid(form);
+        normalize(form);
         
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
@@ -52,12 +50,17 @@ public class OrderDto extends AbstractDto {
         order.setOrderItems(orderItems);
         Order createdOrder = orderFlow.createOrder(order);
         
-        return convertToOrderData(createdOrder);
+        return ConversionClass.convertToOrderData(createdOrder);
     }
 
+    @Transactional(readOnly = true)
     public OrderData getOrder(Integer orderId) throws ApiException {
-        Order order = orderFlow.getOrderById(orderId);
-        return convertToOrderData(order);
+        try {
+            Order order = orderFlow.getOrderById(orderId);
+            return ConversionClass.convertToOrderData(order);
+        } catch (ApiException e) {
+            throw new ApiException(getPrefix() + e.getMessage());
+        }
     }
 
     // public List<OrderData> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
@@ -67,32 +70,9 @@ public class OrderDto extends AbstractDto {
     //             .collect(Collectors.toList());
     // }
 
-    private OrderData convertToOrderData(Order order) {
-        OrderData data = new OrderData();
-        data.setOrderId(order.getOrderId());
-        data.setOrderTime(order.getOrderTime());
-        data.setOrderTotal(order.getOrderTotal());
-        data.setInvoicePath(order.getInvoicePath());
-        
-        List<OrderItemData> itemDataList = order.getOrderItems()
-                .stream()
-                .map(this::convertToOrderItemData)
-                .collect(Collectors.toList());
-        
-        data.setOrderItems(itemDataList);
-        return data;
-    }
-
-    private OrderItemData convertToOrderItemData(OrderItem item) {
-        OrderItemData data = new OrderItemData();
-        data.setOrderItemId(item.getOrderItemId());
-        data.setProductId(item.getProduct().getProductId());
-        data.setProductName(item.getProduct().getProductName());
-        data.setBarcode(item.getProduct().getBarcode());
-        data.setQuantity(item.getQuantity());
-        data.setSellingPrice(item.getSellingPrice());
-        data.setItemTotal(item.getQuantity() * item.getSellingPrice());
-        return data;
+    public void generateInvoice(OrderData orderData) throws ApiException {
+        Order order = orderFlow.getOrderById(orderData.getOrderId());
+        orderFlow.generateAndSaveInvoice(order);
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.JoinType;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -29,5 +30,22 @@ public class OrderDao extends AbstractDao<Order> {
         );
         
         return em.createQuery(cq).getResultList();
+    }
+
+    public Order selectWithItems(Integer id) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> root = cq.from(Order.class);
+        
+        // Eager fetch the orderItems collection (not lazy)
+        root.fetch("orderItems", JoinType.LEFT);
+        
+        cq.select(root).where(cb.equal(root.get("orderId"), id));
+        
+        return em.createQuery(cq)
+                 .getResultList()
+                 .stream()
+                 .findFirst()
+                 .orElse(null);
     }
 } 

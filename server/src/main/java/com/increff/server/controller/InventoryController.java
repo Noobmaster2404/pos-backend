@@ -15,7 +15,7 @@ import com.increff.server.dto.InventoryDto;
 
 @Api(tags = "Inventory Management")
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping("/inventory")
 public class InventoryController {
 
     @Autowired

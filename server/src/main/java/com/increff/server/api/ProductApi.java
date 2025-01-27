@@ -2,6 +2,7 @@ package com.increff.server.api;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,30 @@ public class ProductApi {
             throw new ApiException("Product with id " + productId + " not found");
         }
         return product;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByNameOrBarcode(String query, String searchBy) throws ApiException {
+        if (StringUtils.isEmpty(query)) {
+            return getAllProducts();
+        }
+        if ("name".equals(searchBy)) {
+            return dao.selectByNamePrefix(query);
+        } else if ("barcode".equals(searchBy)) {
+            Product product = dao.selectByBarcode(query);
+            if(Objects.nonNull(product)){
+                return Collections.singletonList(product);
+            }else{
+                return Collections.emptyList();
+            }
+        }
+        
+        throw new ApiException("Invalid search criteria");
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByClientId(Integer clientId) {
+        return dao.selectByClientId(clientId);
     }
 
     private void checkValid(Product product) throws ApiException {
