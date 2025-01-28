@@ -12,7 +12,5 @@ public class ProductData extends ProductForm {
     private String productName;
     private Integer clientId;
     private String imagePath;
-
     private String clientName;
-    private String quantity;
 }

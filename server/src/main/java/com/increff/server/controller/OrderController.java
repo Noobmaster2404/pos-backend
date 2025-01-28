@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,6 +19,9 @@ import org.springframework.core.io.UrlResource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.time.ZonedDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.util.List;
 
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
@@ -48,15 +50,15 @@ public class OrderController {
         return dto.getOrder(orderId);
     }
 
-    // @ResponseStatus(HttpStatus.OK)
-    // @RequestMapping(method = RequestMethod.GET)
-    // @ApiOperation(value = "Get orders by date range")
-    // public List<OrderData> getOrdersByDateRange(
-    //         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
-    //         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime endDate) 
-    //         throws ApiException {
-    //     return dto.getOrdersByDateRange(startDate, endDate);
-    // }
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET)
+    @ApiOperation(value = "Get orders by date range")
+    public List<OrderData> getOrdersByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime endDate)
+            throws ApiException {
+        return dto.getOrdersByDateRange(startDate, endDate);
+    }
 
     @ApiOperation(value = "Download order invoice")
     @ResponseStatus(HttpStatus.OK)

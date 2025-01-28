@@ -4,15 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Base64;
-import java.util.concurrent.CompletableFuture;
-import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.io.File;
+import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import com.increff.server.api.OrderApi;
 import com.increff.server.entity.Order;
@@ -48,7 +45,7 @@ public class OrderFlow {
 
     public Order createOrder(Order order) throws ApiException {
         for (OrderItem item : order.getOrderItems()) {
-            Product product = productFlow.getProductById(item.getProduct().getProductId());
+            Product product = productFlow.getProductByBarcode(item.getProduct().getBarcode());
             item.setProduct(product);
             
             Inventory inventory = inventoryFlow.getInventoryById(product.getProductId());
@@ -101,5 +98,16 @@ public class OrderFlow {
 
     public List<Order> getAllOrders() throws ApiException {
         return orderApi.getAllOrders();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+        if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
+            throw new ApiException("Start date and end date cannot be null");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new ApiException("Start date cannot be after end date");
+        }
+        return orderApi.getOrdersByDateRange(startDate, endDate);
     }
 } 

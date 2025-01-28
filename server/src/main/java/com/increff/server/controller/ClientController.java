@@ -20,39 +20,30 @@ public class ClientController {
     @Autowired
     private ClientDto dto;
 
-    @ApiOperation(value = "Add a new client")
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST)
-    public ClientData addClient(@RequestBody ClientForm form) throws ApiException {
-        //@RequestBody is used to bind the request body to the form object
-        return dto.addClient(form);
-    }
-
     @ApiOperation(value = "Get all clients")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
     public List<ClientData> getAllClients() throws ApiException {
-        List<ClientData> clients = dto.getAllClients();
-        return clients;
+        return dto.getAllClients();
     }
 
+    @ApiOperation(value = "Get clients by name")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/{clientId}")
-    public ClientData getClientById(@PathVariable Integer clientId) throws ApiException {
-        ClientData client = dto.getClientById(clientId);
-        return client;
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public List<ClientData> getClientsByName(@RequestParam String name) throws ApiException {
+        return dto.getClientsByName(name);
+    }
+
+    @ApiOperation(value = "Add a new client")
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(method = RequestMethod.POST)
+    public ClientData addClient(@RequestBody ClientForm form) throws ApiException {
+        return dto.addClient(form);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{clientId}")
     public ClientData updateClientById(@PathVariable Integer clientId, @RequestBody ClientForm form) throws ApiException {
         return dto.updateClientById(clientId, form);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<ClientData> getClientsByName(@RequestParam String name) throws ApiException {
-        List<ClientData> results = dto.getClientsByName(name);
-        return results;
     }
 }

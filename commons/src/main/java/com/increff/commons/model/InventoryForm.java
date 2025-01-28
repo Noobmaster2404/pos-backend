@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class InventoryForm {
     
-    @NotNull(message = "Product ID cannot be null")
-    private Integer productId;
+    @NotNull(message = "Barcode cannot be null")
+    private String barcode;
     
     @NotNull(message = "Quantity cannot be null")
     @Min(value = 0, message = "Quantity cannot be negative")

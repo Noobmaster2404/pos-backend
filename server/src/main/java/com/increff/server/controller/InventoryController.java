@@ -38,6 +38,7 @@ public class InventoryController {
     public InventoryData getInventoryById(@PathVariable Integer productId) throws ApiException {
         return dto.getInventoryById(productId);
     }
+    //replace this with getInventoryByBarcode
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")

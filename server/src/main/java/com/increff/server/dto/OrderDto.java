@@ -36,7 +36,7 @@ public class OrderDto extends AbstractDto {
         List<OrderItem> orderItems = new ArrayList<>();
         
         for (OrderItemForm itemForm : form.getOrderItems()) {
-            Product product = productFlow.getProductById(itemForm.getProductId());
+            Product product = productFlow.getProductByBarcode(itemForm.getBarcode());
             
             OrderItem item = new OrderItem();
             item.setOrder(order);
@@ -63,14 +63,29 @@ public class OrderDto extends AbstractDto {
         }
     }
 
-    // public List<OrderData> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
-    //     return orderFlow.getOrdersByDateRange(startDate, endDate)
-    //             .stream()
-    //             .map(this::convertToOrderData)
-    //             .collect(Collectors.toList());
-    // }
+    @Transactional(readOnly = true)
+    public List<OrderData> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+        try {
+            List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate);
+            return orders.stream()
+                    .map(order -> {
+                        try {
+                            return ConversionClass.convertToOrderData(order);
+                        } catch (ApiException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .collect(Collectors.toList());
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof ApiException) {
+                throw (ApiException) e.getCause();
+            }
+            throw new ApiException(getPrefix() + e.getMessage());
+        }
+    }
 
     public void generateInvoice(OrderData orderData) throws ApiException {
+        
         Order order = orderFlow.getOrderById(orderData.getOrderId());
         orderFlow.generateAndSaveInvoice(order);
     }

@@ -2,7 +2,6 @@ package com.increff.server.api;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Collections;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +35,11 @@ public class ProductApi {
     }
 
     @Transactional(rollbackFor = ApiException.class)
-    public Product updateProductById(Integer productId, Product product) throws ApiException {
+    public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
         checkValid(product);
-        Product existingProduct = dao.select(productId);
+        Product existingProduct = dao.selectByBarcode(barcode);
         if (Objects.isNull(existingProduct)) {
-            throw new ApiException("Product with given ID does not exist");
+            throw new ApiException("Product with given barcode does not exist");
         }
         
         if (!existingProduct.getBarcode().equals(product.getBarcode())) {
@@ -59,32 +58,31 @@ public class ProductApi {
         return existingProduct;
     }
 
+    // @Transactional(readOnly = true)
+    // public Product getProductById(Integer productId) throws ApiException {
+    //     Product product = dao.select(productId);
+    //     if (Objects.isNull(product)) {
+    //         throw new ApiException("Product with id " + productId + " not found");
+    //     }
+    //     return product;
+    // }
+
     @Transactional(readOnly = true)
-    public Product getProductById(Integer productId) throws ApiException {
-        Product product = dao.select(productId);
-        if (Objects.isNull(product)) {
-            throw new ApiException("Product with id " + productId + " not found");
+    public List<Product> getProductsByName(String productName) throws ApiException {
+        if (StringUtils.isEmpty(productName)) {
+            return getAllProducts();
         }
-        return product;
+        return dao.selectByNamePrefix(productName);
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getProductsByNameOrBarcode(String query, String searchBy) throws ApiException {
-        if (StringUtils.isEmpty(query)) {
-            return getAllProducts();
+    public Product getProductByBarcode(String barcode) throws ApiException {
+        Product product = dao.selectByBarcode(barcode);
+        if(Objects.nonNull(product)){
+            return product;
+        }else{
+            throw new ApiException("Product with barcode '" + barcode + "' does not exist");
         }
-        if ("name".equals(searchBy)) {
-            return dao.selectByNamePrefix(query);
-        } else if ("barcode".equals(searchBy)) {
-            Product product = dao.selectByBarcode(query);
-            if(Objects.nonNull(product)){
-                return Collections.singletonList(product);
-            }else{
-                return Collections.emptyList();
-            }
-        }
-        
-        throw new ApiException("Invalid search criteria");
     }
 
     @Transactional(readOnly = true)

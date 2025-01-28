@@ -31,10 +31,8 @@ public class ProductFlow {
     private InventoryApi inventoryApi;
 
     public Product addProduct(Product product) throws ApiException {
-        // First create the product and get the saved entity with ID
         Product savedProduct = productApi.addProduct(product);
-        
-        // Then create initial inventory with 0 quantity
+
         Inventory inventory = new Inventory();
         inventory.setProduct(savedProduct);
         inventory.setBarcode(savedProduct.getBarcode());
@@ -49,16 +47,16 @@ public class ProductFlow {
         return productApi.getAllProducts();
     }
 
-    @Transactional(readOnly = true)
-    public Product getProductById(Integer id) throws ApiException {
-        return productApi.getProductById(id);
-    }
+    // @Transactional(readOnly = true)
+    // public Product getProductById(Integer id) throws ApiException {
+    //     return productApi.getProductById(id);
+    // }
 
     @Transactional(rollbackFor = ApiException.class)
-    public Product updateProductById(Integer id, Product product) throws ApiException {
+    public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
         validateProduct(product);
         validateClient(product.getClient().getClientId());
-        return productApi.updateProductById(id, product);
+        return productApi.updateProductByBarcode(barcode, product);
     }
 
     @Transactional(rollbackFor = ApiException.class)
@@ -92,8 +90,12 @@ public class ProductFlow {
         }
     }
 
-    public List<Product> getProductsByNameOrBarcode(String query, String searchBy) throws ApiException {
-        return productApi.getProductsByNameOrBarcode(query, searchBy);
+    public List<Product> getProductsByName(String productName) throws ApiException {
+        return productApi.getProductsByName(productName);
+    }
+
+    public Product getProductByBarcode(String barcode) throws ApiException {
+        return productApi.getProductByBarcode(barcode);
     }
 
     @Transactional(readOnly = true)

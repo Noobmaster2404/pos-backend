@@ -7,15 +7,12 @@ import com.increff.server.flow.ClientFlow;
 import com.increff.server.flow.ProductFlow;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Client;
-import com.increff.server.entity.Inventory;
-import com.increff.server.flow.InventoryFlow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 @Component
 public class ProductDto extends AbstractDto {
@@ -25,9 +22,6 @@ public class ProductDto extends AbstractDto {
 
     @Autowired
     private ClientFlow clientFlow;
-
-    @Autowired
-    private InventoryFlow inventoryFlow;
 
     public ProductData addProduct(ProductForm form) throws ApiException {
         try {
@@ -45,29 +39,22 @@ public class ProductDto extends AbstractDto {
         }
     }
 
-    public ProductData updateProductById(Integer productId, ProductForm form) throws ApiException {
+    public ProductData updateProductByBarcode(String barcode, ProductForm form) throws ApiException {
         checkValid(form);
         normalize(form);
         List<Client> clients = clientFlow.getClientsByName(form.getClientName());
-            if (clients.isEmpty()) {
-                throw new ApiException("Client not found with name: " + form.getClientName());
-            }
+        if (clients.isEmpty()) {
+            throw new ApiException("Client not found with name: " + form.getClientName());
+        }
         Client client = clients.get(0);
         Product product = ConversionClass.convertToProduct(form, client);
-        Product updatedProduct = productFlow.updateProductById(productId, product);
+        Product updatedProduct = productFlow.updateProductByBarcode(barcode, product);
         ProductData data = ConversionClass.convertToProductData(updatedProduct);
         data.setClientName(client.getClientName());
-        try {
-            Inventory inventory = inventoryFlow.getInventoryById(productId);
-            data.setQuantity(inventory.getQuantity().toString());
-        } catch (Exception e) {
-            data.setQuantity("0");
-        }
         return data;
     }
 
     public List<ProductData> getAllProducts() throws ApiException {
-        //should adding the quantity to the product data be here or in convertToData?
         return productFlow.getAllProducts()
                 .stream()
                 .map(product -> {
@@ -76,18 +63,6 @@ public class ProductDto extends AbstractDto {
                         Client client = clientFlow.getClientById(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
-                        try {
-                            List<Inventory> inventories = inventoryFlow.getAllInventory();
-                            Optional<Inventory> inventory = inventories.stream()
-                                .filter(inv -> inv.getProduct().getProductId().equals(product.getProductId()))
-                                .findFirst();
-                            
-                            data.setQuantity(inventory.map(inv -> inv.getQuantity().toString())
-                                                    .orElse("0"));
-                        } catch (Exception e) {
-                            data.setQuantity("0");
-                        }
-                        
                         return data;
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
@@ -123,21 +98,14 @@ public class ProductDto extends AbstractDto {
     //             .collect(Collectors.toList());
     // }
 
-    public ProductData getProductById(Integer productId) throws ApiException {
-        Product product = productFlow.getProductById(productId);
-        ProductData data = ConversionClass.convertToProductData(product);
-        Client client = clientFlow.getClientById(product.getClient().getClientId());
-        data.setClientName(client.getClientName());
-        data.setClientId(client.getClientId());
-        try {
-            Inventory inventory = inventoryFlow.getInventoryById(productId);
-            data.setQuantity(inventory.getQuantity().toString());
-        } catch (Exception e) {
-            data.setQuantity("0");
-        }
-        
-        return data;
-    }
+    // public ProductData getProductById(Integer productId) throws ApiException {
+    //     Product product = productFlow.getProductById(productId);
+    //     ProductData data = ConversionClass.convertToProductData(product);
+    //     Client client = clientFlow.getClientById(product.getClient().getClientId());
+    //     data.setClientName(client.getClientName());
+    //     data.setClientId(client.getClientId());
+    //     return data;
+    // }
 
     // public List<ProductData> getByClient(Integer clientId) throws ApiException {
     //     return productFlow.getByClient(clientId)
@@ -179,7 +147,6 @@ public class ProductDto extends AbstractDto {
                         Client client = product.getClient();
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
-                        data.setQuantity("0"); // New products start with 0 quantity
                         return data;
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
@@ -188,8 +155,8 @@ public class ProductDto extends AbstractDto {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductData> getProductsByNameOrBarcode(String query, String searchBy) throws ApiException {
-        return productFlow.getProductsByNameOrBarcode(query, searchBy)
+    public List<ProductData> getProductsByName(String productName) throws ApiException {
+        return productFlow.getProductsByName(productName)
                 .stream()
                 .map(product -> {
                     try {
@@ -197,18 +164,25 @@ public class ProductDto extends AbstractDto {
                         Client client = clientFlow.getClientById(product.getClient().getClientId());
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
-                        try {
-                            Inventory inventory = inventoryFlow.getInventoryById(product.getProductId());
-                            data.setQuantity(inventory.getQuantity().toString());
-                        } catch (Exception e) {
-                            data.setQuantity("0");
-                        }
                         return data;
                     } catch (ApiException e) {
                         throw new RuntimeException(e);
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    public ProductData getProductByBarcode(String barcode) throws ApiException {
+        Product product = productFlow.getProductByBarcode(barcode);
+        try {
+            ProductData data = ConversionClass.convertToProductData(product);
+            Client client = clientFlow.getClientById(product.getClient().getClientId());
+            data.setClientName(client.getClientName());
+            data.setClientId(client.getClientId());
+            return data;
+        } catch (ApiException e) {
+            throw new ApiException(getPrefix() + e.getMessage());
+        }
     }
 
     public List<ProductData> getProductsByClientId(Integer clientId) throws ApiException {

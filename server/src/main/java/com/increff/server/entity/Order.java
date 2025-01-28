@@ -24,7 +24,7 @@ public class Order extends BaseEntity {
         valueColumnName = "seq_value",
         pkColumnValue = "order_seq",
         initialValue = 1,
-        allocationSize = 50,
+        allocationSize = 1,
         schema = "pos"
     )
     @Column(name = "id")

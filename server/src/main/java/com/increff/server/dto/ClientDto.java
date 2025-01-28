@@ -17,11 +17,17 @@ public class ClientDto extends AbstractDto {
     @Autowired
     private ClientFlow clientFlow;
 
-    public ClientData addClient(ClientForm form) throws ApiException {
-        checkValid(form);
-        normalize(form);
-        Client client = ConversionClass.convertToClient(form);
-        return ConversionClass.convertToClientData(clientFlow.addClient(client));
+    public List<ClientData> getClientsByName(String namePrefix) throws ApiException {
+        return clientFlow.getClientsByName(namePrefix)
+                .stream()
+                .map(client -> {
+                    try {
+                        return ConversionClass.convertToClientData(client);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     public List<ClientData> getAllClients() throws ApiException {
@@ -37,8 +43,11 @@ public class ClientDto extends AbstractDto {
                 .collect(Collectors.toList());
     }
 
-    public ClientData getClientById(Integer clientId) throws ApiException {
-        return ConversionClass.convertToClientData(clientFlow.getClientById(clientId));
+    public ClientData addClient(ClientForm form) throws ApiException {
+        checkValid(form);
+        normalize(form);
+        Client client = ConversionClass.convertToClient(form);
+        return ConversionClass.convertToClientData(clientFlow.addClient(client));
     }
 
     public ClientData updateClientById(Integer clientId, ClientForm form) throws ApiException {
@@ -47,19 +56,6 @@ public class ClientDto extends AbstractDto {
         Client client = ConversionClass.convertToClient(form);
         Client updatedClient = clientFlow.updateClientById(clientId, client);
         return ConversionClass.convertToClientData(updatedClient);
-    }
-
-    public List<ClientData> getClientsByName(String namePrefix) throws ApiException {
-        return clientFlow.getClientsByName(namePrefix)
-                .stream()
-                .map(client -> {
-                    try {
-                        return ConversionClass.convertToClientData(client);
-                    } catch (ApiException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
     }
 
     @Override

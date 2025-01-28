@@ -9,8 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderItemForm {
-    @NotNull(message = "Product ID cannot be null")
-    private Integer productId;
+    @NotNull(message = "Barcode cannot be null")
+    private String barcode;
 
     @NotNull(message = "Quantity cannot be null")
     @Min(value = 1, message = "Quantity must be at least 1")

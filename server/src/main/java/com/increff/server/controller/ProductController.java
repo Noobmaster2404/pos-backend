@@ -25,13 +25,6 @@ public class ProductController {
     @Autowired
     private ClientDto clientDto;
 
-    @ApiOperation(value = "Add a new product")
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST)
-    public ProductData addProduct(@RequestBody ProductForm form) throws ApiException {
-        return dto.addProduct(form);
-    }
-
     @ApiOperation(value = "Get all products")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
@@ -39,16 +32,33 @@ public class ProductController {
         return dto.getAllProducts();
     }
 
+    @ApiOperation(value = "Get products by name")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/{productId}")
-    public ProductData getProductById(@PathVariable Integer productId) throws ApiException {
-        return dto.getProductById(productId);
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public List<ProductData> getProductsByName(
+            @RequestParam String productName) throws ApiException {
+        return dto.getProductsByName(productName);
+    }
+
+    @ApiOperation(value = "Get products by barcode")
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET, value = "/search-barcode")
+    public ProductData getProductByBarcode(
+            @RequestParam String barcode) throws ApiException {
+        return dto.getProductByBarcode(barcode);
+    }
+
+    @ApiOperation(value = "Add a new product")
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(method = RequestMethod.POST)
+    public ProductData addProduct(@RequestBody ProductForm form) throws ApiException {
+        return dto.addProduct(form);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
-    public ProductData updateProductById(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
-        return dto.updateProductById(productId, form);
+    public ProductData updateProductByBarcode(@PathVariable String barcode, @RequestBody ProductForm form) throws ApiException {
+        return dto.updateProductByBarcode(barcode, form);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -57,16 +67,6 @@ public class ProductController {
     public List<ProductData> bulkAddProducts(@RequestBody List<ProductForm> forms) throws ApiException {
         return dto.bulkAddProducts(forms);
     }
-
-    @ApiOperation(value = "Search products by name or barcode")
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<ProductData> getProductsByNameOrBarcode(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "name") String searchBy) throws ApiException {
-        return dto.getProductsByNameOrBarcode(query, searchBy);
-    }
-    //variable name is query because it can either be name or barcode
 
     @ApiOperation(value = "Get products by client ID")
     @ResponseStatus(HttpStatus.OK)
@@ -83,4 +83,5 @@ public class ProductController {
     public List<ClientData> searchClients(@RequestParam String query) throws ApiException {
         return clientDto.getClientsByName(query);
     }
+    //can we simply merge these 3 endpoints for search and keep them optional and pass them as request params?
 }
