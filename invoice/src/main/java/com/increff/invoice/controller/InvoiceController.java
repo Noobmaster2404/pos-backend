@@ -14,7 +14,7 @@ public class InvoiceController {
     @Autowired
     private InvoiceDto dto;
 
-    @PostMapping("/generate")
+    @RequestMapping(method = RequestMethod.GET, value = "/generate")
     public String generateInvoice(@RequestBody OrderData order) throws ApiException {
         return dto.generateInvoice(order);
     }

@@ -2,6 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+/server/src/main/resources/invoices/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

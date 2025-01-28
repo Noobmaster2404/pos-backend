@@ -17,9 +17,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderItemData;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class InvoiceGenerator {
@@ -27,33 +30,44 @@ public class InvoiceGenerator {
     private FopFactory fopFactory;
     private TransformerFactory transformerFactory;
 
+    @Value("${server.baseDir}")
+    private String baseDir;
+
     @PostConstruct
     public void init() throws IOException {
-        URI baseUri = new File(".").toURI();
+        // Create FOP factory with base URI pointing to server resources
+        File baseFile = new File(baseDir);
+        if (!baseFile.exists()) {
+            throw new IOException("Base directory not found: " + baseDir);
+        }
+        URI baseUri = baseFile.toURI();
         fopFactory = FopFactory.newInstance(baseUri);
         transformerFactory = TransformerFactory.newInstance();
     }
 
     public byte[] generatePDF(OrderData order) throws Exception {
-        // Create XML from order data
-        String xml = generateXML(order);
-        
-        // Load XSLT template
+        // Load XSLT
         Source xsltSource = new StreamSource(getClass().getResourceAsStream("/xslt/invoice_template.xsl"));
         
         // Create transformer
         Transformer transformer = transformerFactory.newTransformer(xsltSource);
         
-        // Setup FOP
-        ByteArrayOutputStream pdfStream = new ByteArrayOutputStream();
-        Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, pdfStream);
+        // Set base directory parameter with proper URI format
+        transformer.setParameter("base-dir", new File(baseDir).toURI().toString());
         
-        // Transform XML to PDF
+        // Generate XML
+        String xml = generateXML(order);
         Source xmlSource = new StreamSource(new StringReader(xml));
+        
+        // Create PDF
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
         Result result = new SAXResult(fop.getDefaultHandler());
+        
+        // Transform
         transformer.transform(xmlSource, result);
         
-        return pdfStream.toByteArray();
+        return out.toByteArray();
     }
 
     private String generateXML(OrderData order) {
@@ -61,7 +75,13 @@ public class InvoiceGenerator {
         xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         xml.append("<invoice>");
         xml.append("<order-id>").append(order.getOrderId()).append("</order-id>");
-        xml.append("<order-date>").append(order.getOrderTime()).append("</order-date>");
+        
+        // Format the date in Java
+        String formattedDate = order.getOrderTime()
+            .withZoneSameInstant(ZoneId.of("Asia/Kolkata"))
+            .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss 'IST'"));
+        xml.append("<order-date>").append(formattedDate).append("</order-date>");
+        
         xml.append("<total>").append(order.getOrderTotal()).append("</total>");
         
         xml.append("<items>");
