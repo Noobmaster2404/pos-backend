@@ -32,13 +32,11 @@ public class ProductFlow {
 
     public Product addProduct(Product product) throws ApiException {
         Product savedProduct = productApi.addProduct(product);
-
         Inventory inventory = new Inventory();
         inventory.setProduct(savedProduct);
         inventory.setBarcode(savedProduct.getBarcode());
         inventory.setQuantity(0);
         inventoryApi.addInventory(inventory);
-        
         return savedProduct;
     }
 
@@ -47,19 +45,12 @@ public class ProductFlow {
         return productApi.getAllProducts();
     }
 
-    // @Transactional(readOnly = true)
-    // public Product getProductById(Integer id) throws ApiException {
-    //     return productApi.getProductById(id);
-    // }
-
-    @Transactional(rollbackFor = ApiException.class)
     public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
         validateProduct(product);
         validateClient(product.getClient().getClientId());
         return productApi.updateProductByBarcode(barcode, product);
     }
 
-    @Transactional(rollbackFor = ApiException.class)
     public List<Product> bulkAddProducts(List<Product> products) throws ApiException {
         List<Product> addedProducts = new ArrayList<>();
         for (Product product : products) {

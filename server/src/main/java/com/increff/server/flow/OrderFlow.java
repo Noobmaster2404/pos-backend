@@ -19,7 +19,7 @@ import com.increff.server.entity.Product;
 import com.increff.server.entity.Inventory;
 import com.increff.commons.exception.ApiException;
 import com.increff.invoice.service.InvoiceGenerator;
-import com.increff.server.dto.ConversionClass;
+import com.increff.server.dto.ConversionHelper;
 
 @Service
 @Transactional(rollbackFor = ApiException.class)
@@ -66,7 +66,7 @@ public class OrderFlow {
     public void generateAndSaveInvoice(Order order) throws ApiException {
         try {
             // Convert Order to OrderData
-            OrderData orderData = ConversionClass.convertToOrderData(order);
+            OrderData orderData = ConversionHelper.convertToOrderData(order);
             
             // Generate PDF bytes
             byte[] pdfBytes = invoiceGenerator.generatePDF(orderData);

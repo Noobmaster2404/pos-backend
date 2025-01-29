@@ -6,35 +6,34 @@ import com.increff.commons.exception.ApiException;
 import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
-public class ConversionClass {
+public class ConversionHelper {
 
     // Client conversions
-    public static Client convertToClient(ClientForm form) throws ApiException {
-        try {
-            Client client = new Client();
-            client.setClientName(form.getClientName());
-            client.setPhone(form.getPhone());
-            client.setEmail(form.getEmail());
-            client.setEnabled(form.getEnabled());
-            return client;
-        } catch (Exception e) {
-            throw new ApiException("Error converting client form: " + e.getMessage());
-        }
+    public static Client convertToClient(ClientForm form){
+        Client client = new Client();
+        client.setClientName(form.getClientName());
+        client.setPhone(form.getPhone());
+        client.setEmail(form.getEmail());
+        client.setEnabled(form.getEnabled());
+        return client;
     }
 
-    public static ClientData convertToClientData(Client client) throws ApiException {
-        try {
-            ClientData data = new ClientData();
-            data.setClientId(client.getClientId());
-            data.setClientName(client.getClientName());
-            data.setPhone(client.getPhone());
-            data.setEmail(client.getEmail());
-            data.setEnabled(client.getEnabled());
-            return data;
-        } catch (Exception e) {
-            throw new ApiException("Error converting client to data: " + e.getMessage());
-        }
+    public static ClientData convertToClientData(Client client){
+        ClientData data = new ClientData();
+        data.setClientId(client.getClientId());
+        data.setClientName(client.getClientName());
+        data.setPhone(client.getPhone());
+        data.setEmail(client.getEmail());
+        data.setEnabled(client.getEnabled());
+        return data;
+    }
+
+    public static List<ClientData> convertToClientData(List<Client> clients){
+        return clients.stream()
+                .map(ConversionHelper::convertToClientData)
+                .collect(Collectors.toList());
     }
 
     // Product conversions
@@ -69,27 +68,32 @@ public class ConversionClass {
     }
 
     // Inventory conversions
-    public static Inventory convertToInventory(InventoryForm form, Product product) throws ApiException {
-        try {
-            Inventory inventory = new Inventory();
-            inventory.setProduct(product);
-            inventory.setBarcode(product.getBarcode());
-            inventory.setQuantity(form.getQuantity());
-            return inventory;
-        } catch (Exception e) {
-            throw new ApiException("Error converting inventory form: " + e.getMessage());
-        }
+    public static Inventory convertToInventory(InventoryForm form, Product product){
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setBarcode(product.getBarcode());
+        inventory.setQuantity(form.getQuantity());
+        return inventory;
     }
-    public static InventoryData convertToInventoryData(Inventory inventory) throws ApiException {
-        try {
-            InventoryData data = new InventoryData();
-            data.setProductId(inventory.getProduct().getProductId());
-            data.setQuantity(inventory.getQuantity());
-            data.setBarcode(inventory.getBarcode());
-            return data;
-        } catch (Exception e) {
-            throw new ApiException("Error converting inventory to data: " + e.getMessage());
-        }
+
+    public static List<Inventory> convertToInventory(Map<InventoryForm, Product> inventoryProductMap) throws ApiException {
+        return inventoryProductMap.entrySet().stream()
+                .map(element -> convertToInventory(element.getKey(), element.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public static InventoryData convertToInventoryData(Inventory inventory){
+        InventoryData data = new InventoryData();
+        data.setProductId(inventory.getProduct().getProductId());
+        data.setQuantity(inventory.getQuantity());
+        data.setBarcode(inventory.getBarcode());
+        return data;
+    }
+
+    public static List<InventoryData> convertToInventoryData(List<Inventory> inventories){
+        return inventories.stream()
+                .map(ConversionHelper::convertToInventoryData)
+                .collect(Collectors.toList());
     }
 
     // Order conversions
@@ -107,7 +111,7 @@ public class ConversionClass {
                         try {
                             return convertToOrderItemData(item);
                         } catch (ApiException e) {
-                            throw new RuntimeException(e);
+                            throw new RuntimeException(e); //TODO: catching api throwing runtime?
                         }
                     })
                     .collect(Collectors.toList());

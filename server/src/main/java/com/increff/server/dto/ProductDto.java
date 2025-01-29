@@ -23,6 +23,66 @@ public class ProductDto extends AbstractDto {
     @Autowired
     private ClientFlow clientFlow;
 
+    public List<ProductData> getProductsByName(String productName) throws ApiException {
+        return productFlow.getProductsByName(productName)
+                .stream()
+                .map(product -> {
+                    try {
+                        ProductData data = ConversionHelper.convertToProductData(product);
+                        Client client = clientFlow.getClientById(product.getClient().getClientId());
+                        data.setClientName(client.getClientName());
+                        data.setClientId(client.getClientId());
+                        return data;
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public ProductData getProductByBarcode(String barcode) throws ApiException {
+        Product product = productFlow.getProductByBarcode(barcode);
+        try {
+            ProductData data = ConversionHelper.convertToProductData(product);
+            Client client = clientFlow.getClientById(product.getClient().getClientId());
+            data.setClientName(client.getClientName());
+            data.setClientId(client.getClientId());
+            return data;
+        } catch (ApiException e) {
+            throw new ApiException(getPrefix() + e.getMessage());
+        }
+    }
+
+    public List<ProductData> getProductsByClientId(Integer clientId) throws ApiException {
+        return productFlow.getProductsByClientId(clientId)
+                .stream()
+                .map(product -> {
+                    try {
+                        return ConversionHelper.convertToProductData(product);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductData> getAllProducts() throws ApiException {
+        return productFlow.getAllProducts()
+                .stream()
+                .map(product -> {
+                    try {
+                        ProductData data = ConversionHelper.convertToProductData(product);
+                        Client client = clientFlow.getClientById(product.getClient().getClientId());
+                        data.setClientName(client.getClientName());
+                        data.setClientId(client.getClientId());
+                        return data;
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
     public ProductData addProduct(ProductForm form) throws ApiException {
         try {
             checkValid(form);
@@ -32,8 +92,8 @@ public class ProductDto extends AbstractDto {
                 throw new ApiException("Client not found with name: " + form.getClientName());
             }
             Client client = clients.get(0);  // Get first matching client
-            Product product = ConversionClass.convertToProduct(form, client);
-            return ConversionClass.convertToProductData(productFlow.addProduct(product));
+            Product product = ConversionHelper.convertToProduct(form, client);
+            return ConversionHelper.convertToProductData(productFlow.addProduct(product));
         } catch (Exception e) {
             throw new ApiException(getPrefix() + e.getMessage());
         }
@@ -47,20 +107,42 @@ public class ProductDto extends AbstractDto {
             throw new ApiException("Client not found with name: " + form.getClientName());
         }
         Client client = clients.get(0);
-        Product product = ConversionClass.convertToProduct(form, client);
+        Product product = ConversionHelper.convertToProduct(form, client);
         Product updatedProduct = productFlow.updateProductByBarcode(barcode, product);
-        ProductData data = ConversionClass.convertToProductData(updatedProduct);
+        ProductData data = ConversionHelper.convertToProductData(updatedProduct);
         data.setClientName(client.getClientName());
         return data;
     }
 
-    public List<ProductData> getAllProducts() throws ApiException {
-        return productFlow.getAllProducts()
-                .stream()
+    public List<ProductData> bulkAddProducts(List<ProductForm> forms) throws ApiException {
+        if (forms.size() > 5000) {
+            throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
+        }
+
+        for (ProductForm form : forms) {
+            normalize(form);
+        }
+        
+        List<Product> addedProducts = productFlow.bulkAddProducts(forms.stream()
+                .map(form -> {
+                    try {
+                        List<Client> clients = clientFlow.getClientsByName(form.getClientName());
+                        if (clients.isEmpty()) {
+                            throw new ApiException("Client not found with name: " + form.getClientName());
+                        }
+                        Client client = clients.get(0);  // Get first matching client
+                        return ConversionHelper.convertToProduct(form, client);
+                    } catch (ApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList()));
+
+        return addedProducts.stream()
                 .map(product -> {
                     try {
-                        ProductData data = ConversionClass.convertToProductData(product);
-                        Client client = clientFlow.getClientById(product.getClient().getClientId());
+                        ProductData data = ConversionHelper.convertToProductData(product);
+                        Client client = product.getClient();
                         data.setClientName(client.getClientName());
                         data.setClientId(client.getClientId());
                         return data;
@@ -69,6 +151,26 @@ public class ProductDto extends AbstractDto {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "Product: ";
+    }
+
+    private void normalize(ProductForm form) throws ApiException {
+        super.normalize(form);
+        // Special handling for image path - keeping original case
+        if (Objects.nonNull(form.getImagePath())) {
+            String imagePath = form.getImagePath().trim();
+            String lowerCasePath = imagePath.toLowerCase();
+            if (!lowerCasePath.endsWith(".png") && 
+                !lowerCasePath.endsWith(".jpg") && 
+                !lowerCasePath.endsWith(".jpeg")) {
+                throw new ApiException(getPrefix() + "Invalid image format. Only PNG, JPG, and JPEG files are allowed");
+            }
+            form.setImagePath(imagePath);
+        }
     }
 
     //The method makes separate queries for each product to get client and inventory information.
@@ -116,105 +218,4 @@ public class ProductDto extends AbstractDto {
     //instead of doing this, we can fetch all clients and then make the user select one
     //then we can fetch all products for that client and then make the user select one
 
-    public List<ProductData> bulkAddProducts(List<ProductForm> forms) throws ApiException {
-        if (forms.size() > 5000) {
-            throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
-        }
-
-        for (ProductForm form : forms) {
-            normalize(form);
-        }
-        
-        List<Product> addedProducts = productFlow.bulkAddProducts(forms.stream()
-                .map(form -> {
-                    try {
-                        List<Client> clients = clientFlow.getClientsByName(form.getClientName());
-                        if (clients.isEmpty()) {
-                            throw new ApiException("Client not found with name: " + form.getClientName());
-                        }
-                        Client client = clients.get(0);  // Get first matching client
-                        return ConversionClass.convertToProduct(form, client);
-                    } catch (ApiException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList()));
-
-        return addedProducts.stream()
-                .map(product -> {
-                    try {
-                        ProductData data = ConversionClass.convertToProductData(product);
-                        Client client = product.getClient();
-                        data.setClientName(client.getClientName());
-                        data.setClientId(client.getClientId());
-                        return data;
-                    } catch (ApiException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductData> getProductsByName(String productName) throws ApiException {
-        return productFlow.getProductsByName(productName)
-                .stream()
-                .map(product -> {
-                    try {
-                        ProductData data = ConversionClass.convertToProductData(product);
-                        Client client = clientFlow.getClientById(product.getClient().getClientId());
-                        data.setClientName(client.getClientName());
-                        data.setClientId(client.getClientId());
-                        return data;
-                    } catch (ApiException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    public ProductData getProductByBarcode(String barcode) throws ApiException {
-        Product product = productFlow.getProductByBarcode(barcode);
-        try {
-            ProductData data = ConversionClass.convertToProductData(product);
-            Client client = clientFlow.getClientById(product.getClient().getClientId());
-            data.setClientName(client.getClientName());
-            data.setClientId(client.getClientId());
-            return data;
-        } catch (ApiException e) {
-            throw new ApiException(getPrefix() + e.getMessage());
-        }
-    }
-
-    public List<ProductData> getProductsByClientId(Integer clientId) throws ApiException {
-        return productFlow.getProductsByClientId(clientId)
-                .stream()
-                .map(product -> {
-                    try {
-                        return ConversionClass.convertToProductData(product);
-                    } catch (ApiException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    protected String getPrefix() {
-        return "Product: ";
-    }
-
-    private void normalize(ProductForm form) throws ApiException {
-        super.normalize(form);
-        // Special handling for image path - keep original case
-        if (Objects.nonNull(form.getImagePath())) {
-            String imagePath = form.getImagePath().trim();
-            String lowerCasePath = imagePath.toLowerCase();
-            if (!lowerCasePath.endsWith(".png") && 
-                !lowerCasePath.endsWith(".jpg") && 
-                !lowerCasePath.endsWith(".jpeg")) {
-                throw new ApiException(getPrefix() + "Invalid image format. Only PNG, JPG, and JPEG files are allowed");
-            }
-            form.setImagePath(imagePath);
-        }
-    }
 }

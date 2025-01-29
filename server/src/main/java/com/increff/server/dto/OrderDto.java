@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.increff.server.flow.OrderFlow;
-import com.increff.server.flow.ProductFlow;
+import com.increff.server.api.ProductApi;
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
 import com.increff.commons.exception.ApiException;
@@ -26,7 +26,7 @@ public class OrderDto extends AbstractDto {
     private OrderFlow orderFlow;
     
     @Autowired
-    private ProductFlow productFlow;
+    private ProductApi productApi;
 
     public OrderData createOrder(OrderForm form) throws ApiException {
         checkValid(form);
@@ -36,7 +36,7 @@ public class OrderDto extends AbstractDto {
         List<OrderItem> orderItems = new ArrayList<>();
         
         for (OrderItemForm itemForm : form.getOrderItems()) {
-            Product product = productFlow.getProductByBarcode(itemForm.getBarcode());
+            Product product = productApi.getProductByBarcode(itemForm.getBarcode());
             
             OrderItem item = new OrderItem();
             item.setOrder(order);
@@ -50,14 +50,14 @@ public class OrderDto extends AbstractDto {
         order.setOrderItems(orderItems);
         Order createdOrder = orderFlow.createOrder(order);
         
-        return ConversionClass.convertToOrderData(createdOrder);
+        return ConversionHelper.convertToOrderData(createdOrder);
     }
 
     @Transactional(readOnly = true)
     public OrderData getOrder(Integer orderId) throws ApiException {
         try {
             Order order = orderFlow.getOrderById(orderId);
-            return ConversionClass.convertToOrderData(order);
+            return ConversionHelper.convertToOrderData(order);
         } catch (ApiException e) {
             throw new ApiException(getPrefix() + e.getMessage());
         }
@@ -70,7 +70,7 @@ public class OrderDto extends AbstractDto {
             return orders.stream()
                     .map(order -> {
                         try {
-                            return ConversionClass.convertToOrderData(order);
+                            return ConversionHelper.convertToOrderData(order);
                         } catch (ApiException e) {
                             throw new RuntimeException(e);
                         }
