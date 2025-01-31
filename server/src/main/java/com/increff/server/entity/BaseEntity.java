@@ -2,7 +2,9 @@ package com.increff.server.entity;
 
 import lombok.Getter;
 import javax.persistence.*;
+
 import java.time.ZonedDateTime;
+import com.increff.commons.util.TimeZoneUtil;
 
 @Getter
 @MappedSuperclass
@@ -19,12 +21,12 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = ZonedDateTime.now();
-        updatedAt = ZonedDateTime.now();
+        createdAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
+        updatedAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = ZonedDateTime.now();
+        updatedAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
     }
 }

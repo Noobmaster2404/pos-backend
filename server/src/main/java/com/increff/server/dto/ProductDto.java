@@ -28,6 +28,7 @@ public class ProductDto extends AbstractDto {
         List<Product> products = productFlow.getProductsByName(productName);
         return ConversionHelper.convertToProductData(products);
     }
+    //TODO: shouldnt we check for null productName from controller?
 
     //TODO: Read: Conversion class pure function
 

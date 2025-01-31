@@ -27,6 +27,7 @@ import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.OrderDto;
+import com.increff.commons.util.TimeZoneUtil;
 
 @Api(tags = "Order Management")
 @RestController
@@ -57,6 +58,8 @@ public class OrderController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime endDate)
             throws ApiException {
+        startDate = TimeZoneUtil.toUTC(startDate);
+        endDate = TimeZoneUtil.toUTC(endDate);
         return dto.getOrdersByDateRange(startDate, endDate);
     }
 

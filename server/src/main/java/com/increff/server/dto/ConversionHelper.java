@@ -137,4 +137,18 @@ public class ConversionHelper {
         data.setItemTotal(item.getQuantity() * item.getSellingPrice());
         return data;
     }
+
+    public static DailySalesData convertToDailySalesData(DailySales report) {
+        DailySalesData data = new DailySalesData();
+        data.setDate(report.getDate());
+        data.setInvoicedOrderCount(report.getInvoicedOrders());
+        data.setTotalItems(report.getTotalItems());
+        data.setTotalRevenue(report.getTotalRevenue());
+        return data;
+    }
+    public static List<DailySalesData> convertToDailySalesData(List<DailySales> reports) {
+        return reports.stream()
+                .map(ConversionHelper::convertToDailySalesData)
+                .collect(Collectors.toList());
+    }
 }

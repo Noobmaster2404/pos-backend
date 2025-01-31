@@ -8,6 +8,7 @@ import com.increff.server.dao.OrderDao;
 import com.increff.server.entity.Order;
 // import com.increff.server.entity.OrderItem;
 import com.increff.commons.exception.ApiException;
+import com.increff.commons.util.TimeZoneUtil;
 
 import java.time.ZonedDateTime;
 import java.time.ZoneOffset;
@@ -23,7 +24,7 @@ public class OrderApi {
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(Order order) throws ApiException {
         // validateOrder(order);
-        order.setOrderTime(ZonedDateTime.now(ZoneOffset.UTC));
+        order.setOrderTime(TimeZoneUtil.getCurrentUTCDate().atStartOfDay(ZoneOffset.UTC));
         orderDao.insert(order);
         return order;
     }

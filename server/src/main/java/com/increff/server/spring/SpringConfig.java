@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.lang.NonNull;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 @PropertySources({ //
 		@PropertySource(value = "file:./pos.properties", ignoreResourceNotFound = true) //
 })
+@EnableScheduling
 public class SpringConfig implements WebMvcConfigurer {
 
 	@Value("${app.baseUrl}")

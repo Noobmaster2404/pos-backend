@@ -10,6 +10,7 @@ import java.util.List;
 import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import com.increff.commons.util.TimeZoneUtil;
 
 import com.increff.server.api.OrderApi;
 import com.increff.server.entity.Order;
@@ -105,6 +106,8 @@ public class OrderFlow {
         if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
             throw new ApiException("Start date and end date cannot be null");
         }
+        startDate = TimeZoneUtil.toUTC(startDate);
+        endDate = TimeZoneUtil.toUTC(endDate);
         if (startDate.isAfter(endDate)) {
             throw new ApiException("Start date cannot be after end date");
         }
