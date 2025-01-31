@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.HashMap;
 @Component
 public class InventoryDto extends AbstractDto {
     
@@ -56,19 +56,15 @@ public class InventoryDto extends AbstractDto {
         for (InventoryForm form : forms) {
             normalize(form);
         }
-        Map<InventoryForm, Product> inventoryProductMap = forms.stream()
-                    .collect(Collectors.toMap(
-                        form -> form,
-                        form -> {
-                            try {
-                                return productApi.getProductByBarcode(form.getBarcode());
-                            } catch (ApiException e) {
-                                throw new RuntimeException(e);
-                                // TODO: Handle the exception
-                                //Api exception cannot be thrown here since lambdas cannot throw checked exceptions
-                            }
-                        }
-                    ));
+        Map<InventoryForm, Product> inventoryProductMap = new HashMap<>();
+        for (InventoryForm form : forms) {
+            try{
+                Product product = productApi.getProductByBarcode(form.getBarcode());
+                inventoryProductMap.put(form, product);
+            } catch (ApiException e) {
+                throw new ApiException(getPrefix() + e.getMessage());
+            }
+        }
 
         List<Inventory> addedInventory = inventoryFlow.bulkAddInventory(
             ConversionHelper.convertToInventory(inventoryProductMap));

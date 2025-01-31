@@ -29,6 +29,8 @@ public class Product extends BaseEntity {
         allocationSize = 50,
         schema = "pos"
     )
+    //TODO: can skip out on some things above
+
     @Column(name = "id")
     private Integer productId;
 
@@ -38,9 +40,9 @@ public class Product extends BaseEntity {
     @Column(length = 255, nullable = false)
     private String productName;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
-    //check client_id
+    //@JoinColumn specifies the foreign key column in the database and is specified in child table
     private Client client;
     //While in the database, this is stored as a foreign key (client_id)
     //In the Java code, using the actual Client object instead of just clientId provides several benefits

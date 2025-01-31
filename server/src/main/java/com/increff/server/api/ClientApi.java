@@ -17,9 +17,9 @@ public class ClientApi {
     @Autowired
     private ClientDao dao;
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Client addClient(Client client) throws ApiException {
-        checkValid(client);
+        // checkValid(client);
         Client existing = dao.selectByName(client.getClientName());
         if (Objects.nonNull(existing)) {
             throw new ApiException("Client with name '" + client.getClientName() + "' already exists");
@@ -37,9 +37,9 @@ public class ClientApi {
         }
     }
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Client updateClientById(Integer clientId, Client client) throws ApiException {
-        checkValid(client);
+        // checkValid(client);
         Client existingClient = dao.select(clientId);
         if (Objects.isNull(existingClient)) {
             throw new ApiException("Client with given ID does not exist");
@@ -67,6 +67,7 @@ public class ClientApi {
         if (Objects.isNull(client)) {
             throw new ApiException("Client with id " + clientId + " not found");
         }
+        //TODO: Checks like this are good here. BUT IF HANDLING 2 ENTITIES AT ONCE THEN CHECK SHOULD BE IN FLOW
         return client;
     }
 
@@ -75,30 +76,44 @@ public class ClientApi {
         if (StringUtils.isEmpty(namePrefix)) {
             return getAllClients();
         }
-        return dao.selectByNamePrefix(namePrefix);
+        List<Client> clients = dao.selectByNamePrefix(namePrefix);
+        if(clients.isEmpty()) {
+            throw new ApiException("No clients found with name prefix: " + namePrefix);
+        }
+        return clients;
     }
 
-    private void checkValid(Client client) throws ApiException {
-        // Null and empty checks
-        if (StringUtils.isEmpty(client.getClientName())) {
-            throw new ApiException("Client name cannot be empty");
+    @Transactional(readOnly = true)
+    public Client getClientByName(String clientName) throws ApiException {
+        Client client = dao.selectByName(clientName);
+        if(Objects.isNull(client)) {
+            throw new ApiException("No clients found with name: " + clientName);
         }
-        if (StringUtils.isEmpty(client.getPhone())) {
-            throw new ApiException("Client phone cannot be empty");
-        }
-        if (StringUtils.isEmpty(client.getEmail())) {
-            throw new ApiException("Client email cannot be empty");
-        }
-
-        // Format and length checks
-        if (client.getClientName().length() > 256) {
-            throw new ApiException("Client name cannot exceed 256 characters");
-        }
-        if (!client.getPhone().matches("\\d{10}")) {
-            throw new ApiException("Phone must be exactly 10 digits");
-        }
-        if (client.getEmail().length() > 256 || !client.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new ApiException("Invalid email format or length");
-        }
+        return client;
     }
+
+    // private void checkValid(Client client) throws ApiException {
+    //     // Null and empty checks
+    //     if (StringUtils.isEmpty(client.getClientName())) {
+    //         throw new ApiException("Client name cannot be empty");
+    //     }
+    //     if (StringUtils.isEmpty(client.getPhone())) {
+    //         throw new ApiException("Client phone cannot be empty");
+    //     }
+    //     if (StringUtils.isEmpty(client.getEmail())) {
+    //         throw new ApiException("Client email cannot be empty");
+    //     }
+
+    //     // Format and length checks
+    //     if (client.getClientName().length() > 256) {
+    //         throw new ApiException("Client name cannot exceed 256 characters");
+    //     }
+    //     if (!client.getPhone().matches("\\d{10}")) {
+    //         throw new ApiException("Phone must be exactly 10 digits");
+    //     }
+    //     if (client.getEmail().length() > 256 || !client.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+    //         throw new ApiException("Invalid email format or length");
+    //     }
+    //     //TODO: DRY!!!!
+    // }
 }

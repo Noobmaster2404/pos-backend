@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+// import org.springframework.util.StringUtils;
 
 import com.increff.server.dao.InventoryDao;
 import com.increff.server.entity.Inventory;
@@ -19,9 +19,9 @@ public class InventoryApi {
     @Autowired
     private InventoryDao dao;
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Inventory addInventory(Inventory inventory) throws ApiException {
-        checkValid(inventory);
+        // checkValid(inventory);
         Optional<Inventory> existingByProduct = dao.selectByProductId(inventory.getProduct().getProductId());
         if (existingByProduct.isPresent()) {
             throw new ApiException("Inventory for product ID " + inventory.getProduct().getProductId() + " already exists");
@@ -41,9 +41,9 @@ public class InventoryApi {
         return dao.selectAll();
     }
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Inventory updateInventoryById(Integer productId, Inventory inventory) throws ApiException {
-        checkValid(inventory);
+        // checkValid(inventory);
         Inventory existingInventory = getInventoryById(productId);
         
         if (!existingInventory.getBarcode().equals(inventory.getBarcode())) {
@@ -69,21 +69,21 @@ public class InventoryApi {
         return inventory;
     }
 
-    private void checkValid(Inventory inventory) throws ApiException {
-        if (Objects.isNull(inventory)) {
-            throw new ApiException("Inventory cannot be null");
-        }
-        if (Objects.isNull(inventory.getProduct())) {
-            throw new ApiException("Product reference cannot be null");
-        }
-        if (!StringUtils.hasText(inventory.getBarcode())) {
-            throw new ApiException("Product barcode cannot be empty");
-        }
-        if (Objects.isNull(inventory.getQuantity())) {
-            throw new ApiException("Quantity cannot be null");
-        }
-        if (inventory.getQuantity() < 0) {
-            throw new ApiException("Quantity cannot be negative");
-        }
-    }
+    // private void checkValid(Inventory inventory) throws ApiException {
+    //     if (Objects.isNull(inventory)) {
+    //         throw new ApiException("Inventory cannot be null");
+    //     }
+    //     if (Objects.isNull(inventory.getProduct())) {
+    //         throw new ApiException("Product reference cannot be null");
+    //     }
+    //     if (!StringUtils.hasText(inventory.getBarcode())) {
+    //         throw new ApiException("Product barcode cannot be empty");
+    //     }
+    //     if (Objects.isNull(inventory.getQuantity())) {
+    //         throw new ApiException("Quantity cannot be null");
+    //     }
+    //     if (inventory.getQuantity() < 0) {
+    //         throw new ApiException("Quantity cannot be negative");
+    //     }
+    // }
 }

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.increff.server.dao.OrderDao;
 import com.increff.server.entity.Order;
-import com.increff.server.entity.OrderItem;
+// import com.increff.server.entity.OrderItem;
 import com.increff.commons.exception.ApiException;
 
 import java.time.ZonedDateTime;
@@ -20,9 +20,9 @@ public class OrderApi {
     @Autowired
     private OrderDao orderDao;
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Order createOrder(Order order) throws ApiException {
-        validateOrder(order);
+        // validateOrder(order);
         order.setOrderTime(ZonedDateTime.now(ZoneOffset.UTC));
         orderDao.insert(order);
         return order;
@@ -42,7 +42,7 @@ public class OrderApi {
         return orderDao.selectByDateRange(startDate, endDate);
     }
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public void updateInvoicePath(Integer orderId, String invoicePath) throws ApiException {
         Order order = getOrderById(orderId);
         order.setInvoicePath(invoicePath);
@@ -53,7 +53,7 @@ public class OrderApi {
         return orderDao.selectAll();
     }
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Order updateOrder(Order order) throws ApiException {
         if (Objects.isNull(order.getOrderId())) {
             throw new ApiException("Order ID cannot be null");
@@ -65,24 +65,24 @@ public class OrderApi {
         return existingOrder;
     }
 
-    private void validateOrder(Order order) throws ApiException {
-        if (Objects.isNull(order.getOrderItems()) || order.getOrderItems().isEmpty()) {
-            throw new ApiException("Order must contain at least one item");
-        }
+    // private void validateOrder(Order order) throws ApiException {
+    //     if (Objects.isNull(order.getOrderItems()) || order.getOrderItems().isEmpty()) {
+    //         throw new ApiException("Order must contain at least one item");
+    //     }
 
-        double total = 0.0;
-        for (OrderItem item : order.getOrderItems()) {
-            if (Objects.isNull(item.getProduct())) {
-                throw new ApiException("Product reference cannot be null");
-            }
-            if (Objects.isNull(item.getQuantity()) || item.getQuantity() <= 0) {
-                throw new ApiException("Invalid quantity for product: " + item.getProduct().getProductId());
-            }
-            if (Objects.isNull(item.getSellingPrice()) || item.getSellingPrice() < 0) {
-                throw new ApiException("Invalid selling price for product: " + item.getProduct().getProductId());
-            }
-            total += item.getQuantity() * item.getSellingPrice();
-        }
-        order.setOrderTotal(total);
-    }
+    //     double total = 0.0;
+    //     for (OrderItem item : order.getOrderItems()) {
+    //         if (Objects.isNull(item.getProduct())) {
+    //             throw new ApiException("Product cannot be null");
+    //         }
+    //         if (Objects.isNull(item.getQuantity()) || item.getQuantity() <= 0) {
+    //             throw new ApiException("Invalid quantity for product: " + item.getProduct().getProductId());
+    //         }
+    //         if (Objects.isNull(item.getSellingPrice()) || item.getSellingPrice() < 0) {
+    //             throw new ApiException("Invalid selling price for product: " + item.getProduct().getProductId());
+    //         }
+    //         total += item.getQuantity() * item.getSellingPrice();
+    //     }
+    //     order.setOrderTotal(total);
+    // }
 } 

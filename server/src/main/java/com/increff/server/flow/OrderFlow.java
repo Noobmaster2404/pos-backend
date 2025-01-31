@@ -22,7 +22,7 @@ import com.increff.invoice.service.InvoiceGenerator;
 import com.increff.server.dto.ConversionHelper;
 
 @Service
-@Transactional(rollbackFor = ApiException.class)
+@Transactional(rollbackFor = Exception.class)
 public class OrderFlow {
 
     @Autowired

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Transactional(rollbackFor = ApiException.class)
+@Transactional(rollbackFor = Exception.class)
 public class ProductFlow {
 
     @Autowired
@@ -91,7 +91,6 @@ public class ProductFlow {
 
     @Transactional(readOnly = true)
     public List<Product> getProductsByClientId(Integer clientId) throws ApiException {
-        // Verify client exists
         clientApi.getClientById(clientId);
         return productApi.getProductsByClientId(clientId);
     }

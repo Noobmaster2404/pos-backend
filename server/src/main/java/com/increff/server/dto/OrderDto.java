@@ -34,20 +34,22 @@ public class OrderDto extends AbstractDto {
         
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
+        double orderTotal = 0.0;
         
         for (OrderItemForm itemForm : form.getOrderItems()) {
-            Product product = productApi.getProductByBarcode(itemForm.getBarcode());
-            
-            OrderItem item = new OrderItem();
-            item.setOrder(order);
-            item.setProduct(product);
-            item.setQuantity(itemForm.getQuantity());
-            item.setSellingPrice(itemForm.getSellingPrice());
-            
-            orderItems.add(item);
+            try {
+                Product product = productApi.getProductByBarcode(itemForm.getBarcode());
+                OrderItem orderItem = ConversionHelper.convertToOrderItem(itemForm, product, order);
+                
+                orderTotal += itemForm.getQuantity() * itemForm.getSellingPrice();
+                orderItems.add(orderItem);
+            } catch (ApiException e) {
+                throw new ApiException(getPrefix() + e.getMessage());
+            }
         }
         
         order.setOrderItems(orderItems);
+        order.setOrderTotal(orderTotal);
         Order createdOrder = orderFlow.createOrder(order);
         
         return ConversionHelper.convertToOrderData(createdOrder);
@@ -69,11 +71,7 @@ public class OrderDto extends AbstractDto {
             List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate);
             return orders.stream()
                     .map(order -> {
-                        try {
-                            return ConversionHelper.convertToOrderData(order);
-                        } catch (ApiException e) {
-                            throw new RuntimeException(e);
-                        }
+                        return ConversionHelper.convertToOrderData(order);
                     })
                     .collect(Collectors.toList());
         } catch (RuntimeException e) {

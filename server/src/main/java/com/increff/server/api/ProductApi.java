@@ -18,9 +18,9 @@ public class ProductApi {
     @Autowired
     private ProductDao dao;
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Product addProduct(Product product) throws ApiException {
-        checkValid(product);
+        // checkValid(product);
         Product existing = dao.selectByBarcode(product.getBarcode());
         if (Objects.nonNull(existing)) {
             throw new ApiException("Product with barcode '" + product.getBarcode() + "' already exists");
@@ -34,9 +34,9 @@ public class ProductApi {
         return dao.selectAll();
     }
 
-    @Transactional(rollbackFor = ApiException.class)
+    @Transactional(rollbackFor = Exception.class)
     public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
-        checkValid(product);
+        // checkValid(product);
         Product existingProduct = dao.selectByBarcode(barcode);
         if (Objects.isNull(existingProduct)) {
             throw new ApiException("Product with given barcode does not exist");
@@ -90,44 +90,44 @@ public class ProductApi {
         return dao.selectByClientId(clientId);
     }
 
-    private void checkValid(Product product) throws ApiException {
-        if (Objects.isNull(product)) {
-            throw new ApiException("Product cannot be null");
-        }
+    // private void checkValid(Product product) throws ApiException {
+    //     if (Objects.isNull(product)) {
+    //         throw new ApiException("Product cannot be null");
+    //     }
         
-        // Barcode validation
-        if (StringUtils.isEmpty(product.getBarcode())) {
-            throw new ApiException("Product barcode cannot be empty");
-        }
-        if (product.getBarcode().length() > 255) {
-            throw new ApiException("Product barcode cannot exceed 255 characters");
-        }
+    //     // Barcode validation
+    //     if (StringUtils.isEmpty(product.getBarcode())) {
+    //         throw new ApiException("Product barcode cannot be empty");
+    //     }
+    //     if (product.getBarcode().length() > 255) {
+    //         throw new ApiException("Product barcode cannot exceed 255 characters");
+    //     }
         
-        // Name validation
-        if (StringUtils.isEmpty(product.getProductName())) {
-            throw new ApiException("Product name cannot be empty");
-        }
-        if (product.getProductName().length() > 255) {
-            throw new ApiException("Product name cannot exceed 255 characters");
-        }
+    //     // Name validation
+    //     if (StringUtils.isEmpty(product.getProductName())) {
+    //         throw new ApiException("Product name cannot be empty");
+    //     }
+    //     if (product.getProductName().length() > 255) {
+    //         throw new ApiException("Product name cannot exceed 255 characters");
+    //     }
         
-        // Client validation
-        if (Objects.isNull(product.getClient()) || Objects.isNull(product.getClient().getClientId())) {
-            throw new ApiException("Client reference cannot be empty");
-        }
+    //     // Client validation
+    //     if (Objects.isNull(product.getClient()) || Objects.isNull(product.getClient().getClientId())) {
+    //         throw new ApiException("Client reference cannot be empty");
+    //     }
         
-        // Image path validation (optional field)
-        if (Objects.nonNull(product.getImagePath()) && 
-            product.getImagePath().length() > 1000) {
-            throw new ApiException("Product image path cannot exceed 1000 characters");
-        }
+    //     // Image path validation (optional field)
+    //     if (Objects.nonNull(product.getImagePath()) && 
+    //         product.getImagePath().length() > 1000) {
+    //         throw new ApiException("Product image path cannot exceed 1000 characters");
+    //     }
         
-        // MRP validation
-        if (Objects.isNull(product.getMrp())) {
-            throw new ApiException("Product MRP cannot be null");
-        }
-        if (product.getMrp() <= 0) {
-            throw new ApiException("Product MRP must be positive");
-        }
-    }
+    //     // MRP validation
+    //     if (Objects.isNull(product.getMrp())) {
+    //         throw new ApiException("Product MRP cannot be null");
+    //     }
+    //     if (product.getMrp() <= 0) {
+    //         throw new ApiException("Product MRP must be positive");
+    //     }
+    // }
 }

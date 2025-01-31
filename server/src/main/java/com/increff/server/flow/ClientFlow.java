@@ -16,6 +16,7 @@ import com.increff.server.entity.Client;
 public class ClientFlow {
 
     @Autowired
+    //TODO: Read IOC Container, Bean lifecycle, etc
     private ClientApi clientApi;
 
     public Client addClient(Client client) throws ApiException {
