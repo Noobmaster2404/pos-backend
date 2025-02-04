@@ -47,7 +47,7 @@ public class Product extends BaseEntity {
     //While in the database, this is stored as a foreign key (client_id)
     //In the Java code, using the actual Client object instead of just clientId provides several benefits
     //You can directly access client properties through the Product object (e.g., product.getClient().getName())
-    //PA automatically handles the database joins when you need client information
+    //JPA automatically handles the database joins when you need client information
 
     @Column(length = 1000)
     private String imagePath;

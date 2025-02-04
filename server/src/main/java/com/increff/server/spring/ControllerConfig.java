@@ -11,12 +11,11 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.thymeleaf.spring4.SpringTemplateEngine;
-import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring4.view.ThymeleafViewResolver;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import springfox.documentation.builders.PathSelectors;
@@ -34,7 +33,6 @@ import java.time.format.DateTimeFormatter;
 public class ControllerConfig implements WebMvcConfigurer {
 
 	public static final String PACKAGE_CONTROLLER = "com.increff.server.controller";
-	public static final String API_BASE_PATH = "/api";
 
 	private ApplicationContext applicationContext;
 
@@ -106,10 +104,5 @@ public class ControllerConfig implements WebMvcConfigurer {
 			.allowedOrigins("http://localhost:4200")
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 			.allowedHeaders("*");
-	}
-
-	@Override
-	public void configurePathMatch(@NonNull PathMatchConfigurer configurer) {
-		configurer.addPathPrefix(API_BASE_PATH, c -> c.getPackage().getName().startsWith(PACKAGE_CONTROLLER));
 	}
 }

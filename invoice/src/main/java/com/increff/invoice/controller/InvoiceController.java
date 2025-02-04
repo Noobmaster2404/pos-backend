@@ -8,7 +8,7 @@ import com.increff.commons.exception.ApiException;
 import com.increff.invoice.dto.InvoiceDto;
 
 @RestController
-@RequestMapping("/api/invoice")
+@RequestMapping("/invoice")
 public class InvoiceController {
 
     @Autowired
