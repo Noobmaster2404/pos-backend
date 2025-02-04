@@ -48,15 +48,11 @@ public class ProductDto extends AbstractDto {
     }
 
     public ProductData addProduct(ProductForm form) throws ApiException {
-        try {
-            // checkValid(form);
-            normalize(form);
-            Client client = clientApi.getClientByName(form.getClientName());
-            Product product = ConversionHelper.convertToProduct(form, client);
-            return ConversionHelper.convertToProductData(productFlow.addProduct(product));
-        } catch (Exception e) {
-            throw new ApiException(getPrefix() + e.getMessage());
-        }
+        // checkValid(form);
+        normalize(form);
+        Client client = clientApi.getClientByName(form.getClientName());
+        Product product = ConversionHelper.convertToProduct(form, client);
+        return ConversionHelper.convertToProductData(productFlow.addProduct(product));
     }
     //TODO: Remove this try catch since its only attaching a prefix
 
@@ -72,19 +68,15 @@ public class ProductDto extends AbstractDto {
 
     public List<ProductData> bulkAddProducts(List<ProductForm> forms) throws ApiException {
         if (forms.size() > 5000) {
-            throw new ApiException(getPrefix() + "Cannot process more than 5000 products at once");
+            throw new ApiException("Cannot process more than 5000 products at once");
         }
         for (ProductForm form : forms) {
             normalize(form);
         }
         Map<ProductForm, Client> productClientMap = new HashMap<>();
         for (ProductForm form : forms) {
-            try {
-                Client client = clientApi.getClientByName(form.getClientName());
-                productClientMap.put(form, client);
-            } catch (ApiException e) {
-                throw new ApiException(getPrefix() + e.getMessage());
-            }
+            Client client = clientApi.getClientByName(form.getClientName());
+            productClientMap.put(form, client);
         }
         //use for loop instead of stream and lambda because lambda cannot throw checked exceptions
         List<Product> addedProducts = productFlow.bulkAddProducts(
@@ -97,11 +89,6 @@ public class ProductDto extends AbstractDto {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    protected String getPrefix() {
-        return "Product: ";
-    }
-
     private void normalize(ProductForm form) throws ApiException {
         super.normalize(form);
         // Special handling for image path - keeping original case
@@ -111,7 +98,7 @@ public class ProductDto extends AbstractDto {
             if (!lowerCasePath.endsWith(".png") && 
                 !lowerCasePath.endsWith(".jpg") && 
                 !lowerCasePath.endsWith(".jpeg")) {
-                throw new ApiException(getPrefix() + "Invalid image format. Only PNG, JPG, and JPEG files are allowed");
+                throw new ApiException("Invalid image format. Only PNG, JPG, and JPEG files are allowed");
             }
             form.setImagePath(imagePath);
         }

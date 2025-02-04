@@ -44,13 +44,10 @@ public abstract class AbstractDto {
             for (ConstraintViolation<T> violation : violations) {
                 FieldErrorData error = new FieldErrorData();
                 error.setField(violation.getPropertyPath().toString());
-                error.setMessage(getPrefix() + violation.getMessage());
+                error.setMessage(violation.getMessage());
                 errorList.add(error);
             }
             throw new ApiException("Validation failed", errorList);
         }
     }
-
-    // Each DTO must define its prefix so that error messages are easier to understand
-    protected abstract String getPrefix();
 }

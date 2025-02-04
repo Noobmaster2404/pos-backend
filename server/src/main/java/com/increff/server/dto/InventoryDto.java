@@ -50,7 +50,7 @@ public class InventoryDto extends AbstractDto {
 
     public List<InventoryData> bulkAddInventory(List<InventoryForm> forms) throws ApiException {
         if (forms.size() > 5000) {
-            throw new ApiException(getPrefix() + "Cannot process more than 5000 inventory items at once");
+            throw new ApiException("Cannot process more than 5000 inventory items at once");
         }
 
         for (InventoryForm form : forms) {
@@ -58,22 +58,13 @@ public class InventoryDto extends AbstractDto {
         }
         Map<InventoryForm, Product> inventoryProductMap = new HashMap<>();
         for (InventoryForm form : forms) {
-            try{
-                Product product = productApi.getProductByBarcode(form.getBarcode());
-                inventoryProductMap.put(form, product);
-            } catch (ApiException e) {
-                throw new ApiException(getPrefix() + e.getMessage());
-            }
+            Product product = productApi.getProductByBarcode(form.getBarcode());
+            inventoryProductMap.put(form, product);
         }
 
         List<Inventory> addedInventory = inventoryFlow.bulkAddInventory(
             ConversionHelper.convertToInventory(inventoryProductMap));
 
         return ConversionHelper.convertToInventoryData(addedInventory);
-    }
-
-    @Override
-    protected String getPrefix() {
-        return "Inventory: ";
     }
 }

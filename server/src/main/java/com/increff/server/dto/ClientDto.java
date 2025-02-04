@@ -38,9 +38,4 @@ public class ClientDto extends AbstractDto {
         Client updatedClient = clientFlow.updateClientById(clientId, client);
         return ConversionHelper.convertToClientData(updatedClient);
     }
-
-    @Override
-    protected String getPrefix() {
-        return "Client: ";
-    }
 }

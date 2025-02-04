@@ -37,15 +37,11 @@ public class OrderDto extends AbstractDto {
         double orderTotal = 0.0;
         
         for (OrderItemForm itemForm : form.getOrderItems()) {
-            try {
-                Product product = productApi.getProductByBarcode(itemForm.getBarcode());
-                OrderItem orderItem = ConversionHelper.convertToOrderItem(itemForm, product, order);
-                
-                orderTotal += itemForm.getQuantity() * itemForm.getSellingPrice();
-                orderItems.add(orderItem);
-            } catch (ApiException e) {
-                throw new ApiException(getPrefix() + e.getMessage());
-            }
+            Product product = productApi.getProductByBarcode(itemForm.getBarcode());
+            OrderItem orderItem = ConversionHelper.convertToOrderItem(itemForm, product, order);
+            
+            orderTotal += itemForm.getQuantity() * itemForm.getSellingPrice();
+            orderItems.add(orderItem);
         }
         
         order.setOrderItems(orderItems);
@@ -57,39 +53,23 @@ public class OrderDto extends AbstractDto {
 
     @Transactional(readOnly = true)
     public OrderData getOrder(Integer orderId) throws ApiException {
-        try {
-            Order order = orderFlow.getOrderById(orderId);
-            return ConversionHelper.convertToOrderData(order);
-        } catch (ApiException e) {
-            throw new ApiException(getPrefix() + e.getMessage());
-        }
+        Order order = orderFlow.getOrderById(orderId);
+        return ConversionHelper.convertToOrderData(order);
     }
 
     @Transactional(readOnly = true)
     public List<OrderData> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
-        try {
-            List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate);
-            return orders.stream()
-                    .map(order -> {
-                        return ConversionHelper.convertToOrderData(order);
-                    })
-                    .collect(Collectors.toList());
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof ApiException) {
-                throw (ApiException) e.getCause();
-            }
-            throw new ApiException(getPrefix() + e.getMessage());
-        }
+        List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate);
+        return orders.stream()
+                .map(order -> {
+                    return ConversionHelper.convertToOrderData(order);
+                })
+                .collect(Collectors.toList());
     }
 
     public void generateInvoice(OrderData orderData) throws ApiException {
         
         Order order = orderFlow.getOrderById(orderData.getOrderId());
         orderFlow.generateAndSaveInvoice(order);
-    }
-
-    @Override
-    protected String getPrefix() {
-        return "Order: ";
     }
 } 

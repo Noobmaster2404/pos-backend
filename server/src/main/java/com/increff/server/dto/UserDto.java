@@ -47,7 +47,7 @@ public class UserDto extends AbstractDto {
         String email = form.getEmail().toLowerCase().trim();
         User user = userService.getByEmail(email);
         if (Objects.isNull(user) || !passwordEncoder.matches(form.getPassword(), user.getPassword())) {
-            throw new ApiException(getPrefix() + "Invalid credentials");
+            throw new ApiException("Invalid credentials");
         }
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
@@ -58,10 +58,5 @@ public class UserDto extends AbstractDto {
         SecurityContextHolder.getContext().setAuthentication(auth);
         
         return new LoginData(user.getEmail(), user.getRole().name());
-    }
-
-    @Override
-    public String getPrefix() {
-        return "UserDto: ";
     }
 } 

@@ -43,11 +43,6 @@ public class SalesReportDto extends AbstractDto {
         List<DailySales> reports = salesReportApi.getByDateRange(form.getStartDate(), form.getEndDate());
         return ConversionHelper.convertToDailySalesData(reports);
     }
-    
-    @Override
-    protected String getPrefix() {
-        return "Report: ";
-    }
         
     @Override
     protected <T> void checkValid(T form) throws ApiException {
@@ -55,13 +50,13 @@ public class SalesReportDto extends AbstractDto {
         if (form instanceof SalesReportForm) {
             SalesReportForm reportForm = (SalesReportForm) form;
             if (reportForm.getStartDate().isAfter(reportForm.getEndDate())) {
-                throw new ApiException(getPrefix() + "Start date cannot be after end date");
+                throw new ApiException("Start date cannot be after end date");
             }
         }
         else if (form instanceof DailySalesForm) {
             DailySalesForm dailySalesForm = (DailySalesForm) form;
             if (dailySalesForm.getStartDate().isAfter(dailySalesForm.getEndDate())) {
-                throw new ApiException(getPrefix() + "Start date cannot be after end date");
+                throw new ApiException("Start date cannot be after end date");
             }
         }
     }
