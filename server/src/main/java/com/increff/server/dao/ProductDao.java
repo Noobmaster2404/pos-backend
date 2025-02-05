@@ -32,18 +32,6 @@ public class ProductDao extends AbstractDao<Product> {
                  .orElse(null);
     }
 
-    public List<Product> selectAll(Integer pageNo) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(root);
-        
-        return em.createQuery(cq)
-                 .setFirstResult(pageNo * PAGE_SIZE)
-                 .setMaxResults(PAGE_SIZE)
-                 .getResultList();
-    }
-
     public List<Product> selectByNamePrefix(String prefix, Integer pageNo) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
