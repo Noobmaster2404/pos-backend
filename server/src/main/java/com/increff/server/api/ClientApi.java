@@ -69,4 +69,13 @@ public class ClientApi {
         }
         return clientMap;
     }
+
+    @Transactional(readOnly = true)
+    public List<Client> getCheckClientsByIds(List<Integer> clientIds) throws ApiException {
+        List<Client> clients = dao.selectByIds(clientIds);
+        if (clients.size() < clientIds.size()) {
+            throw new ApiException("One or more client IDs did not match any existing clients");
+        }
+        return clients;
+    }
 }

@@ -6,28 +6,15 @@ import lombok.Setter;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.ArrayList;
+
 @Entity
 @Getter
 @Setter
-@Table(
-    name = "orders",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"id"})
-)
+@Table (name = "orders")
 public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "order_generator")
-    @TableGenerator(
-        name = "order_generator",
-        table = "sequence_table",
-        pkColumnName = "seq_name",
-        valueColumnName = "seq_value",
-        pkColumnValue = "order_seq",
-        initialValue = 1,
-        allocationSize = 1,
-        schema = "pos"
-    )
-    @Column(name = "id")
     private Integer orderId;
 
     @Column(nullable = false)

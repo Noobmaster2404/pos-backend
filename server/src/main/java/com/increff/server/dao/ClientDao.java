@@ -50,4 +50,13 @@ public class ClientDao extends AbstractDao<Client> {
         
         return em.createQuery(cq).getResultList();
     }
+
+    public List<Client> selectByIds(List<Integer> clientIds) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Client> cq = cb.createQuery(Client.class);
+        Root<Client> root = cq.from(Client.class);
+        cq.select(root).where(root.get("clientId").in(clientIds));
+        
+        return em.createQuery(cq).getResultList();
+    }
 }

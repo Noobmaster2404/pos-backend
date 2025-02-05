@@ -8,33 +8,24 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(
-    name = "inventory"
+    name = "inventory",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"product_id"})
 )
 public class Inventory extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, 
-                    generator = "inventory_generator")
-    @TableGenerator(
-        name = "inventory_generator",
-        table = "sequence_table",
-        pkColumnName = "seq_name",
-        valueColumnName = "seq_value",
-        pkColumnValue = "inventory_seq",
-        initialValue = 1,
-        allocationSize = 50,
-        schema = "pos"
-    )
-    @Column(name = "inventory_id")
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "inventory_generator")
     private Integer inventoryId;
+    //TODO: remove barcode from here and use joins instead
+    //exlplain analyze ... for optimizer
 
     @OneToOne
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JoinColumn(nullable = false)
     private Product product;
 
     @Column(nullable = false)
     private String barcode;
-    //include it in the product object above
+    //TODO:remove barcode
 
     @Column(nullable = false)
     private Integer quantity;

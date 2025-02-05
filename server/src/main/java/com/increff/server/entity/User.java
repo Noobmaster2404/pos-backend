@@ -3,6 +3,7 @@ package com.increff.server.entity;
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
 import com.increff.server.model.Role;
 
 @Entity
@@ -15,7 +16,7 @@ import com.increff.server.model.Role;
 public class User extends BaseEntity {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_generator")
     private Integer id;
 
     @Column(nullable = false)

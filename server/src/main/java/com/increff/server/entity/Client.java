@@ -16,10 +16,9 @@ public class Client extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "client_generator")
-    @Column(name = "client_id")
     private Integer clientId;
 
-    @Column(name = "client_name", length = 255, nullable = false)
+    @Column(length = 255, nullable = false)
     private String clientName;
 
     @Column(length = 10, nullable = false)

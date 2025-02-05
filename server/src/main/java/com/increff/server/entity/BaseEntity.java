@@ -2,8 +2,8 @@ package com.increff.server.entity;
 
 import lombok.Getter;
 import javax.persistence.*;
-
 import java.time.ZonedDateTime;
+
 import com.increff.commons.util.TimeZoneUtil;
 
 @Getter

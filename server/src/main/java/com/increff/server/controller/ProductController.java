@@ -11,8 +11,6 @@ import com.increff.commons.model.ProductData;
 import com.increff.commons.model.ProductForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.ProductDto;
-import com.increff.commons.model.ClientData;
-import com.increff.server.dto.ClientDto;
 
 @Api(tags = "Product Management")
 @RestController
@@ -21,9 +19,6 @@ public class ProductController {
 
     @Autowired
     private ProductDto dto;
-
-    @Autowired
-    private ClientDto clientDto;
 
     @ApiOperation(value = "Get all products")
     @ResponseStatus(HttpStatus.OK)
@@ -35,9 +30,9 @@ public class ProductController {
     @ApiOperation(value = "Get products by name")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<ProductData> getProductsByName(
+    public List<ProductData> getProductsByNamePrefix(
             @RequestParam String productName) throws ApiException {
-        return dto.getProductsByName(productName);
+        return dto.getProductsByNamePrefix(productName);
     }
 
     @ApiOperation(value = "Get products by barcode")
@@ -55,33 +50,25 @@ public class ProductController {
         return dto.addProduct(form);
     }
 
+    @ApiOperation(value = "Update product by barcode")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
+    @RequestMapping(method = RequestMethod.PUT, value = "/{barcode}")
     public ProductData updateProductByBarcode(@PathVariable String barcode, @RequestBody ProductForm form) throws ApiException {
         return dto.updateProductByBarcode(barcode, form);
     }
 
+    @ApiOperation(value = "Bulk create products from JSON data")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    @ApiOperation(value = "Bulk create products from JSON data")
     public List<ProductData> bulkAddProducts(@RequestBody List<ProductForm> forms) throws ApiException {
         return dto.bulkAddProducts(forms);
     }
 
     @ApiOperation(value = "Get products by client ID")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/clients/{clientId}/products")
-    //api naming follows REST hierarchy, products belong to a client
-    public List<ProductData> getProductsByClientId(@PathVariable Integer clientId) throws ApiException {
+    @RequestMapping(method = RequestMethod.GET, value = "/by-client")
+    public List<ProductData> getProductsByClientId(
+            @RequestParam(value = "clientId", required = true) Integer clientId) throws ApiException {
         return dto.getProductsByClientId(clientId);
     }
-
-    // For client search suggestions
-    @ApiOperation(value = "Search clients by name")
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/clients/search")
-    public List<ClientData> searchClients(@RequestParam String query) throws ApiException {
-        return clientDto.getClientsByName(query);
-    }
-    //can we simply merge these 3 endpoints for search and keep them optional and pass them as request params?
 }

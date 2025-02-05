@@ -1,9 +1,10 @@
 package com.increff.server.entity;
 
 import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -16,26 +17,19 @@ public class DailySales extends BaseEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "daily_sales_generator")
-    @TableGenerator(
-        name = "daily_sales_generator",
-        table = "sequence_table",
-        pkColumnName = "seq_name",
-        valueColumnName = "seq_value",
-        pkColumnValue = "daily_sales_seq",
-        initialValue = 1,
-        allocationSize = 1,
-        schema = "pos"
-    )
     private Integer id;
 
     @Column(nullable = false)
-    private LocalDate date;
+    private ZonedDateTime date;
+    //TODO: use zoned date time
 
     @Column(nullable = false)
     private Integer invoicedOrders;
+    //TODO: invoicedOrderCount
 
     @Column(nullable = false)
     private Integer totalItems;
+    //TODO: itemCount
 
     @Column(nullable = false)
     private Double totalRevenue;

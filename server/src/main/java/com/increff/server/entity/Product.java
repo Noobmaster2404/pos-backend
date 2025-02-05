@@ -9,39 +9,22 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "products",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id"}),
-        @UniqueConstraint(columnNames = {"barcode"})
-    }
+    uniqueConstraints = @UniqueConstraint(columnNames = {"barcode"})
 )
 public class Product extends BaseEntity {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, 
-                    generator = "product_generator")
-    @TableGenerator(
-        name = "product_generator",
-        table = "sequence_table",
-        pkColumnName = "seq_name",
-        valueColumnName = "seq_value",
-        pkColumnValue = "product_seq",
-        initialValue = 1,
-        allocationSize = 50,
-        schema = "pos"
-    )
-    //TODO: can skip out on some things above
-
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "product_generator")
     private Integer productId;
 
-    @Column(name = "barcode", length = 255, nullable = false, unique = true)
+    @Column(length = 255, nullable = false)
     private String barcode;
 
     @Column(length = 255, nullable = false)
     private String productName;
+    //TODO: See if we have to change productName to name for this file
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(nullable = false)
     //@JoinColumn specifies the foreign key column in the database and is specified in child table
     private Client client;
     //While in the database, this is stored as a foreign key (client_id)

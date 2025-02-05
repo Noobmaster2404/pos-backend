@@ -5,17 +5,18 @@ import com.increff.commons.model.ProductForm;
 import com.increff.commons.model.ProductData;
 import com.increff.server.api.ClientApi;
 import com.increff.server.flow.ProductFlow;
+import com.increff.server.helper.ConversionHelper;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
-import java.util.HashMap;
-@Component
+
+@Service
 public class ProductDto extends AbstractDto {
     
     @Autowired
@@ -24,46 +25,62 @@ public class ProductDto extends AbstractDto {
     @Autowired
     private ClientApi clientApi;
 
-    public List<ProductData> getProductsByName(String productName) throws ApiException {
-        List<Product> products = productFlow.getProductsByName(productName);
-        return ConversionHelper.convertToProductData(products);
-    }
-    //TODO: shouldnt we check for null productName from controller?
+    public List<ProductData> getProductsByNamePrefix(String productName) throws ApiException {
+        List<Product> products = productFlow.getProductsByNamePrefix(productName);
 
-    //TODO: Read: Conversion class pure function
+        List<Integer> clientIds = products.stream()
+            .map(product -> product.getClient().getClientId())
+            .distinct()
+            .collect(Collectors.toList());  
+        Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
+
+        return ConversionHelper.convertToProductData(products, clientNamesMap);
+    }
 
     public ProductData getProductByBarcode(String barcode) throws ApiException {
         Product product = productFlow.getProductByBarcode(barcode);
-        return ConversionHelper.convertToProductData(product);
+        Client client = clientApi.getCheckClientById(product.getClient().getClientId());
+
+        return ConversionHelper.convertToProductData(product,client.getClientName());
     }
 
     public List<ProductData> getProductsByClientId(Integer clientId) throws ApiException {
         List<Product> products = productFlow.getProductsByClientId(clientId);
-        return ConversionHelper.convertToProductData(products);
+        Client client = clientApi.getCheckClientById(clientId);
+
+        return ConversionHelper.convertToProductData(products,client.getClientName());
     }
 
     public List<ProductData> getAllProducts() throws ApiException {
         List<Product> products = productFlow.getAllProducts();
-        return ConversionHelper.convertToProductData(products);
+
+        List<Integer> clientIds = products.stream()
+            .map(product -> product.getClient().getClientId())
+            .distinct()
+            .collect(Collectors.toList());
+        Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
+
+        return ConversionHelper.convertToProductData(products, clientNamesMap);
     }
 
     public ProductData addProduct(ProductForm form) throws ApiException {
-        // checkValid(form);
         normalize(form);
-        Client client = clientApi.getClientByName(form.getClientName());
+        checkValid(form);
+        Client client = clientApi.getCheckClientById(form.getClientId());
         Product product = ConversionHelper.convertToProduct(form, client);
-        return ConversionHelper.convertToProductData(productFlow.addProduct(product));
+        Product addedProduct = productFlow.addProduct(product);
+
+        return ConversionHelper.convertToProductData(addedProduct,client.getClientName());
     }
-    //TODO: Remove this try catch since its only attaching a prefix
 
     public ProductData updateProductByBarcode(String barcode, ProductForm form) throws ApiException {
-        // checkValid(form);
         normalize(form);
-        Client client = clientApi.getClientByName(form.getClientName());
+        checkValid(form);
+        Client client = clientApi.getCheckClientById(form.getClientId());
         Product product = ConversionHelper.convertToProduct(form, client);
         Product updatedProduct = productFlow.updateProductByBarcode(barcode, product);
-        ProductData data = ConversionHelper.convertToProductData(updatedProduct);
-        return data;
+
+        return ConversionHelper.convertToProductData(updatedProduct,client.getClientName());
     }
 
     public List<ProductData> bulkAddProducts(List<ProductForm> forms) throws ApiException {
@@ -72,26 +89,24 @@ public class ProductDto extends AbstractDto {
         }
         for (ProductForm form : forms) {
             normalize(form);
+            checkValid(form);
         }
-        Map<ProductForm, Client> productClientMap = new HashMap<>();
-        for (ProductForm form : forms) {
-            Client client = clientApi.getClientByName(form.getClientName());
-            productClientMap.put(form, client);
-        }
-        //use for loop instead of stream and lambda because lambda cannot throw checked exceptions
-        List<Product> addedProducts = productFlow.bulkAddProducts(
-            ConversionHelper.convertToProduct(productClientMap));
-        return addedProducts.stream()
-                .map(product -> {
-                    ProductData data = ConversionHelper.convertToProductData(product);
-                    return data;
-                })
-                .collect(Collectors.toList());
+
+        List<Integer> clientIds = forms.stream()
+            .map(ProductForm::getClientId)
+            .distinct()
+            .collect(Collectors.toList());
+            
+        List<Client> clients = clientApi.getCheckClientsByIds(clientIds);
+        List<Product> products = ConversionHelper.convertToProduct(forms, clients);
+
+        List<Product> addedProducts = productFlow.bulkAddProducts(products);
+
+        return ConversionHelper.convertToProductData(addedProducts, clients);
     }
 
     private void normalize(ProductForm form) throws ApiException {
         super.normalize(form);
-        // Special handling for image path - keeping original case
         if (Objects.nonNull(form.getImagePath())) {
             String imagePath = form.getImagePath().trim();
             String lowerCasePath = imagePath.toLowerCase();
@@ -100,6 +115,7 @@ public class ProductDto extends AbstractDto {
                 !lowerCasePath.endsWith(".jpeg")) {
                 throw new ApiException("Invalid image format. Only PNG, JPG, and JPEG files are allowed");
             }
+            //TODO: Optimize above - extension not in this ...
             form.setImagePath(imagePath);
         }
     }

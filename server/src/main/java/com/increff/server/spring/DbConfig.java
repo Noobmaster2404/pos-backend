@@ -68,6 +68,9 @@ public class DbConfig {
 		jpaProperties.put("hibernate.dialect", hibernateDialect);
 		jpaProperties.put("hibernate.show_sql", hibernateShowSql);
 		jpaProperties.put("hibernate.hbm2ddl.auto", hibernateHbm2ddl);
+		jpaProperties.put("hibernate.jdbc.time_zone", "UTC");
+		jpaProperties.put("hibernate.physical_naming_strategy", 
+			"org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy");
 		bean.setJpaProperties(jpaProperties);
 		return bean;
 	}
