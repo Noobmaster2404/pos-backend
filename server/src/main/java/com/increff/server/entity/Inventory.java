@@ -20,7 +20,9 @@ public class Inventory extends BaseEntity {
     //exlplain analyze ... for optimizer
 
     @OneToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="product_id", nullable = false)
+    //Use name here explicitly because when using foreign keys, hibernate has some wierd naming strategy
+    //like product_product_id
     private Product product;
 
     @Column(nullable = false)

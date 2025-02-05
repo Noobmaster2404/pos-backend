@@ -18,7 +18,7 @@ public class Client extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "client_generator")
     private Integer clientId;
 
-    @Column(length = 255, nullable = false)
+    @Column(name = "client_name", length = 255, nullable = false)
     private String clientName;
 
     @Column(length = 10, nullable = false)
@@ -29,5 +29,5 @@ public class Client extends BaseEntity {
 
     @Column(nullable = false)
     private Boolean enabled = true;
-    //Not adding one to many here because dont need to access products of a client much (unidirectional relationship)
+    //Not adding @OneToMany here because dont need to access products of a client much (unidirectional relationship)
 }

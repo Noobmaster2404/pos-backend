@@ -8,8 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(
-    name = "order_items",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"id"})
+    name = "order_items"
 )
 public class OrderItem extends BaseEntity {
 
