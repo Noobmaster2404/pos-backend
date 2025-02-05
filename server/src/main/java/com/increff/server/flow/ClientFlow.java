@@ -24,10 +24,6 @@ public class ClientFlow {
         return clientApi.getAllClients();
     }
 
-    public Client getClientById(Integer clientId) throws ApiException {
-        return clientApi.getCheckClientById(clientId);
-    }
-
     public Client updateClientById(Integer clientId, Client client) throws ApiException {
         return clientApi.updateClientById(clientId, client);
     }

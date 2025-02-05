@@ -3,7 +3,6 @@ package com.increff.server.api;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.Map;
@@ -54,27 +53,6 @@ public class ClientApi {
         Client client = dao.select(clientId);
         if (Objects.isNull(client)) {
             throw new ApiException("Client with id " + clientId + " not found");
-        }
-        return client;
-    }
-
-    @Transactional(readOnly = true)
-    public List<Client> getCheckClientsByNamePrefix(String namePrefix) throws ApiException {
-        if (StringUtils.isEmpty(namePrefix)) {
-            return getAllClients();
-        }
-        List<Client> clients = dao.selectByNamePrefix(namePrefix);
-        if(clients.isEmpty()) {
-            throw new ApiException("No clients found with name prefix: " + namePrefix);
-        }
-        return clients;
-    }
-
-    @Transactional(readOnly = true)
-    public Client getCheckClientByName(String clientName) throws ApiException {
-        Client client = dao.selectByName(clientName);
-        if(Objects.isNull(client)) {
-            throw new ApiException("No clients found with name: " + clientName);
         }
         return client;
     }
