@@ -1,24 +1,21 @@
 package com.increff.server.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
 import com.increff.server.entity.Client;
 import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
 import com.increff.server.flow.ClientFlow;
+import com.increff.server.helper.ConversionHelper;
 import com.increff.commons.exception.ApiException;
 
-@Component
+@Service
 public class ClientDto extends AbstractDto {
     
     @Autowired
     private ClientFlow clientFlow;
-
-    public List<ClientData> getClientsByName(String namePrefix) throws ApiException {
-        return ConversionHelper.convertToClientData(clientFlow.getClientsByName(namePrefix));
-    }
 
     public List<ClientData> getAllClients() throws ApiException {
         return ConversionHelper.convertToClientData(clientFlow.getAllClients());

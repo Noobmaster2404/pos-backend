@@ -21,27 +21,32 @@ public class ClientDao extends AbstractDao<Client> {
         cq.select(root).where(cb.equal(root.get("clientName"), clientName));
 
         return em.createQuery(cq)
-//                .setFirstResult()
-//                .setMaxResults()
                  .getResultList()
                  .stream()
                  .findFirst()
                  .orElse(null);
     }
-    //since name is unique, there will be only one result, so change this above code
 
     public List<Client> selectByNamePrefix(String prefix) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Client> cq = cb.createQuery(Client.class);
         Root<Client> root = cq.from(Client.class);
-        
-        // Case-insensitive prefix search using LIKE
         cq.select(root).where(
             cb.like(
                 cb.lower(root.get("clientName")), 
                 prefix.toLowerCase() + "%"
             )
         );
+
+        return em.createQuery(cq).getResultList();
+    }
+
+    public List<String> selectNamesByIds(List<Integer> clientIds) {      
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+        Root<Client> root = cq.from(Client.class);
+        cq.select(root.get("clientName"))
+          .where(root.get("clientId").in(clientIds));
         
         return em.createQuery(cq).getResultList();
     }

@@ -27,13 +27,6 @@ public class ClientController {
         return dto.getAllClients();
     }
 
-    @ApiOperation(value = "Get clients by name")
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<ClientData> getClientsByName(@RequestParam String name) throws ApiException {
-        return dto.getClientsByName(name);
-    }
-
     @ApiOperation(value = "Add a new client")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)

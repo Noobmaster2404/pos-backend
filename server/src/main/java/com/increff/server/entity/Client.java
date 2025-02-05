@@ -9,40 +9,26 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "clients",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"client_id"}),
-        @UniqueConstraint(columnNames = {"client_name"})
-    }
+    uniqueConstraints = @UniqueConstraint(columnNames = {"client_name"})
 )
-//In this case, the BaseEntity class contains lifecycle methods, and any class that extends BaseEntity will automatically inherit these lifecycle methods. 
-//The lifecycle methods will be triggered when an entity instance (like Person) is persisted or updated.
-//Hence we dont need EntityListeners
+
 public class Client extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, 
-                    generator = "client_generator")
-    @TableGenerator(
-        name = "client_generator",
-        table = "sequence_table",
-        pkColumnName = "seq_name",
-        valueColumnName = "seq_value",
-        pkColumnValue = "client_seq",
-        initialValue = 1,
-        allocationSize = 50,
-        schema = "pos"
-    )
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "client_generator")
     @Column(name = "client_id")
     private Integer clientId;
-    @Column(name = "client_name", length = 256, nullable = false, unique = true)
+
+    @Column(name = "client_name", length = 255, nullable = false)
     private String clientName;
+
     @Column(length = 10, nullable = false)
     private String phone;
-    @Column(length = 256, nullable = false)
+
+    @Column(length = 255, nullable = false)
     private String email;
+
     @Column(nullable = false)
     private Boolean enabled = true;
-
-    //Not adding one to many here because not used much, plus the below
-    //TODO: Read Risk of N+1 query problems
+    //Not adding one to many here because dont need to access products of a client much (unidirectional relationship)
 }
