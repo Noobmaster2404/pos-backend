@@ -70,7 +70,7 @@ public class DbConfig {
 		jpaProperties.put("hibernate.hbm2ddl.auto", hibernateHbm2ddl);
 		jpaProperties.put("hibernate.jdbc.time_zone", "UTC");
 		jpaProperties.put("hibernate.physical_naming_strategy", 
-			"org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy");
+			"org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
 		bean.setJpaProperties(jpaProperties);
 		return bean;
 	}
