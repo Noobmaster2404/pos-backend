@@ -53,7 +53,7 @@ public class ProductController {
         return dto.addProduct(form);
     }
 
-    @ApiOperation(value = "Update product by barcode")
+    @ApiOperation(value = "Update product by id")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
     public ProductData updateProductById(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
