@@ -20,12 +20,11 @@ public class ProductForm {
     @Size(max = 255, message = "Product name cannot exceed 255 characters")
     private String productName;
     
-    @NotBlank(message = "Client name cannot be blank")
-    @Size(max = 255, message = "Client name cannot exceed 255 characters")
-    private String clientName;
+    @NotNull(message = "Client ID cannot be null")
+    private Integer clientId;
     
-    @Pattern(regexp = "^[\\w-]+\\.(jpg|jpeg|png)$", 
-            message = "Image path must be a valid filename with extension jpg, jpeg, or png")
+    @Pattern(regexp = "^(https?://.*\\.(jpg|jpeg|png)|[\\w/\\\\.-]+\\.(jpg|jpeg|png))$", 
+            message = "Image path must be either a URL or a valid file path ending with jpg, jpeg, or png")
     @Size(max = 255, message = "Image path cannot exceed 255 characters")
     private String imagePath;
     

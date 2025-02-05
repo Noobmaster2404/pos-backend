@@ -40,10 +40,11 @@ public class ProductDto extends AbstractDto {
             .map(product -> product.getClient().getClientId())
             .distinct()
             .collect(Collectors.toList());  
-        Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
 
+        Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
         List<ProductData> productData = ConversionHelper.convertToProductData(products, clientNamesMap);
         long totalCount = productApi.getCountByNamePrefix(productName);
+
         return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
     }
 
@@ -58,22 +59,22 @@ public class ProductDto extends AbstractDto {
         List<Product> products = productFlow.getProductsByClientId(clientId, page);
         Client client = clientApi.getCheckClientById(clientId);
         long totalCount = productApi.getCountByClientId(clientId);
-
         List<ProductData> productData = ConversionHelper.convertToProductData(products, client.getClientName());
+
         return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
     }
 
     public PaginatedData<ProductData> getAllProducts(Integer page) throws ApiException {
         List<Product> products = productFlow.getAllProducts(page);
         long totalCount = productApi.getTotalCount();
-        
+
         List<Integer> clientIds = products.stream()
             .map(product -> product.getClient().getClientId())
             .distinct()
             .collect(Collectors.toList());
         Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
-        
         List<ProductData> productDataList = ConversionHelper.convertToProductData(products, clientNamesMap);
+
         return new PaginatedData<>(productDataList, page, totalCount, PAGE_SIZE);
     }
 
