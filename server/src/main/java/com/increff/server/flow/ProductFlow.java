@@ -35,12 +35,12 @@ public class ProductFlow {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getAllProducts() {
-        return productApi.getAllProducts();
+    public List<Product> getAllProducts(Integer page) {
+        return productApi.getAllProducts(page);
     }
 
-    public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
-        return productApi.updateProductByBarcode(barcode, product);
+    public Product updateProductById(Integer productId, Product product) throws ApiException {
+        return productApi.updateProductById(productId, product);
     }
 
     public List<Product> bulkAddProducts(List<Product> products) throws ApiException {
@@ -52,8 +52,8 @@ public class ProductFlow {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getProductsByNamePrefix(String productName) throws ApiException {
-        return productApi.getCheckProductsByNamePrefix(productName);
+    public List<Product> getProductsByNamePrefix(String productName, Integer page) throws ApiException {
+        return productApi.getCheckProductsByNamePrefix(productName, page);
     }
 
     @Transactional(readOnly = true)
@@ -62,8 +62,9 @@ public class ProductFlow {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getProductsByClientId(Integer clientId) throws ApiException {
+    public List<Product> getProductsByClientId(Integer clientId, Integer page) throws ApiException {
         clientApi.getCheckClientById(clientId);
-        return productApi.getCheckProductsByClientId(clientId);
+        
+        return productApi.getCheckProductsByClientId(clientId, page);
     }
 }

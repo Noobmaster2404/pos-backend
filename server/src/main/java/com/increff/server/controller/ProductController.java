@@ -11,6 +11,7 @@ import com.increff.commons.model.ProductData;
 import com.increff.commons.model.ProductForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.ProductDto;
+import com.increff.commons.model.PaginatedData;
 
 @Api(tags = "Product Management")
 @RestController
@@ -23,16 +24,18 @@ public class ProductController {
     @ApiOperation(value = "Get all products")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
-    public List<ProductData> getAllProducts() throws ApiException {
-        return dto.getAllProducts();
+    public PaginatedData<ProductData> getAllProducts(
+            @RequestParam(defaultValue = "0") Integer page) throws ApiException {
+        return dto.getAllProducts(page);
     }
 
     @ApiOperation(value = "Get products by name")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<ProductData> getProductsByNamePrefix(
-            @RequestParam String productName) throws ApiException {
-        return dto.getProductsByNamePrefix(productName);
+    public PaginatedData<ProductData> getProductsByNamePrefix(
+            @RequestParam String productName,
+            @RequestParam(defaultValue = "0") Integer page) throws ApiException {
+        return dto.getProductsByNamePrefix(productName, page);
     }
 
     @ApiOperation(value = "Get products by barcode")
@@ -52,9 +55,9 @@ public class ProductController {
 
     @ApiOperation(value = "Update product by barcode")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT, value = "/{barcode}")
-    public ProductData updateProductByBarcode(@PathVariable String barcode, @RequestBody ProductForm form) throws ApiException {
-        return dto.updateProductByBarcode(barcode, form);
+    @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
+    public ProductData updateProductById(@PathVariable Integer productId, @RequestBody ProductForm form) throws ApiException {
+        return dto.updateProductById(productId, form);
     }
 
     @ApiOperation(value = "Bulk create products from JSON data")
@@ -67,8 +70,9 @@ public class ProductController {
     @ApiOperation(value = "Get products by client ID")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/by-client")
-    public List<ProductData> getProductsByClientId(
-            @RequestParam(value = "clientId", required = true) Integer clientId) throws ApiException {
-        return dto.getProductsByClientId(clientId);
+    public PaginatedData<ProductData> getProductsByClientId(
+            @RequestParam(value = "clientId", required = true) Integer clientId,
+            @RequestParam(defaultValue = "0") Integer page) throws ApiException {
+        return dto.getProductsByClientId(clientId, page);
     }
 }

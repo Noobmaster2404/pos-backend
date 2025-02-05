@@ -28,14 +28,14 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getAllProducts() {
-        return dao.selectAll();
+    public List<Product> getAllProducts(Integer page) {
+        return dao.selectAll(page);
     }
 
-    public Product updateProductByBarcode(String barcode, Product product) throws ApiException {
-        Product existingProduct = dao.selectByBarcode(barcode);
+    public Product updateProductById(Integer productId, Product product) throws ApiException {
+        Product existingProduct = dao.select(productId);
         if (Objects.isNull(existingProduct)) {
-            throw new ApiException("Product with given barcode does not exist");
+            throw new ApiException("Product with given id does not exist");
         }
         
         if (!existingProduct.getBarcode().equals(product.getBarcode())) {
@@ -55,11 +55,11 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getCheckProductsByNamePrefix(String productName) throws ApiException {
+    public List<Product> getCheckProductsByNamePrefix(String productName, Integer page) throws ApiException {
         if (Objects.isNull(productName) || productName.isEmpty()) {
-            return getAllProducts();
+            return getAllProducts(page);
         }
-        List<Product> products = dao.selectByNamePrefix(productName);
+        List<Product> products = dao.selectByNamePrefix(productName, page);
         if (products.isEmpty()) {
             throw new ApiException("No products found with name prefix: " + productName);
         }
@@ -76,11 +76,26 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getCheckProductsByClientId(Integer clientId) throws ApiException {
-        List<Product> products = dao.selectByClientId(clientId);
+    public List<Product> getCheckProductsByClientId(Integer clientId, Integer page) throws ApiException {
+        List<Product> products = dao.selectByClientId(clientId, page);
         if (products.isEmpty()) {
             throw new ApiException("No products found for client ID: " + clientId);
         }
         return products;
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalCount() {
+        return dao.count();
+    }
+
+    @Transactional(readOnly = true)
+    public long getCountByNamePrefix(String prefix) {
+        return dao.countByNamePrefix(prefix);
+    }
+
+    @Transactional(readOnly = true)
+    public long getCountByClientId(Integer clientId) {
+        return dao.countByClientId(clientId);
     }
 }
