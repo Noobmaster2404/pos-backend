@@ -14,16 +14,13 @@ import org.springframework.core.io.UrlResource;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.time.ZonedDateTime;
-import java.util.List;
-//TODO: Use intelliJ for imports
 
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.OrderDto;
-import com.increff.commons.util.TimeZoneUtil;
 import com.increff.commons.model.OrderSearchForm;
+import com.increff.commons.model.PaginatedData;
 
 @Api(tags = "Order Management")
 @RestController
@@ -33,13 +30,7 @@ public class OrderController {
     @Autowired
     private OrderDto dto;
 
-    @ApiOperation(value = "Create a new order")
-    @ResponseStatus(HttpStatus.CREATED)
-    @RequestMapping(method = RequestMethod.POST)
-    public OrderData createOrder(@RequestBody OrderForm form) throws ApiException {
-        return dto.createOrder(form);
-    }
-
+    //dummy
     @ApiOperation(value = "Get order by ID")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/{orderId}")
@@ -47,15 +38,21 @@ public class OrderController {
         return dto.getOrder(orderId);
     }
 
+    @ApiOperation(value = "Create a new order")
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(method = RequestMethod.POST)
+    public OrderData addOrder(@RequestBody OrderForm form) throws ApiException {
+        return dto.addOrder(form);
+    }
+
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.POST, value = "/search")
     @ApiOperation(value = "Get orders by date range")
-    public List<OrderData> getOrdersByDateRange(@RequestBody OrderSearchForm form) throws ApiException {
-        ZonedDateTime startDate = TimeZoneUtil.toUTC(form.getStartDate());
-        ZonedDateTime endDate = TimeZoneUtil.toUTC(form.getEndDate());
-        return dto.getOrdersByDateRange(startDate, endDate);
+    public PaginatedData<OrderData> getOrdersByDateRange(
+        @RequestBody OrderSearchForm form,
+        @RequestParam(defaultValue = "0") Integer page) throws ApiException {
+        return dto.getOrdersByDateRange(form, page);
     }
-    //TODO: remove logic above
 
     @ApiOperation(value = "Download order invoice")
     @ResponseStatus(HttpStatus.OK)

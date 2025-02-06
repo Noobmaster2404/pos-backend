@@ -26,6 +26,9 @@ public class Order extends BaseEntity {
     @Column(length = 1000)
     private String invoicePath;
 
+    @Column(nullable = false)
+    private Boolean invoiceGenerated = false;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     //default fetch type is lazy for OneToMany
     //mappedBy helps hibernate to know that the foreign key is in the OrderItem table

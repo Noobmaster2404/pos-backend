@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Repository
 public class ProductDao extends AbstractDao<Product> {
-    
+
     @Value("${PAGE_SIZE}")
     private Integer PAGE_SIZE;
 
@@ -50,14 +50,14 @@ public class ProductDao extends AbstractDao<Product> {
                  .getResultList();
     }
 
-    public List<Product> selectByClientId(Integer clientId, Integer pageNo) {
+    public List<Product> selectByClientId(Integer clientId, Integer page) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
         Root<Product> root = cq.from(Product.class);
         cq.select(root).where(cb.equal(root.get("client").get("clientId"), clientId));
         
         return em.createQuery(cq)
-                 .setFirstResult(pageNo * PAGE_SIZE)
+                 .setFirstResult(page * PAGE_SIZE)
                  .setMaxResults(PAGE_SIZE)
                  .getResultList();
     }

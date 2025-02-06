@@ -11,6 +11,9 @@ import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import com.increff.commons.util.TimeZoneUtil;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.ArrayList;
 
 import com.increff.server.api.OrderApi;
 import com.increff.server.entity.Order;
@@ -30,36 +33,43 @@ public class OrderFlow {
     private OrderApi orderApi;
 
     @Autowired
-    private ProductFlow productFlow;
-
-    @Autowired
     private InventoryFlow inventoryFlow;
 
     @Autowired
     private InvoiceGenerator invoiceGenerator;
 
-    @Value("${invoice.baseUrl}")
-    private String invoiceBaseUrl;
-
     @Value("${invoice.storage.path}")
     private String invoiceStoragePath;
 
-    public Order createOrder(Order order) throws ApiException {
-        //TODO: Map of productId to product with valid checks
-        //TODO: Use list api for inventpry as well
-        //delay writes as much as possible
-        for (OrderItem item : order.getOrderItems()) {
-            Product product = productFlow.getProductByBarcode(item.getProduct().getBarcode());
-            item.setProduct(product);
-            //TODO: Use id not barcode
+    public Order addOrder(Order order) throws ApiException {
+        // Get all product IDs
+        List<Integer> productIds = order.getOrderItems().stream()
+            .map(item -> item.getProduct().getProductId())
+            .collect(Collectors.toList());
             
-            Inventory inventory = inventoryFlow.getInventoryById(product.getProductId());
+        // Get all inventories in a single call
+        List<Inventory> inventories = inventoryFlow.getInventoriesByProductIds(productIds);
+        Map<Integer, Inventory> productIdToInventory = inventories.stream()
+            .collect(Collectors.toMap(
+                inventory -> inventory.getProduct().getProductId(),
+                inventory -> inventory
+            ));
+        
+        // Validate and update inventories
+        for (OrderItem item : order.getOrderItems()) {
+            Inventory inventory = productIdToInventory.get(item.getProduct().getProductId());
             if (inventory.getQuantity() < item.getQuantity()) {
-                throw new ApiException("Insufficient inventory for product: " + product.getBarcode());
+                throw new ApiException("Insufficient inventory for product: " + item.getProduct().getBarcode());
             }
             inventory.setQuantity(inventory.getQuantity() - item.getQuantity());
-            inventoryFlow.updateInventoryById(product.getProductId(), inventory);
+            
+            // Set the order reference for each item
+            item.setOrder(order);
         }
+        
+        // Bulk update inventories
+        inventoryFlow.updateInventories(new ArrayList<>(productIdToInventory.values()));
+        
         Order savedOrder = orderApi.createOrder(order);
 
         // Generate invoice synchronously for now to debug
@@ -107,7 +117,7 @@ public class OrderFlow {
     }
 
     @Transactional(readOnly = true)
-    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) throws ApiException {
         if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
             throw new ApiException("Start date and end date cannot be null");
         }
@@ -117,6 +127,6 @@ public class OrderFlow {
         if (startDate.isAfter(endDate)) {
             throw new ApiException("Start date cannot be after end date");
         }
-        return orderApi.getOrdersByDateRange(startDate, endDate);
+        return orderApi.getOrdersByDateRange(startDate, endDate, page);
     }
 } 

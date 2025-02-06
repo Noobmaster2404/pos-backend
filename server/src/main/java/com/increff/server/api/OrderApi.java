@@ -20,11 +20,15 @@ public class OrderApi {
     @Autowired
     private OrderDao orderDao;
 
+    @Autowired
+    private OrderItemApi orderItemApi;
+
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(Order order) throws ApiException {
         // validateOrder(order);
         order.setOrderTime(TimeZoneUtil.getCurrentUTCDateTime());
         orderDao.insert(order);
+        orderItemApi.insertOrderItems(order.getOrderItems());
         return order;
     }
 
@@ -38,8 +42,8 @@ public class OrderApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
-        return orderDao.selectByDateRange(startDate, endDate);
+    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) {
+        return orderDao.selectByDateRange(startDate, endDate, page);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -64,6 +68,10 @@ public class OrderApi {
         existingOrder.setInvoicePath(order.getInvoicePath());
         orderDao.update(existingOrder);
         return existingOrder;
+    }
+
+    public long getCountByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        return orderDao.countByDateRange(startDate, endDate);
     }
 
     // private void validateOrder(Order order) throws ApiException {

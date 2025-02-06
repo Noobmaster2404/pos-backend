@@ -5,6 +5,7 @@ import com.increff.server.entity.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.time.ZonedDateTime;
 
 public class ConversionHelper {
 
@@ -138,43 +139,77 @@ public class ConversionHelper {
     }
 
     // Order conversions
-    public static OrderItem convertToOrderItem(OrderItemForm form, Product product, Order order){
-        OrderItem orderItem = new OrderItem();
-        orderItem.setProduct(product);
-        orderItem.setQuantity(form.getQuantity());
-        orderItem.setSellingPrice(form.getSellingPrice());
-        orderItem.setOrder(order);
-        return orderItem;
-    }
+    public static OrderData convertToOrderData(Order order, List<OrderItem> orderItems, List<Product> products) {
+        Map<Integer, Product> productMap = products.stream()
+            .collect(Collectors.toMap(Product::getProductId, product -> product));
 
-    public static OrderData convertToOrderData(Order order){
         OrderData data = new OrderData();
         data.setOrderId(order.getOrderId());
         data.setOrderTime(order.getOrderTime());
         data.setOrderTotal(order.getOrderTotal());
         data.setInvoicePath(order.getInvoicePath());
+        data.setInvoiceGenerated(order.getInvoiceGenerated());
         
-        List<OrderItemData> itemDataList = order.getOrderItems()
-                .stream()
-                .map(item -> {
-                    return convertToOrderItemData(item);
-                })
-                .collect(Collectors.toList());
+        List<OrderItemData> itemDataList = orderItems.stream()
+            .map(item -> convertToOrderItemData(item, productMap.get(item.getProduct().getProductId())))
+            .collect(Collectors.toList());
+
         data.setOrderItems(itemDataList);
         
         return data;
     }
 
-    public static OrderItemData convertToOrderItemData(OrderItem item){
+    public static OrderItemData convertToOrderItemData(OrderItem item, Product product) {
         OrderItemData data = new OrderItemData();
         data.setOrderItemId(item.getOrderItemId());
-        data.setProductId(item.getProduct().getProductId());
-        data.setProductName(item.getProduct().getProductName());
-        data.setBarcode(item.getProduct().getBarcode());
+        data.setProductId(product.getProductId());
+        data.setProductName(product.getProductName());
+        data.setBarcode(product.getBarcode());
         data.setQuantity(item.getQuantity());
         data.setSellingPrice(item.getSellingPrice());
         data.setItemTotal(item.getQuantity() * item.getSellingPrice());
         return data;
+    }
+
+    public static OrderData convertToOrderData(Order order, List<OrderItem> orderItems, Map<Integer, Product> productMap) {
+        OrderData data = new OrderData();
+        data.setOrderId(order.getOrderId());
+        data.setOrderTime(order.getOrderTime());
+        data.setOrderTotal(order.getOrderTotal());
+        data.setInvoicePath(order.getInvoicePath());
+        data.setInvoiceGenerated(order.getInvoiceGenerated());
+        data.setOrderItems(orderItems.stream()
+            .map(item -> convertToOrderItemData(item, productMap.get(item.getProduct().getProductId())))
+            .collect(Collectors.toList()));
+        return data;
+    }
+
+    public static List<OrderData> convertToOrderData(List<Order> orders, Map<Integer, List<OrderItem>> orderItemsMap, Map<Integer, Product> productMap) {
+        return orders.stream()
+            .map(order -> convertToOrderData(order, orderItemsMap.get(order.getOrderId()), productMap))
+            .collect(Collectors.toList());
+    }
+
+    public static OrderItem convertToOrderItem(OrderItemForm form, Product product) {
+        OrderItem item = new OrderItem();
+        item.setProduct(product);
+        item.setQuantity(form.getQuantity());
+        item.setSellingPrice(form.getSellingPrice());
+        return item;
+    }
+
+    public static Order convertToOrder(OrderForm form, Map<String, Product> barcodeToProduct) {
+        Order order = new Order();
+        order.setOrderItems(form.getOrderItems().stream()
+            .map(itemForm -> convertToOrderItem(itemForm, barcodeToProduct.get(itemForm.getBarcode())))
+            .collect(Collectors.toList()));
+        order.setOrderTotal(form.getOrderItems().stream()
+            .mapToDouble(itemForm -> itemForm.getQuantity() * itemForm.getSellingPrice())
+            .sum());
+        order.setInvoiceGenerated(false);
+        order.setInvoicePath(null);
+        order.setOrderTime(ZonedDateTime.now());
+        return order;
     }
 
     public static DailySalesData convertToDailySalesData(DailySales report) {

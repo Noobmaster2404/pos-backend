@@ -7,17 +7,21 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.JoinType;
 import java.time.ZonedDateTime;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.increff.server.entity.Order;
 
 @Repository
 public class OrderDao extends AbstractDao<Order> {
+
+    @Value("${PAGE_SIZE}")
+    private Integer PAGE_SIZE;
     
     public OrderDao() {
         super(Order.class);
     }
 
-    public List<Order> selectByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+    public List<Order> selectByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> root = cq.from(Order.class);
@@ -29,7 +33,10 @@ public class OrderDao extends AbstractDao<Order> {
             )
         );
         
-        return em.createQuery(cq).getResultList();
+        return em.createQuery(cq)
+                 .setFirstResult(page * PAGE_SIZE)
+                 .setMaxResults(PAGE_SIZE)
+                 .getResultList();
     }
 
     public Order selectWithItems(Integer id) {
@@ -47,6 +54,19 @@ public class OrderDao extends AbstractDao<Order> {
                  .stream()
                  .findFirst()
                  .orElse(null);
+    }
+
+    public long countByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Order> root = cq.from(Order.class);
+        cq.select(cb.count(root)).where(
+            cb.and(
+                cb.greaterThanOrEqualTo(root.get("orderTime"), startDate),
+                cb.lessThanOrEqualTo(root.get("orderTime"), endDate)
+            )
+        );
+        return em.createQuery(cq).getSingleResult();
     }
     //TODO: Check @BatchSize (NI)
 } 

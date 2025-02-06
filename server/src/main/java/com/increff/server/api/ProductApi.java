@@ -109,6 +109,15 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
+    public List<Product> getCheckProductsByIds(List<Integer> productIds) throws ApiException {
+        List<Product> products = dao.selectByProductIds(productIds);
+        if (products.size() != productIds.size()) {
+            throw new ApiException("Some products with given ids do not exist");
+        }   
+        return products;
+    }
+
+    @Transactional(readOnly = true)
     public long getTotalCount() {
         return dao.count();
     }

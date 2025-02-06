@@ -12,5 +12,6 @@ public class OrderData {
     private ZonedDateTime orderTime;
     private Double orderTotal;
     private String invoicePath;
+    private Boolean invoiceGenerated;
     private List<OrderItemData> orderItems;
 } 
