@@ -11,7 +11,6 @@ import com.increff.commons.exception.ApiException;
 import com.increff.commons.util.TimeZoneUtil;
 
 import java.time.ZonedDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +23,7 @@ public class OrderApi {
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(Order order) throws ApiException {
         // validateOrder(order);
-        order.setOrderTime(TimeZoneUtil.getCurrentUTCDate().atStartOfDay(ZoneOffset.UTC));
+        order.setOrderTime(TimeZoneUtil.getCurrentUTCDateTime());
         orderDao.insert(order);
         return order;
     }
@@ -49,6 +48,7 @@ public class OrderApi {
         order.setInvoicePath(invoicePath);
         orderDao.update(order);
     }
+    //TODO: OrderStatus (NI)
 
     public List<Order> getAllOrders() throws ApiException {
         return orderDao.selectAll();

@@ -32,7 +32,7 @@ public class ProductDto extends AbstractDto {
     private ProductApi productApi;
 
     @Value("${PAGE_SIZE}")
-    private int PAGE_SIZE;
+    private Integer PAGE_SIZE;
 
     public PaginatedData<ProductData> getProductsByNamePrefix(String productName, Integer page) throws ApiException {
         List<Product> products = productFlow.getProductsByNamePrefix(productName, page);

@@ -9,7 +9,6 @@ import com.increff.commons.model.SalesReportForm;
 import com.increff.commons.model.SalesReportData;
 import com.increff.server.dto.SalesReportDto;
 import com.increff.commons.exception.ApiException;
-import com.increff.commons.model.ClientData;
 import com.increff.commons.model.DailySalesData;
 import com.increff.commons.model.DailySalesForm;
 
@@ -28,12 +27,6 @@ public class SalesReportController {
     @RequestMapping(path = "/sales", method = RequestMethod.POST)
     public List<SalesReportData> getSalesReport(@RequestBody SalesReportForm form) throws ApiException {
         return dto.getSalesReport(form);
-    }
-
-    @ApiOperation(value = "Search clients for sales report")
-    @RequestMapping(path = "/sales/clients/search", method = RequestMethod.GET)
-    public List<ClientData> getClientsByName(@RequestParam String clientNamePrefix) throws ApiException {
-        return dto.getClientsByName(clientNamePrefix);
     }
 
     @ApiOperation(value = "Get Daily Sales Report")

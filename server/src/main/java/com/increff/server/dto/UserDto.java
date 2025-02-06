@@ -11,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Objects;
 import java.util.Collections;
 import com.increff.commons.exception.ApiException;
+import org.springframework.security.core.Authentication;
 
-@Component
+@Service
 public class UserDto extends AbstractDto {
 
     @Autowired
@@ -57,6 +58,23 @@ public class UserDto extends AbstractDto {
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         
+        return new LoginData(user.getEmail(), user.getRole().name());
+        //TODO: Dto -> DtoApi
+        //TODO: Flow -> FlowApi
+    }
+
+    public LoginData getUserInfo() throws ApiException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (Objects.isNull(auth) || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new ApiException("User not authenticated");
+        }
+
+        User user = userService.getByEmail(auth.getName());
+        if (Objects.isNull(user)) {
+            throw new ApiException("User not found");
+        }
+
         return new LoginData(user.getEmail(), user.getRole().name());
     }
 } 

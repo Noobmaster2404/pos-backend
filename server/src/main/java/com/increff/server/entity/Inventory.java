@@ -16,18 +16,13 @@ public class Inventory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "inventory_generator")
     private Integer inventoryId;
-    //TODO: remove barcode from here and use joins instead
-    //exlplain analyze ... for optimizer
+    //TODO: exlplain analyze ... for optimizer
 
     @OneToOne
     @JoinColumn(name="product_id", nullable = false)
     //Use name here explicitly because when using foreign keys, hibernate has some wierd naming strategy
     //like product_product_id
     private Product product;
-
-    @Column(nullable = false)
-    private String barcode;
-    //TODO:remove barcode
 
     @Column(nullable = false)
     private Integer quantity;

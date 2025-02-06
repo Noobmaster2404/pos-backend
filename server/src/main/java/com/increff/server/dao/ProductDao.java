@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 @Repository
 public class ProductDao extends AbstractDao<Product> {
+    
     @Value("${PAGE_SIZE}")
-    private int PAGE_SIZE;
+    private Integer PAGE_SIZE;
 
     public ProductDao() {
         super(Product.class);
@@ -61,14 +62,6 @@ public class ProductDao extends AbstractDao<Product> {
                  .getResultList();
     }
 
-    public long count() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(cb.count(root));
-        return em.createQuery(cq).getSingleResult();
-    }
-
     public long countByNamePrefix(String prefix) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -89,5 +82,23 @@ public class ProductDao extends AbstractDao<Product> {
         cq.select(cb.count(root))
           .where(cb.equal(root.get("client").get("clientId"), clientId));
         return em.createQuery(cq).getSingleResult();
+    }
+
+    public List<Product> selectByProductIds(List<Integer> productIds) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+        cq.select(root).where(root.get("productId").in(productIds));
+        
+        return em.createQuery(cq).getResultList();
+    }
+
+    public List<Product> selectByBarcodes(List<String> barcodes) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+        cq.select(root).where(root.get("barcode").in(barcodes));
+        
+        return em.createQuery(cq).getResultList();
     }
 }

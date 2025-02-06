@@ -8,7 +8,7 @@ import com.increff.server.dao.SalesReportDao;
 import com.increff.server.entity.DailySales;
 import com.increff.commons.exception.ApiException;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,9 +29,9 @@ public class SalesReportApi{
     }
 
     @Transactional(readOnly = true)
-    public List<DailySales> getByDateRange(LocalDate startDate, LocalDate endDate) throws ApiException {
+    public List<DailySales> getByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
         List<DailySales> reports = dao.selectByDateRange(startDate, endDate);
         return reports;
         //handle empty in UI
     }
-} 
+}

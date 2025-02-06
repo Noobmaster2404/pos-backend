@@ -6,11 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.net.MalformedURLException;
@@ -20,14 +15,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.time.ZonedDateTime;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.util.List;
+//TODO: Use intelliJ for imports
 
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.OrderDto;
 import com.increff.commons.util.TimeZoneUtil;
+import com.increff.commons.model.OrderSearchForm;
 
 @Api(tags = "Order Management")
 @RestController
@@ -52,16 +48,14 @@ public class OrderController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.POST, value = "/search")
     @ApiOperation(value = "Get orders by date range")
-    public List<OrderData> getOrdersByDateRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime endDate)
-            throws ApiException {
-        startDate = TimeZoneUtil.toUTC(startDate);
-        endDate = TimeZoneUtil.toUTC(endDate);
+    public List<OrderData> getOrdersByDateRange(@RequestBody OrderSearchForm form) throws ApiException {
+        ZonedDateTime startDate = TimeZoneUtil.toUTC(form.getStartDate());
+        ZonedDateTime endDate = TimeZoneUtil.toUTC(form.getEndDate());
         return dto.getOrdersByDateRange(startDate, endDate);
     }
+    //TODO: remove logic above
 
     @ApiOperation(value = "Download order invoice")
     @ResponseStatus(HttpStatus.OK)
@@ -85,6 +79,7 @@ public class OrderController {
         } catch (MalformedURLException e) {
             throw new ApiException("Error downloading invoice: " + e.getMessage());
         }
+        //TODO: Dto, clean and send as base_64
     }
 
     @ApiOperation(value = "Generate invoice for order")
@@ -93,5 +88,6 @@ public class OrderController {
     public void generateInvoice(@PathVariable Integer orderId) throws ApiException {
         OrderData order = dto.getOrder(orderId);
         dto.generateInvoice(order);
+        //Both in dto
     }
 } 

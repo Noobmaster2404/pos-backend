@@ -8,9 +8,11 @@ import com.increff.commons.exception.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Objects;
 import javax.servlet.http.HttpSession;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import java.util.Map;
+import java.util.HashMap;
 
 @Api(tags = "Authentication")
 @RestController
@@ -33,18 +35,16 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    public ResponseEntity<String> logout(HttpSession session) {
+    public ResponseEntity<Object> logout(HttpSession session) {
         session.invalidate();
-        return ResponseEntity.ok("Logged out successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Logged out successfully");
+        return ResponseEntity.ok().body(response);
     }
 
-    @RequestMapping(value = "/userinfo", method = RequestMethod.GET)
-    public ResponseEntity<LoginData> getUserInfo(HttpSession session) throws ApiException {
-        if (Objects.isNull(session) || Objects.isNull(session.getAttribute("SPRING_SECURITY_CONTEXT"))) {
-            throw new ApiException("User not authenticated");
-        }
-        String email = (String) session.getAttribute("user_email");
-        String role = (String) session.getAttribute("user_role");
-        return ResponseEntity.ok(new LoginData(email, role));
+    @ApiOperation(value = "Get current user information")
+    @RequestMapping(value = "/user-info", method = RequestMethod.GET)
+    public ResponseEntity<LoginData> getUserInfo() throws ApiException {
+        return ResponseEntity.ok(userDto.getUserInfo());
     }
 } 

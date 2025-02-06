@@ -22,4 +22,5 @@ public class SalesReportForm {
     
     @Size(max = 255, message = "Client name cannot exceed 255 characters")
     private String clientName; // Exact client name after selection from search
+    //always send clienID and do getcheck in dto
 } 

@@ -3,7 +3,7 @@ package com.increff.server.dao;
 import com.increff.server.entity.DailySales;
 
 import org.springframework.stereotype.Repository;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,7 +16,7 @@ public class SalesReportDao extends AbstractDao<DailySales> {
         super(DailySales.class);
     }
 
-    public DailySales selectByDate(LocalDate date) {
+    public DailySales selectByDate(ZonedDateTime date) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<DailySales> cq = cb.createQuery(DailySales.class);
         Root<DailySales> root = cq.from(DailySales.class);
@@ -27,7 +27,7 @@ public class SalesReportDao extends AbstractDao<DailySales> {
         return reports.isEmpty() ? null : reports.get(0);
     }
 
-    public List<DailySales> selectByDateRange(LocalDate startDate, LocalDate endDate) {
+    public List<DailySales> selectByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<DailySales> cq = cb.createQuery(DailySales.class);
         Root<DailySales> root = cq.from(DailySales.class);

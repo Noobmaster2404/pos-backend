@@ -100,28 +100,40 @@ public class ConversionHelper {
     public static Inventory convertToInventory(InventoryForm form, Product product) {
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
-        inventory.setBarcode(product.getBarcode());
         inventory.setQuantity(form.getQuantity());
         return inventory;
     }
 
-    public static List<Inventory> convertToInventory(Map<InventoryForm, Product> inventoryProductMap){
-        return inventoryProductMap.entrySet().stream()
-                .map(element -> convertToInventory(element.getKey(), element.getValue()))
+    public static List<Inventory> convertToInventory(List<InventoryForm> forms, List<Product> products){
+        Map<String, Product> barcodeProductMap = products.stream()
+            .collect(Collectors.toMap(Product::getBarcode, product -> product));
+        return forms.stream()
+                .map(form -> convertToInventory(form, barcodeProductMap.get(form.getBarcode())))
                 .collect(Collectors.toList());
     }
 
-    public static InventoryData convertToInventoryData(Inventory inventory){
+    public static InventoryData convertToInventoryData(Inventory inventory, String barcode){
         InventoryData data = new InventoryData();
         data.setProductId(inventory.getProduct().getProductId());
         data.setQuantity(inventory.getQuantity());
-        data.setBarcode(inventory.getBarcode());
+        data.setBarcode(barcode);
+        data.setInventoryId(inventory.getInventoryId());
         return data;
     }
 
-    public static List<InventoryData> convertToInventoryData(List<Inventory> inventories){
+    public static List<InventoryData> convertToInventoryData(List<Inventory> inventories, Map<Integer, String> productIdBarcodeMap){
         return inventories.stream()
-                .map(ConversionHelper::convertToInventoryData)
+                .map(inventory -> convertToInventoryData(inventory, 
+                    productIdBarcodeMap.get(inventory.getProduct().getProductId())))
+                .collect(Collectors.toList());
+    }
+
+    public static List<InventoryData> convertToInventoryData(List<Inventory> inventories, List<Product> products){
+        Map<Integer, Product> productMap = products.stream()
+            .collect(Collectors.toMap(Product::getProductId, product -> product));
+        return inventories.stream()
+                .map(inventory -> convertToInventoryData(inventory, 
+                    productMap.get(inventory.getProduct().getProductId()).getBarcode()))
                 .collect(Collectors.toList());
     }
 

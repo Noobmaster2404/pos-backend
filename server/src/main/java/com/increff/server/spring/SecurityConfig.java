@@ -10,8 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.cors.CorsConfiguration;
+import java.util.Arrays;
 
 import com.increff.server.service.CustomUserDetailsService;
 
@@ -24,6 +27,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(request -> {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Arrays.asList("*"));
+                config.setAllowCredentials(true);
+                return config;
+            }))
             .csrf().disable()
             .authorizeRequests()
             .antMatchers("/auth/**").permitAll()
@@ -78,6 +89,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                        "/swagger-ui.html", 
                        "/webjars/**");
     }
+
+    // @Bean
+    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //     http
+    //         .cors(cors -> cors.configurationSource(request -> {
+    //             CorsConfiguration config = new CorsConfiguration();
+    //             config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+    //             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    //             config.setAllowedHeaders(Arrays.asList("*"));
+    //             config.setAllowCredentials(true);
+    //             return config;
+    //         }));
+    //     return http.build();
+    // }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -12,7 +12,6 @@ import com.increff.server.entity.Order;
 import com.increff.server.entity.OrderItem;
 import com.increff.commons.util.TimeZoneUtil;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +30,9 @@ public class DailySalesReport {
     @Scheduled(cron = "0 0 0 * * ?")
     public void generateDailyReport() {
         try {
-            LocalDate yesterday = TimeZoneUtil.getCurrentUTCDate().minusDays(1);
-            ZonedDateTime startOfDay = TimeZoneUtil.getStartOfDay(yesterday);
-            ZonedDateTime endOfDay = TimeZoneUtil.getEndOfDay(yesterday);
+            ZonedDateTime currentUTCTime = TimeZoneUtil.getCurrentUTCDateTime();
+            ZonedDateTime startOfDay = TimeZoneUtil.getStartOfDay(currentUTCTime.minusDays(1));
+            ZonedDateTime endOfDay = TimeZoneUtil.getEndOfDay(currentUTCTime.minusDays(1));
             
             // Get orders for yesterday
             List<Order> orders = orderApi.getOrdersByDateRange(startOfDay, endOfDay).stream()
@@ -41,7 +40,7 @@ public class DailySalesReport {
                 .collect(Collectors.toList());
             
             DailySales dailyReport = new DailySales();
-            dailyReport.setDate(yesterday);
+            dailyReport.setDate(currentUTCTime.minusDays(1));
             dailyReport.setInvoicedOrders(orders.size());
 
             int totalItems = 0;

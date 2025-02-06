@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class InventoryData {
     private Integer productId;
+    private Integer inventoryId;
     private String barcode;
     private Integer quantity;
 }

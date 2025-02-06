@@ -1,8 +1,7 @@
 package com.increff.server.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.increff.server.flow.OrderFlow;
+import com.increff.server.helper.ConversionHelper;
 import com.increff.server.api.ProductApi;
 import com.increff.commons.model.OrderData;
 import com.increff.commons.model.OrderForm;
@@ -19,7 +19,7 @@ import com.increff.server.entity.OrderItem;
 import com.increff.server.entity.Product;
 import com.increff.commons.model.OrderItemForm;
 
-@Component
+@Service
 public class OrderDto extends AbstractDto {
     
     @Autowired
@@ -37,27 +37,28 @@ public class OrderDto extends AbstractDto {
         double orderTotal = 0.0;
         
         for (OrderItemForm itemForm : form.getOrderItems()) {
-            Product product = productApi.getProductByBarcode(itemForm.getBarcode());
+            Product product = productApi.getCheckProductByBarcode(itemForm.getBarcode());
             OrderItem orderItem = ConversionHelper.convertToOrderItem(itemForm, product, order);
             
             orderTotal += itemForm.getQuantity() * itemForm.getSellingPrice();
             orderItems.add(orderItem);
         }
+        //TODO: List api
         
         order.setOrderItems(orderItems);
         order.setOrderTotal(orderTotal);
+        //TODO: set is done in api layer
         Order createdOrder = orderFlow.createOrder(order);
+        //TODO: Move the above in flow and as much as possible to api layer
         
         return ConversionHelper.convertToOrderData(createdOrder);
     }
 
-    @Transactional(readOnly = true)
     public OrderData getOrder(Integer orderId) throws ApiException {
         Order order = orderFlow.getOrderById(orderId);
         return ConversionHelper.convertToOrderData(order);
     }
 
-    @Transactional(readOnly = true)
     public List<OrderData> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
         List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate);
         return orders.stream()

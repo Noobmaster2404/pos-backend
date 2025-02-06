@@ -1,37 +1,27 @@
 package com.increff.server.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
 import com.increff.commons.model.SalesReportForm;
 import com.increff.commons.model.SalesReportData;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.flow.SalesReportFlow;
-import com.increff.server.api.ClientApi;
-import com.increff.commons.model.ClientData;
-import com.increff.server.entity.Client;
+import com.increff.server.helper.ConversionHelper;
 import com.increff.commons.model.DailySalesData;
 import com.increff.server.api.SalesReportApi;
 import com.increff.commons.model.DailySalesForm;
 import com.increff.server.entity.DailySales;
 
-@Component
+@Service
 public class SalesReportDto extends AbstractDto {
     
     @Autowired
     private SalesReportFlow reportFlow;
-    
-    @Autowired
-    private ClientApi clientApi;
 
     @Autowired
     private SalesReportApi salesReportApi;
-
-    public List<ClientData> getClientsByName(String clientNamePrefix) throws ApiException {
-        List<Client> clients = clientApi.getClientsByName(clientNamePrefix);
-        return ConversionHelper.convertToClientData(clients);
-    }
     
     public List<SalesReportData> getSalesReport(SalesReportForm form) throws ApiException {
         checkValid(form);
@@ -60,4 +50,6 @@ public class SalesReportDto extends AbstractDto {
             }
         }
     }
+    //TODO: Remove and put in api layer
+    //TODO: split above check valid into 2 check valids
 } 

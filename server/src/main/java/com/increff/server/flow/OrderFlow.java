@@ -17,10 +17,10 @@ import com.increff.server.entity.Order;
 import com.increff.commons.model.OrderData;
 import com.increff.server.entity.OrderItem;
 import com.increff.server.entity.Product;
+import com.increff.server.helper.ConversionHelper;
 import com.increff.server.entity.Inventory;
 import com.increff.commons.exception.ApiException;
 import com.increff.invoice.service.InvoiceGenerator;
-import com.increff.server.dto.ConversionHelper;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -45,9 +45,13 @@ public class OrderFlow {
     private String invoiceStoragePath;
 
     public Order createOrder(Order order) throws ApiException {
+        //TODO: Map of productId to product with valid checks
+        //TODO: Use list api for inventpry as well
+        //delay writes as much as possible
         for (OrderItem item : order.getOrderItems()) {
             Product product = productFlow.getProductByBarcode(item.getProduct().getBarcode());
             item.setProduct(product);
+            //TODO: Use id not barcode
             
             Inventory inventory = inventoryFlow.getInventoryById(product.getProductId());
             if (inventory.getQuantity() < item.getQuantity()) {
@@ -60,6 +64,7 @@ public class OrderFlow {
 
         // Generate invoice synchronously for now to debug
         generateAndSaveInvoice(savedOrder);
+        //TODO:publc or private?
         
         return savedOrder;
     }
@@ -68,7 +73,7 @@ public class OrderFlow {
         try {
             // Convert Order to OrderData
             OrderData orderData = ConversionHelper.convertToOrderData(order);
-            
+            //remove orderData from here
             // Generate PDF bytes
             byte[] pdfBytes = invoiceGenerator.generatePDF(orderData);
             
@@ -108,6 +113,7 @@ public class OrderFlow {
         }
         startDate = TimeZoneUtil.toUTC(startDate);
         endDate = TimeZoneUtil.toUTC(endDate);
+        //TODO: move this to api layer and documnstion of isAfter
         if (startDate.isAfter(endDate)) {
             throw new ApiException("Start date cannot be after end date");
         }

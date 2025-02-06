@@ -4,7 +4,6 @@ import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Product;
 import com.increff.server.api.ProductApi;
 import com.increff.server.api.ClientApi;
-import com.increff.server.api.InventoryApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,15 +22,8 @@ public class ProductFlow {
     @Autowired
     private ClientApi clientApi;
 
-
-    @Autowired
-    private InventoryApi inventoryApi;
-
     public Product addProduct(Product product) throws ApiException {
-        Product savedProduct = productApi.addProduct(product);
-        inventoryApi.initializeInventory(savedProduct);
-
-        return savedProduct;
+        return productApi.addProduct(product);
     }
 
     @Transactional(readOnly = true)

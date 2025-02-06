@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.Optional;
 
 @Repository
 public class InventoryDao extends AbstractDao<Inventory> {
@@ -15,7 +14,7 @@ public class InventoryDao extends AbstractDao<Inventory> {
         super(Inventory.class);
     }
 
-    public Optional<Inventory> selectByProductId(Integer productId) {
+    public Inventory selectByProductId(Integer productId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
         Root<Inventory> root = cq.from(Inventory.class);
@@ -24,10 +23,11 @@ public class InventoryDao extends AbstractDao<Inventory> {
         return em.createQuery(cq)
                  .getResultList()
                  .stream()
-                 .findFirst();
+                 .findFirst()
+                 .orElse(null);
     }
 
-    public Optional<Inventory> selectByBarcode(String barcode) {
+    public Inventory selectByBarcode(String barcode) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
         Root<Inventory> root = cq.from(Inventory.class);
@@ -36,6 +36,8 @@ public class InventoryDao extends AbstractDao<Inventory> {
         return em.createQuery(cq)
                  .getResultList()
                  .stream()
-                 .findFirst();
+                 .findFirst()
+                 .orElse(null);
     }
+    //TODO: Add funciton for join here
 }

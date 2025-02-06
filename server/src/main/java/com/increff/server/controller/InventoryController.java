@@ -12,6 +12,7 @@ import com.increff.commons.model.InventoryData;
 import com.increff.commons.model.InventoryForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.dto.InventoryDto;
+import com.increff.commons.model.PaginatedData;
 
 @Api(tags = "Inventory Management")
 @RestController
@@ -23,32 +24,44 @@ public class InventoryController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST)
-    public void addInventory(@RequestBody InventoryForm form) throws ApiException {
-        dto.addInventory(form);
+    @ApiOperation(value = "Add a new inventory item")
+    public InventoryData addInventory(@RequestBody InventoryForm form) throws ApiException {
+        return dto.addInventory(form);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET)
-    public List<InventoryData> getAllInventory() throws ApiException {
-        return dto.getAllInventory();
+    @ApiOperation(value = "Get all inventory items")
+    public PaginatedData<InventoryData> getAllInventory(
+            @RequestParam(defaultValue = "0") Integer page) throws ApiException {
+        return dto.getAllInventory(page);
     }
 
+    //removed endpoint
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/{productId}")
-    public InventoryData getInventoryById(@PathVariable Integer productId) throws ApiException {
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    @ApiOperation(value = "Get inventory by product ID")
+    public InventoryData getInventoryById(@RequestParam Integer productId) throws ApiException {
         return dto.getInventoryById(productId);
     }
-    //replace this with getInventoryByBarcode
+    
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.GET, value = "/search-barcode")
+    @ApiOperation(value = "Get inventory by barcode")
+    public InventoryData getInventoryByBarcode(@RequestParam String barcode) throws ApiException {
+        return dto.getInventoryByBarcode(barcode);
+    }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.PUT, value = "/{productId}")
-    public InventoryData updateInventoryById(@PathVariable Integer productId, @RequestBody InventoryForm form) throws ApiException {
-        return dto.updateInventoryById(productId, form);
+    @RequestMapping(method = RequestMethod.PUT, value = "/{inventoryId}")
+    @ApiOperation(value = "Update inventory by ID")
+    public InventoryData updateInventoryById(@PathVariable Integer inventoryId, @RequestBody InventoryForm form) throws ApiException {
+        return dto.updateInventoryById(inventoryId, form);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/bulk")
-    @ApiOperation(value = "Bulk create products from JSON data")
+    @ApiOperation(value = "Bulk create inventory items")
     public List<InventoryData> bulkAddInventory(@RequestBody List<InventoryForm> forms) throws ApiException {
         return dto.bulkAddInventory(forms);
     }

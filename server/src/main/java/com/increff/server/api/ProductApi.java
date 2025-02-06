@@ -2,6 +2,8 @@ package com.increff.server.api;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,12 +78,34 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
+    public Product getCheckProductById(Integer productId) throws ApiException {
+        Product product = dao.select(productId);
+        if(Objects.isNull(product)){
+            throw new ApiException("Product with id '" + productId + "' does not exist");
+        }
+        return product;
+    }
+
+    @Transactional(readOnly = true)
     public List<Product> getCheckProductsByClientId(Integer clientId, Integer page) throws ApiException {
         List<Product> products = dao.selectByClientId(clientId, page);
         if (products.isEmpty()) {
             throw new ApiException("No products found for client ID: " + clientId);
         }
         return products;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Integer, String> getBarcodesByProductIds(List<Integer> productIds) throws ApiException {
+        List<Product> products = dao.selectByProductIds(productIds);
+        if(products.size() != productIds.size()){
+            throw new ApiException("Some products with given ids do not exist");
+        }
+        return products.stream()
+            .collect(Collectors.toMap(
+                Product::getProductId,
+                Product::getBarcode
+            ));
     }
 
     @Transactional(readOnly = true)
@@ -97,5 +121,14 @@ public class ProductApi {
     @Transactional(readOnly = true)
     public long getCountByClientId(Integer clientId) {
         return dao.countByClientId(clientId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> getCheckProductsByBarcodes(List<String> barcodes) throws ApiException {
+        List<Product> products = dao.selectByBarcodes(barcodes);
+        if (products.size() != barcodes.size()) {
+            throw new ApiException("Some products with given barcodes do not exist");
+        }
+        return products;
     }
 }

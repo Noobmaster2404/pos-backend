@@ -21,12 +21,12 @@ public class InventoryFlow {
         return inventoryApi.addInventory(inventory);
     }
 
-    public List<Inventory> getAllInventory() {
-        return inventoryApi.getAllInventory();
+    public List<Inventory> getAllInventory(Integer page) {
+        return inventoryApi.getAllInventory(page);
     }
 
-    public Inventory getInventoryById(Integer productId) throws ApiException {
-        return inventoryApi.getInventoryById(productId);
+    public Inventory getInventoryByProductId(Integer productId) throws ApiException {
+        return inventoryApi.getCheckInventoryByProductId(productId);
     }
 
     public Inventory updateInventoryById(Integer productId, Inventory inventory) throws ApiException {
