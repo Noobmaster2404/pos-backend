@@ -59,8 +59,6 @@ public class UserDto extends AbstractDto {
         SecurityContextHolder.getContext().setAuthentication(auth);
         
         return new LoginData(user.getEmail(), user.getRole().name());
-        //TODO: Dto -> DtoApi
-        //TODO: Flow -> FlowApi
     }
 
     public LoginData getUserInfo() throws ApiException {

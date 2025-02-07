@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-import com.increff.commons.util.TimeZoneUtil;
 import java.util.stream.Collectors;
 import java.util.Map;
 
@@ -70,15 +68,6 @@ public class OrderFlow {
 
     @Transactional(readOnly = true)
     public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) throws ApiException {
-        if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
-            throw new ApiException("Start date and end date cannot be null");
-        }
-        startDate = TimeZoneUtil.toUTC(startDate);
-        endDate = TimeZoneUtil.toUTC(endDate);
-        //TODO: move this to api layer and documnstion of isAfter
-        if (startDate.isAfter(endDate)) {
-            throw new ApiException("Start date cannot be after end date");
-        }
         return orderApi.getOrdersByDateRange(startDate, endDate, page);
     }
 } 

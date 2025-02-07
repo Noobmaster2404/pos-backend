@@ -16,7 +16,7 @@ public class Inventory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "inventory_generator")
     private Integer inventoryId;
-    //TODO: exlplain analyze ... for optimizer
+    //: exlplain analyze ... for optimizer
 
     @OneToOne
     @JoinColumn(name="product_id", nullable = false)

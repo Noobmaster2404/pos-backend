@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.increff.server.dao.OrderDao;
 import com.increff.server.entity.Order;
 import com.increff.commons.exception.ApiException;
+import com.increff.commons.util.TimeZoneUtil;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -37,14 +38,12 @@ public class OrderApi {
 
     @Transactional(readOnly = true)
     public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) throws ApiException {
-        // if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
-        //     throw new ApiException("Start date and end date cannot be null");
-        // }
-        // startDate = TimeZoneUtil.toUTC(startDate);
-        // endDate = TimeZoneUtil.toUTC(endDate);
-        // if (startDate.isAfter(endDate)) {
-        //     throw new ApiException("Start date cannot be after end date");
-        // }
+        startDate = TimeZoneUtil.toUTC(startDate);
+        endDate = TimeZoneUtil.toUTC(endDate);
+
+        if (startDate.isAfter(endDate)) {
+            throw new ApiException("Start date cannot be after end date");
+        }
         return orderDao.selectByDateRange(startDate, endDate, page);
     }
 

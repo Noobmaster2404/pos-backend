@@ -30,8 +30,11 @@ public class SalesReportApi{
 
     @Transactional(readOnly = true)
     public List<DailySales> getByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+        if(startDate.isAfter(endDate)){
+            throw new ApiException("Start date cannot be after end date");
+        }
         List<DailySales> reports = dao.selectByDateRange(startDate, endDate);
         return reports;
-        //handle empty in UI
+        //handled empty in UI
     }
 }

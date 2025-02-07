@@ -28,7 +28,10 @@ public class SalesReportDto extends AbstractDto {
     
     public List<SalesReportData> getSalesReport(SalesReportForm form) throws ApiException {
         checkValid(form);
-        return reportFlow.generateSalesReport(form);
+        ZonedDateTime startDate = TimeZoneUtil.getStartOfDay(form.getStartDate());
+        ZonedDateTime endDate = TimeZoneUtil.getEndOfDay(form.getEndDate());
+        Integer clientId = form.getClientId();
+        return reportFlow.generateSalesReport(startDate, endDate, clientId);
     }
     
     public List<DailySalesData> getDailySalesReport(DailySalesForm form) throws ApiException {
@@ -38,23 +41,4 @@ public class SalesReportDto extends AbstractDto {
         List<DailySales> reports = salesReportApi.getByDateRange(startDate, endDate);
         return ConversionHelper.convertToDailySalesData(reports);
     }
-        
-    @Override
-    protected <T> void checkValid(T form) throws ApiException {
-        super.checkValid(form);
-        if (form instanceof SalesReportForm) {
-            SalesReportForm reportForm = (SalesReportForm) form;
-            if (reportForm.getStartDate().isAfter(reportForm.getEndDate())) {
-                throw new ApiException("Start date cannot be after end date");
-            }
-        }
-        else if (form instanceof DailySalesForm) {
-            DailySalesForm dailySalesForm = (DailySalesForm) form;
-            if (dailySalesForm.getStartDate().isAfter(dailySalesForm.getEndDate())) {
-                throw new ApiException("Start date cannot be after end date");
-            }
-        }
-    }
-    //TODO: Remove and put in api layer
-    //TODO: split above check valid into 2 check valids
 } 

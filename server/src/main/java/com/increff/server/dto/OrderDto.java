@@ -92,6 +92,7 @@ public class OrderDto extends AbstractDto {
     }
 
     public PaginatedData<OrderData> getOrdersByDateRange(OrderSearchForm form, Integer page) throws ApiException {
+        checkValid(form);
         ZonedDateTime startDate = TimeZoneUtil.getStartOfDay(form.getStartDate());
         ZonedDateTime endDate = TimeZoneUtil.getEndOfDay(form.getEndDate());
         List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate, page);

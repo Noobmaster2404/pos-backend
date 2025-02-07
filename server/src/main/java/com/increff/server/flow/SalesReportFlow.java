@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import com.increff.commons.model.SalesReportForm;
 import com.increff.commons.model.SalesReportData;
 import com.increff.server.api.OrderApi;
 import com.increff.server.entity.OrderItem;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Order;
 import java.util.Objects;
+import java.time.ZonedDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,49 +24,35 @@ public class SalesReportFlow {
     @Autowired
     private OrderApi orderApi;
 
-    public List<SalesReportData> generateSalesReport(SalesReportForm form) throws ApiException {
-        List<Order> orders = orderApi.getOrdersByDateRange(form.getStartDate(), form.getEndDate());
-
-        if (Objects.nonNull(form.getClientId())) {
-            orders = filterOrdersByClientName(orders, form.getClientId());
-        }
+    public List<SalesReportData> generateSalesReport(ZonedDateTime startDate, ZonedDateTime endDate, Integer clientId) throws ApiException {
+        List<Order> orders = orderApi.getOrdersByDateRange(startDate, endDate);
+        
         if(Objects.isNull(orders)){
             return new ArrayList<>();
         }
-        
-        // Aggregate data by product
-        Map<String, SalesReportData> reportMap = aggregateOrderData(orders);
+
+        Map<String, SalesReportData> reportMap = aggregateOrderData(orders, clientId);
         
         return new ArrayList<>(reportMap.values());
     }
     
-    private List<Order> filterOrdersByClientName(List<Order> orders, String clientName) {
-        return orders.stream()
-            .filter(order -> order.getOrderItems().stream()
-                .anyMatch(item -> 
-                    item.getProduct().getClient().getClientName()
-                        .equals(clientName)
-                ))
-            .collect(Collectors.toList());
-    }
-    
-    private Map<String, SalesReportData> aggregateOrderData(List<Order> orders) {
+    private Map<String, SalesReportData> aggregateOrderData(List<Order> orders, Integer clientId) {
         Map<String, SalesReportData> reportMap = new HashMap<>();
         
         for (Order order : orders) {
             for (OrderItem item : order.getOrderItems()) {
-                String barcode = item.getProduct().getBarcode();
+                if (clientId != null && !item.getProduct().getClient().getClientId().equals(clientId)) {
+                    continue;
+                }
                 
-                // Get or create report data
+                String barcode = item.getProduct().getBarcode();
                 SalesReportData reportData = reportMap.computeIfAbsent(barcode, 
                     k -> createNewReportData(item));
                 
-                // Update quantity and revenue in one go
                 int newQuantity = reportData.getQuantity() + item.getQuantity();
                 double itemRevenue = item.getQuantity() * item.getSellingPrice();
                 double newRevenue = reportData.getRevenue() + itemRevenue;
                 
-                // Set all values at once
                 reportData.setQuantity(newQuantity);
                 reportData.setRevenue(newRevenue);
                 reportData.setAverageSellingPrice(newRevenue / newQuantity);
@@ -76,7 +61,6 @@ public class SalesReportFlow {
         
         return reportMap;
     }
-    //TODO: Selling price not greater than mrp
     
     private SalesReportData createNewReportData(OrderItem item) {
         SalesReportData data = new SalesReportData();
@@ -87,6 +71,5 @@ public class SalesReportFlow {
         data.setRevenue(0.0);
         data.setAverageSellingPrice(0.0);
         return data;
-        //TODO: date after and before
     }
 } 

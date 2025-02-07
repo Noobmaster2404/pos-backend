@@ -81,5 +81,4 @@ public class OrderDao extends AbstractDao<Order> {
         );
         return em.createQuery(cq).getSingleResult();
     }
-    //TODO: Check @BatchSize (NI)
 } 
