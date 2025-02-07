@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Table(
-    name = "pos_day_sales",
+    name = "daily_sales",
     uniqueConstraints = @UniqueConstraint(columnNames = {"date"})
 )
 public class DailySales extends BaseEntity {
@@ -21,15 +21,12 @@ public class DailySales extends BaseEntity {
 
     @Column(nullable = false)
     private ZonedDateTime date;
-    //TODO: use zoned date time
 
     @Column(nullable = false)
-    private Integer invoicedOrders;
-    //TODO: invoicedOrderCount
+    private Integer invoicedOrdersCount;
 
     @Column(nullable = false)
-    private Integer totalItems;
-    //TODO: itemCount
+    private Integer itemCount;
 
     @Column(nullable = false)
     private Double totalRevenue;

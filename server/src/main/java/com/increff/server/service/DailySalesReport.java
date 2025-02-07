@@ -3,6 +3,7 @@ package com.increff.server.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.increff.server.api.SalesReportApi;
 import com.increff.server.api.OrderApi;
@@ -26,8 +27,8 @@ public class DailySalesReport {
     @Autowired
     private OrderApi orderApi;
 
-    // Run at 12:00 AM every day
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 30 18 * * ?")  // 18:30 UTC = 00:00 IST
+    @Transactional(rollbackFor = Exception.class)
     public void generateDailyReport() {
         try {
             ZonedDateTime currentUTCTime = TimeZoneUtil.getCurrentUTCDateTime();
@@ -41,7 +42,7 @@ public class DailySalesReport {
             
             DailySales dailyReport = new DailySales();
             dailyReport.setDate(currentUTCTime.minusDays(1));
-            dailyReport.setInvoicedOrders(orders.size());
+            dailyReport.setInvoicedOrdersCount(orders.size());
 
             int totalItems = 0;
             double totalRevenue = 0.0;
@@ -53,13 +54,12 @@ public class DailySalesReport {
                 totalRevenue += order.getOrderTotal();
             }
             
-            dailyReport.setTotalItems(totalItems);
+            dailyReport.setItemCount(totalItems);
             dailyReport.setTotalRevenue(totalRevenue);
             
             reportApi.add(dailyReport);
             
         } catch (ApiException e) {
-            // Log the error but don't throw it since this is a scheduled task
             e.printStackTrace();
         }
     }

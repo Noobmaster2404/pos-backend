@@ -30,7 +30,7 @@ public class SalesReportController {
     }
 
     @ApiOperation(value = "Get Daily Sales Report")
-    @RequestMapping(path = "/daily-sales", method = RequestMethod.GET)
+    @RequestMapping(path = "/daily-sales", method = RequestMethod.POST)
     public List<DailySalesData> getDailySalesReport(@RequestBody DailySalesForm form) throws ApiException {
         return dto.getDailySalesReport(form);
     }

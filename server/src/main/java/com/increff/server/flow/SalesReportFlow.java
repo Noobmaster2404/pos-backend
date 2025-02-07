@@ -28,8 +28,8 @@ public class SalesReportFlow {
     public List<SalesReportData> generateSalesReport(SalesReportForm form) throws ApiException {
         List<Order> orders = orderApi.getOrdersByDateRange(form.getStartDate(), form.getEndDate());
 
-        if (Objects.nonNull(form.getClientName())) {
-            orders = filterOrdersByClientName(orders, form.getClientName());
+        if (Objects.nonNull(form.getClientId())) {
+            orders = filterOrdersByClientName(orders, form.getClientId());
         }
         if(Objects.isNull(orders)){
             return new ArrayList<>();

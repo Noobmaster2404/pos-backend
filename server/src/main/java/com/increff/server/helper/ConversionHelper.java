@@ -221,8 +221,8 @@ public class ConversionHelper {
     public static DailySalesData convertToDailySalesData(DailySales report) {
         DailySalesData data = new DailySalesData();
         data.setDate(report.getDate());
-        data.setInvoicedOrderCount(report.getInvoicedOrders());
-        data.setTotalItems(report.getTotalItems());
+        data.setInvoicedOrderCount(report.getInvoicedOrdersCount());
+        data.setTotalItems(report.getItemCount());
         data.setTotalRevenue(report.getTotalRevenue());
         return data;
     }
