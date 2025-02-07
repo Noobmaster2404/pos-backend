@@ -62,6 +62,11 @@ public class OrderDto extends AbstractDto {
     public OrderData addOrder(OrderForm form) throws ApiException {
         checkValid(form);
         normalize(form);
+
+        for (OrderItemForm itemForm : form.getOrderItems()) {
+            normalize(itemForm);
+            checkValid(itemForm);
+        }
         
         List<String> barcodes = form.getOrderItems().stream()
             .map(OrderItemForm::getBarcode)

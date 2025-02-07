@@ -1,4 +1,4 @@
-package com.increff.server.config;
+package com.increff.server.spring;
 
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.context.annotation.Bean;

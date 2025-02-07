@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.increff.server.dao.OrderDao;
 import com.increff.server.entity.Order;
+import com.increff.server.entity.OrderItem;
 import com.increff.commons.exception.ApiException;
 import com.increff.commons.util.TimeZoneUtil;
 
@@ -21,6 +22,13 @@ public class OrderApi {
     private OrderDao orderDao;
 
     public Order addOrder(Order order) throws ApiException {
+        // Validate selling price against MRP for each order item
+        for (OrderItem item : order.getOrderItems()) {
+            if (item.getSellingPrice() > item.getProduct().getMrp()) {
+                throw new ApiException("Selling price cannot be higher than MRP for product: " + item.getProduct().getBarcode());
+            }
+        }
+        
         orderDao.insert(order);
         // The order items will be automatically persisted due to CascadeType.ALL
         // No need to explicitly call orderItemApi.insertOrderItems()
@@ -48,6 +56,11 @@ public class OrderApi {
     }
 
     public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+        startDate = TimeZoneUtil.toUTC(startDate);
+        endDate = TimeZoneUtil.toUTC(endDate);
+        if (startDate.isAfter(endDate)) {
+            throw new ApiException("Start date cannot be after end date");
+        }
         return orderDao.selectByDateRange(startDate, endDate);
     }
 

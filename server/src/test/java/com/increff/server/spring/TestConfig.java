@@ -1,4 +1,4 @@
-package com.increff.server.config;
+package com.increff.server.spring;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,11 +15,7 @@ import com.increff.invoice.service.InvoiceGenerator;
 @Configuration
 @ComponentScan(
     basePackages = {
-        "com.increff.server.api",
-        "com.increff.server.dao",
-        "com.increff.server.flow",
-        "com.increff.server.dto",
-        "com.increff.server.helper"
+        "com.increff.server"
     },
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ANNOTATION, value = EnableSwagger2.class)

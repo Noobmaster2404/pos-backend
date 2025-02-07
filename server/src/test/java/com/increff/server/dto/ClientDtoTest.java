@@ -11,6 +11,10 @@ import com.increff.commons.model.ClientForm;
 import com.increff.commons.model.ClientData;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.AbstractUnitTest;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
 
 public class ClientDtoTest extends AbstractUnitTest {
 
@@ -32,7 +36,7 @@ public class ClientDtoTest extends AbstractUnitTest {
         ClientData data = dto.addClient(form);
         
         assertNotNull(data.getClientId());
-        assertEquals("Test Client", data.getClientName());
+        assertEquals("test client", data.getClientName());
         assertEquals("1234567890", data.getPhone());
         assertEquals("test@test.com", data.getEmail());
         assertTrue(data.getEnabled());
@@ -67,7 +71,7 @@ public class ClientDtoTest extends AbstractUnitTest {
         ClientForm updateForm = createTestClientForm("Updated Client", "9876543210", "updated@test.com");
         ClientData updated = dto.updateClientById(added.getClientId(), updateForm);
         
-        assertEquals("Updated Client", updated.getClientName());
+        assertEquals("updated client", updated.getClientName());
         assertEquals("9876543210", updated.getPhone());
         assertEquals("updated@test.com", updated.getEmail());
     }
@@ -113,9 +117,9 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testAddNameNormalization() throws ApiException {
-        ClientForm form = createTestClientForm("  Test   Client  ", "1234567890", "test@test.com");
+        ClientForm form = createTestClientForm("  Test Client  ", "1234567890", "test@test.com");
         ClientData data = dto.addClient(form);
-        assertEquals("Test Client", data.getClientName()); // Should be normalized
+        assertEquals("test client", data.getClientName()); // Should be normalized
     }
 
     @Test

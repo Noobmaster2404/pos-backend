@@ -5,7 +5,8 @@ import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import com.increff.server.config.QaConfig;
+
+import com.increff.server.spring.QaConfig;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = QaConfig.class, loader = AnnotationConfigWebContextLoader.class)
