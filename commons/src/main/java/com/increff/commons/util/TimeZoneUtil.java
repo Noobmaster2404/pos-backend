@@ -3,6 +3,7 @@ package com.increff.commons.util;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class TimeZoneUtil {
@@ -26,5 +27,15 @@ public class TimeZoneUtil {
 
     public static ZonedDateTime getEndOfDay(ZonedDateTime dateTime) {
         return dateTime.toLocalDate().plusDays(1).atStartOfDay(ZoneOffset.UTC);
+    }
+
+    public static ZonedDateTime getStartOfDay(LocalDate date) {
+        if (Objects.isNull(date)) return null;
+        return date.atStartOfDay(ZoneOffset.UTC);
+    }
+
+    public static ZonedDateTime getEndOfDay(LocalDate date) {
+        if (Objects.isNull(date)) return null;
+        return date.plusDays(1).atStartOfDay(ZoneOffset.UTC);
     }
 }

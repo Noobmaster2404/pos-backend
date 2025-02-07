@@ -39,6 +39,19 @@ public class OrderDao extends AbstractDao<Order> {
                  .getResultList();
     }
 
+    public List<Order> selectByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> root = cq.from(Order.class);
+        cq.select(root).where(
+            cb.and(
+                cb.greaterThanOrEqualTo(root.get("orderTime"), startDate),
+                cb.lessThanOrEqualTo(root.get("orderTime"), endDate)
+            )
+        );
+        return em.createQuery(cq).getResultList();
+    }
+
     public Order selectWithItems(Integer id) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);

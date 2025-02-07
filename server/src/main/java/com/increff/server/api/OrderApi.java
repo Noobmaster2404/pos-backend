@@ -6,29 +6,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.increff.server.dao.OrderDao;
 import com.increff.server.entity.Order;
-// import com.increff.server.entity.OrderItem;
 import com.increff.commons.exception.ApiException;
-import com.increff.commons.util.TimeZoneUtil;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class OrderApi {
 
     @Autowired
     private OrderDao orderDao;
 
-    @Autowired
-    private OrderItemApi orderItemApi;
-
-    @Transactional(rollbackFor = Exception.class)
-    public Order createOrder(Order order) throws ApiException {
-        // validateOrder(order);
-        order.setOrderTime(TimeZoneUtil.getCurrentUTCDateTime());
+    public Order addOrder(Order order) throws ApiException {
         orderDao.insert(order);
-        orderItemApi.insertOrderItems(order.getOrderItems());
+        // The order items will be automatically persisted due to CascadeType.ALL
+        // No need to explicitly call orderItemApi.insertOrderItems()
         return order;
     }
 
@@ -42,23 +36,27 @@ public class OrderApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) {
+    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate, Integer page) throws ApiException {
+        // if (Objects.isNull(startDate) || Objects.isNull(endDate)) {
+        //     throw new ApiException("Start date and end date cannot be null");
+        // }
+        // startDate = TimeZoneUtil.toUTC(startDate);
+        // endDate = TimeZoneUtil.toUTC(endDate);
+        // if (startDate.isAfter(endDate)) {
+        //     throw new ApiException("Start date cannot be after end date");
+        // }
         return orderDao.selectByDateRange(startDate, endDate, page);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void updateInvoicePath(Integer orderId, String invoicePath) throws ApiException {
-        Order order = getOrderById(orderId);
-        order.setInvoicePath(invoicePath);
-        orderDao.update(order);
+    public List<Order> getOrdersByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) throws ApiException {
+        return orderDao.selectByDateRange(startDate, endDate);
     }
-    //TODO: OrderStatus (NI)
 
+    @Transactional(readOnly = true)
     public List<Order> getAllOrders() throws ApiException {
         return orderDao.selectAll();
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public Order updateOrder(Order order) throws ApiException {
         if (Objects.isNull(order.getOrderId())) {
             throw new ApiException("Order ID cannot be null");
@@ -66,32 +64,13 @@ public class OrderApi {
         
         Order existingOrder = getOrderById(order.getOrderId());
         existingOrder.setInvoicePath(order.getInvoicePath());
+        existingOrder.setInvoiceGenerated(order.getInvoiceGenerated());
         orderDao.update(existingOrder);
         return existingOrder;
     }
 
+    @Transactional(readOnly = true)
     public long getCountByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
         return orderDao.countByDateRange(startDate, endDate);
     }
-
-    // private void validateOrder(Order order) throws ApiException {
-    //     if (Objects.isNull(order.getOrderItems()) || order.getOrderItems().isEmpty()) {
-    //         throw new ApiException("Order must contain at least one item");
-    //     }
-
-    //     double total = 0.0;
-    //     for (OrderItem item : order.getOrderItems()) {
-    //         if (Objects.isNull(item.getProduct())) {
-    //             throw new ApiException("Product cannot be null");
-    //         }
-    //         if (Objects.isNull(item.getQuantity()) || item.getQuantity() <= 0) {
-    //             throw new ApiException("Invalid quantity for product: " + item.getProduct().getProductId());
-    //         }
-    //         if (Objects.isNull(item.getSellingPrice()) || item.getSellingPrice() < 0) {
-    //             throw new ApiException("Invalid selling price for product: " + item.getProduct().getProductId());
-    //         }
-    //         total += item.getQuantity() * item.getSellingPrice();
-    //     }
-    //     order.setOrderTotal(total);
-    // }
 } 

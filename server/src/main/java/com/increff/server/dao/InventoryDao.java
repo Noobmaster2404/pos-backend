@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.List;
 
 @Repository
 public class InventoryDao extends AbstractDao<Inventory> {
@@ -38,6 +39,14 @@ public class InventoryDao extends AbstractDao<Inventory> {
                  .stream()
                  .findFirst()
                  .orElse(null);
+    }
+
+    public List<Inventory> selectByProductIds(List<Integer> productIds) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Inventory> cq = cb.createQuery(Inventory.class);
+        Root<Inventory> root = cq.from(Inventory.class);
+        cq.select(root).where(root.get("product").get("productId").in(productIds));
+        return em.createQuery(cq).getResultList();
     }
     //TODO: Add funciton for join here
 }

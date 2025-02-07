@@ -23,9 +23,6 @@
                     </fo:block>
                     
                     <!-- Main Heading -->
-                    <fo:block font-size="24pt" font-family="Helvetica" font-weight="bold" text-align="center" color="#2c3e50">
-                        POINT OF SALE
-                    </fo:block>
                     <fo:block font-size="20pt" font-family="Helvetica" font-weight="bold" text-align="center" color="#2c3e50" space-after="1cm">
                         INVOICE
                     </fo:block>

@@ -27,7 +27,7 @@ public class Order extends BaseEntity {
     private String invoicePath;
 
     @Column(nullable = false)
-    private Boolean invoiceGenerated = false;
+    private Boolean invoiceGenerated;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     //default fetch type is lazy for OneToMany

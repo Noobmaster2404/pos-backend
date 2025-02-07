@@ -2,9 +2,16 @@ package com.increff.server.dto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.net.MalformedURLException;
+import java.util.Objects;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -26,6 +33,7 @@ import com.increff.commons.util.TimeZoneUtil;
 import com.increff.commons.model.PaginatedData;
 import com.increff.server.api.OrderApi;
 import com.increff.server.api.OrderItemApi;
+import com.increff.invoice.dto.InvoiceDto;
 
 @Service
 public class OrderDto extends AbstractDto {
@@ -42,8 +50,14 @@ public class OrderDto extends AbstractDto {
     @Autowired
     private OrderItemApi orderItemApi;
 
+    @Autowired
+    private InvoiceDto invoiceDto;
+
     @Value("${PAGE_SIZE}")
     private Integer PAGE_SIZE;
+
+    @Value("${invoice.storage.path}")
+    private String invoiceStoragePath;
 
     public OrderData addOrder(OrderForm form) throws ApiException {
         checkValid(form);
@@ -59,11 +73,10 @@ public class OrderDto extends AbstractDto {
             .collect(Collectors.toMap(Product::getBarcode, product -> product));
 
         Order order = ConversionHelper.convertToOrder(form, barcodeToProduct);
-        
         Order createdOrder = orderFlow.addOrder(order);
-        
-        
-        return ConversionHelper.convertToOrderData(createdOrder);
+        List<OrderItem> orderItems = orderItemApi.getOrderItemsByOrderId(createdOrder.getOrderId());
+
+        return ConversionHelper.convertToOrderData(createdOrder, orderItems, products);
     }
 
     public OrderData getOrder(Integer orderId) throws ApiException {
@@ -73,15 +86,14 @@ public class OrderDto extends AbstractDto {
         List<Integer> productIds = orderItems.stream()
             .map(item -> item.getProduct().getProductId())
             .collect(Collectors.toList());
-
         List<Product> products = productApi.getCheckProductsByIds(productIds);
  
         return ConversionHelper.convertToOrderData(order, orderItems, products);
     }
 
     public PaginatedData<OrderData> getOrdersByDateRange(OrderSearchForm form, Integer page) throws ApiException {
-        ZonedDateTime startDate = TimeZoneUtil.toUTC(form.getStartDate());
-        ZonedDateTime endDate = TimeZoneUtil.toUTC(form.getEndDate());
+        ZonedDateTime startDate = TimeZoneUtil.getStartOfDay(form.getStartDate());
+        ZonedDateTime endDate = TimeZoneUtil.getEndOfDay(form.getEndDate());
         List<Order> orders = orderFlow.getOrdersByDateRange(startDate, endDate, page);
 
         List<Integer> orderIds = orders.stream()
@@ -109,9 +121,54 @@ public class OrderDto extends AbstractDto {
         return new PaginatedData<>(orderDataList, page, totalCount, PAGE_SIZE);
     }
 
-    public void generateInvoice(OrderData orderData) throws ApiException {
+
+    public ResponseEntity<Resource> downloadInvoice(Integer orderId) throws ApiException {
+        Order order = orderFlow.getOrderById(orderId);
         
-        Order order = orderFlow.getOrderById(orderData.getOrderId());
-        orderFlow.generateAndSaveInvoice(order);
+        if (order.getInvoiceGenerated() == false || Objects.isNull(order.getInvoicePath())) {
+            throw new ApiException("Invoice not yet generated for order: " + orderId);
+        }
+
+        try {
+            Path path = Paths.get(order.getInvoicePath());
+            Resource resource = new UrlResource(path.toUri());
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                            "attachment; filename=\"invoice_" + orderId + ".pdf\"")
+                    .body(resource);
+        } catch (MalformedURLException e) {
+            throw new ApiException("Error downloading invoice: " + e.getMessage());
+        }
+    }
+
+    public String generateInvoice(Integer orderId) throws ApiException {
+        Order order = orderFlow.getOrderById(orderId);
+        if(order.getInvoiceGenerated() == true) {
+            return order.getInvoicePath();
+        }
+
+        List<OrderItem> orderItems = orderItemApi.getOrderItemsByOrderId(orderId);
+
+        List<Integer> productIds = orderItems.stream()
+            .map(item -> item.getProduct().getProductId())
+            .collect(Collectors.toList());
+        List<Product> products = productApi.getCheckProductsByIds(productIds);
+
+        OrderData orderData = ConversionHelper.convertToOrderData(order, orderItems, products);
+        String invoicePath = null;
+        try {
+            invoicePath = invoiceDto.generateInvoice(orderData);
+            
+            // Only update the order if invoice generation was successful
+            order.setInvoicePath(invoicePath);
+            order.setInvoiceGenerated(true);
+            orderApi.updateOrder(order);
+            
+            return invoicePath;
+        } catch (Exception e) {
+            throw new ApiException("Error generating invoice: " + e.getMessage());
+        }
     }
 } 

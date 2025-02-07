@@ -35,7 +35,6 @@ public class InvoiceGenerator {
 
     @PostConstruct
     public void init() throws IOException {
-        // Create FOP factory with base URI pointing to server resources
         File baseFile = new File(baseDir);
         if (!baseFile.exists()) {
             throw new IOException("Base directory not found: " + baseDir);
@@ -49,22 +48,15 @@ public class InvoiceGenerator {
         // Load XSLT
         Source xsltSource = new StreamSource(getClass().getResourceAsStream("/xslt/invoice_template.xsl"));
         
-        // Create transformer
         Transformer transformer = transformerFactory.newTransformer(xsltSource);
-        
-        // Set base directory parameter with proper URI format
         transformer.setParameter("base-dir", new File(baseDir).toURI().toString());
         
-        // Generate XML
         String xml = generateXML(order);
         Source xmlSource = new StreamSource(new StringReader(xml));
         
-        // Create PDF
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
         Result result = new SAXResult(fop.getDefaultHandler());
-        
-        // Transform
         transformer.transform(xmlSource, result);
         
         return out.toByteArray();

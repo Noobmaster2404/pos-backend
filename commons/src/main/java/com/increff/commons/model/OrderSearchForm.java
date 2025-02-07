@@ -1,6 +1,6 @@
 package com.increff.commons.model;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class OrderSearchForm {
     @NotNull
-    private ZonedDateTime startDate;
+    private LocalDate startDate;
     @NotNull
-    private ZonedDateTime endDate;
+    private LocalDate endDate;
 } 

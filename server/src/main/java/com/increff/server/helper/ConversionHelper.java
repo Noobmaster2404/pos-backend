@@ -2,6 +2,7 @@ package com.increff.server.helper;
 
 import com.increff.commons.model.*;
 import com.increff.server.entity.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -190,18 +191,23 @@ public class ConversionHelper {
             .collect(Collectors.toList());
     }
 
-    public static OrderItem convertToOrderItem(OrderItemForm form, Product product) {
+    public static OrderItem convertToOrderItem(OrderItemForm form, Product product, Order order) {
         OrderItem item = new OrderItem();
         item.setProduct(product);
         item.setQuantity(form.getQuantity());
         item.setSellingPrice(form.getSellingPrice());
+        item.setOrder(order);
+        // The circular dependency is not an issue because:
+        // We set the Order reference on each OrderItem before persistence
+        // JPA/Hibernate handles the actual foreign key assignment after the Order ID is generated
+        //so no need to persist order first and then order items
         return item;
     }
 
     public static Order convertToOrder(OrderForm form, Map<String, Product> barcodeToProduct) {
         Order order = new Order();
         order.setOrderItems(form.getOrderItems().stream()
-            .map(itemForm -> convertToOrderItem(itemForm, barcodeToProduct.get(itemForm.getBarcode())))
+            .map(itemForm -> convertToOrderItem(itemForm, barcodeToProduct.get(itemForm.getBarcode()), order))
             .collect(Collectors.toList()));
         order.setOrderTotal(form.getOrderItems().stream()
             .mapToDouble(itemForm -> itemForm.getQuantity() * itemForm.getSellingPrice())
