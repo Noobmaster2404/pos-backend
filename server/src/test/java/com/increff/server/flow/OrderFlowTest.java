@@ -21,7 +21,9 @@ import com.increff.commons.util.TimeZoneUtil;
 import com.increff.server.api.ProductApi;
 import com.increff.server.api.ClientApi;
 import com.increff.server.api.InventoryApi;
-
+import com.increff.commons.model.OrderForm;
+import com.increff.commons.model.OrderItemForm;
+import com.increff.server.dto.OrderDto;
 public class OrderFlowTest extends AbstractUnitTest {
 
     @Autowired
@@ -36,9 +38,11 @@ public class OrderFlowTest extends AbstractUnitTest {
     @Autowired
     private InventoryApi inventoryApi;
 
+    @Autowired
+    private OrderDto orderDto;
+
     private Product testProduct;
     private Client testClient;
-    private Inventory testInventory;
 
     @Before
     public void setUp() throws ApiException {
@@ -62,8 +66,8 @@ public class OrderFlowTest extends AbstractUnitTest {
         // Create test inventory
         Inventory inventory = new Inventory();
         inventory.setProduct(testProduct);
-        inventory.setQuantity(100);
-        testInventory = inventoryApi.addInventory(inventory);
+        inventory.setQuantity(1000); // Set a sufficient initial quantity
+        inventoryApi.addInventory(inventory);
     }
 
     private Order createTestOrder(Double total) {
@@ -96,13 +100,13 @@ public class OrderFlowTest extends AbstractUnitTest {
         
         // Verify inventory was reduced
         Inventory updatedInventory = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
-        assertEquals(Integer.valueOf(99), updatedInventory.getQuantity());
+        assertEquals(Integer.valueOf(999), updatedInventory.getQuantity());
     }
 
     @Test(expected = ApiException.class)
     public void testAddOrderInsufficientInventory() throws ApiException {
         Order order = createTestOrder(100.0);
-        OrderItem item = createTestOrderItem(order, 101, 100.0); // More than available inventory
+        OrderItem item = createTestOrderItem(order, 1001, 100.0); // More than available inventory
         order.getOrderItems().add(item);
         
         orderFlow.addOrder(order);
@@ -143,61 +147,80 @@ public class OrderFlowTest extends AbstractUnitTest {
 
     @Test
     public void testMultipleOrdersInventoryUpdate() throws ApiException {
-        // First order
-        Order order1 = createTestOrder(100.0);
-        OrderItem item1 = createTestOrderItem(order1, 10, 100.0);
-        order1.getOrderItems().add(item1);
-        orderFlow.addOrder(order1);
-        
-        // Second order
-        Order order2 = createTestOrder(200.0);
-        OrderItem item2 = createTestOrderItem(order2, 20, 100.0);
-        order2.getOrderItems().add(item2);
-        orderFlow.addOrder(order2);
-        
-        Inventory updatedInventory = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
-        assertEquals(Integer.valueOf(70), updatedInventory.getQuantity()); // 100 - 10 - 20
+        // Initial inventory check
+        Inventory initialInventory = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
+        assertEquals(Integer.valueOf(1000), initialInventory.getQuantity());
+
+        // Create first order
+        OrderForm order1 = createTestOrderForm(10); // Order 10 items
+        orderDto.addOrder(order1);
+
+        // Check inventory after first order
+        Inventory afterFirstOrder = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
+        assertEquals(Integer.valueOf(990), afterFirstOrder.getQuantity()); // 1000 - 10 = 990
+
+        // Create second order
+        OrderForm order2 = createTestOrderForm(20); // Order 20 more items
+        orderDto.addOrder(order2);
+
+        // Check final inventory
+        Inventory finalInventory = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
+        assertEquals(Integer.valueOf(970), finalInventory.getQuantity()); // 990 - 20 = 970
     }
 
     @Test
     public void testOrderWithMultipleItems() throws ApiException {
-        // Create a second product and its inventory
+        // Create second product and its inventory
         Product product2 = new Product();
         product2.setBarcode("test_barcode_2");
         product2.setProductName("Test Product 2");
         product2.setClient(testClient);
         product2.setMrp(200.0);
-        product2.setImagePath("test2.jpg");
-        Product testProduct2 = productApi.addProduct(product2);
+        Product addedProduct2 = productApi.addProduct(product2);
 
-        // Add inventory for second product
         Inventory inventory2 = new Inventory();
-        inventory2.setProduct(testProduct2);
-        inventory2.setQuantity(100);
+        inventory2.setProduct(addedProduct2);
+        inventory2.setQuantity(1000);
         inventoryApi.addInventory(inventory2);
 
-        Order order = createTestOrder(300.0);
+        // Create order with multiple items
+        OrderForm orderForm = new OrderForm();
+        List<OrderItemForm> items = new ArrayList<>();
         
-        // Create order items with different products
-        OrderItem item1 = createTestOrderItem(order, 10, 100.0);
-        
-        OrderItem item2 = new OrderItem();
-        item2.setOrder(order);
-        item2.setProduct(testProduct2);
+        OrderItemForm item1 = new OrderItemForm();
+        item1.setBarcode("test_barcode");
+        item1.setQuantity(10);
+        item1.setSellingPrice(90.0); // Set selling price less than or equal to MRP
+        items.add(item1);
+
+        OrderItemForm item2 = new OrderItemForm();
+        item2.setBarcode("test_barcode_2");
         item2.setQuantity(20);
-        item2.setSellingPrice(100.0);
+        item2.setSellingPrice(180.0); // Set selling price less than or equal to MRP
+        items.add(item2);
+
+        orderForm.setOrderItems(items);
+        orderDto.addOrder(orderForm);
+
+        // Check inventory levels after order
+        Inventory inventory1Final = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
+        assertEquals(Integer.valueOf(990), inventory1Final.getQuantity()); // 1000 - 10 = 990
+
+        Inventory inventory2Final = inventoryApi.getCheckInventoryByProductId(addedProduct2.getProductId());
+        assertEquals(Integer.valueOf(980), inventory2Final.getQuantity()); // 1000 - 20 = 980
+    }
+
+    private OrderForm createTestOrderForm(int quantity) {
+        OrderForm form = new OrderForm();
+        List<OrderItemForm> items = new ArrayList<>();
         
-        order.getOrderItems().add(item1);
-        order.getOrderItems().add(item2);
+        OrderItemForm item = new OrderItemForm();
+        item.setBarcode("test_barcode");
+        item.setQuantity(quantity);
+        item.setSellingPrice(90.0); // Setting a valid price below MRP (100.0)
+        items.add(item);
         
-        Order added = orderFlow.addOrder(order);
-        assertEquals(2, added.getOrderItems().size());
-        
-        // Verify inventory was reduced for both products
-        Inventory updatedInventory1 = inventoryApi.getCheckInventoryByProductId(testProduct.getProductId());
-        Inventory updatedInventory2 = inventoryApi.getCheckInventoryByProductId(testProduct2.getProductId());
-        
-        assertEquals(Integer.valueOf(90), updatedInventory1.getQuantity()); // 100 - 10
-        assertEquals(Integer.valueOf(80), updatedInventory2.getQuantity()); // 100 - 20
+        form.setOrderItems(items);
+        return form;
     }
 } 

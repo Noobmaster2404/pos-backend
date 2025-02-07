@@ -2,9 +2,6 @@ package com.increff.server.dto;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +14,20 @@ import com.increff.commons.model.PaginatedData;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.AbstractUnitTest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InventoryDtoTest extends AbstractUnitTest {
 
     @Autowired
     private InventoryDto dto;
 
     @Autowired
-    private ProductDto productDto;
-
-    @Autowired
     private ClientDto clientDto;
 
-    private Integer testProductId;
+    @Autowired
+    private ProductDto productDto;
+
     private Integer testClientId;
 
     @Before
@@ -46,7 +45,7 @@ public class InventoryDtoTest extends AbstractUnitTest {
         productForm.setProductName("Test Product");
         productForm.setClientId(testClientId);
         productForm.setMrp(100.0);
-        testProductId = productDto.addProduct(productForm).getProductId();
+        productDto.addProduct(productForm);
     }
 
     private InventoryForm createTestInventoryForm(String barcode, Integer quantity) {
@@ -81,15 +80,18 @@ public class InventoryDtoTest extends AbstractUnitTest {
 
     @Test
     public void testPagination() throws ApiException {
-        // Create multiple products and their inventory
+        // Create multiple products first
         for(int i = 0; i < 25; i++) {
             ProductForm productForm = new ProductForm();
             productForm.setBarcode("barcode" + i);
             productForm.setProductName("Product " + i);
             productForm.setClientId(testClientId);
             productForm.setMrp(100.0);
-            Integer productId = productDto.addProduct(productForm).getProductId();
-            
+            productDto.addProduct(productForm);
+        }
+
+        // Now create inventory for each product
+        for(int i = 0; i < 25; i++) {
             InventoryForm inventoryForm = createTestInventoryForm("barcode" + i, 100 + i);
             dto.addInventory(inventoryForm);
         }
@@ -198,5 +200,85 @@ public class InventoryDtoTest extends AbstractUnitTest {
         assertEquals(1, inventories.getPage());
         assertEquals(1, inventories.getTotalPages());
         assertFalse(inventories.isHasNext());
+    }
+
+    @Test
+    public void testGetInventoryById() throws ApiException {
+        // Add initial inventory
+        InventoryForm form = createTestInventoryForm("test_barcode", 100);
+        InventoryData added = dto.addInventory(form);
+        
+        // Get by product ID
+        InventoryData retrieved = dto.getInventoryById(added.getProductId());
+        
+        assertNotNull(retrieved);
+        assertEquals(added.getInventoryId(), retrieved.getInventoryId());
+        assertEquals(added.getProductId(), retrieved.getProductId());
+        assertEquals("test_barcode", retrieved.getBarcode());
+        assertEquals(Integer.valueOf(100), retrieved.getQuantity());
+    }
+
+    @Test(expected = ApiException.class)
+    public void testGetInventoryByIdNonexistent() throws ApiException {
+        dto.getInventoryById(999); // Should throw ApiException
+    }
+
+    @Test
+    public void testBulkAddInventory() throws ApiException {
+        // Create second product first
+        ProductForm productForm = new ProductForm();
+        productForm.setBarcode("test_barcode_2");
+        productForm.setProductName("Test Product 2");
+        productForm.setClientId(testClientId);
+        productForm.setMrp(200.0);
+        productDto.addProduct(productForm);
+        
+        // Now proceed with bulk inventory add
+        List<InventoryForm> forms = new ArrayList<>();
+        forms.add(createTestInventoryForm("test_barcode", 100));
+        forms.add(createTestInventoryForm("test_barcode_2", 200));
+        
+        List<InventoryData> added = dto.bulkAddInventory(forms);
+        
+        assertEquals(2, added.size());
+        // Sort the results by barcode to ensure consistent ordering
+        added.sort((a, b) -> a.getBarcode().compareTo(b.getBarcode()));
+        
+        assertEquals("test_barcode", added.get(0).getBarcode());
+        assertEquals(Integer.valueOf(100), added.get(0).getQuantity());
+        assertEquals("test_barcode_2", added.get(1).getBarcode());
+        assertEquals(Integer.valueOf(200), added.get(1).getQuantity());
+    }
+
+    @Test
+    public void testBulkAddInventoryWithDuplicates() throws ApiException {
+        // Create forms with duplicate barcodes
+        List<InventoryForm> forms = new ArrayList<>();
+        forms.add(createTestInventoryForm("test_barcode", 100));
+        forms.add(createTestInventoryForm("test_barcode", 50)); // Same barcode
+        
+        List<InventoryData> added = dto.bulkAddInventory(forms);
+        
+        assertEquals(1, added.size()); // Should be consolidated
+        assertEquals("test_barcode", added.get(0).getBarcode());
+        assertEquals(Integer.valueOf(150), added.get(0).getQuantity()); // Sum of quantities
+    }
+
+    @Test(expected = ApiException.class)
+    public void testBulkAddInventoryTooManyItems() throws ApiException {
+        List<InventoryForm> forms = new ArrayList<>();
+        for (int i = 0; i < 5001; i++) { // Exceeds 5000 limit
+            forms.add(createTestInventoryForm("test_barcode", 1));
+        }
+        
+        dto.bulkAddInventory(forms); // Should throw ApiException
+    }
+
+    @Test(expected = ApiException.class)
+    public void testBulkAddInventoryNonexistentProduct() throws ApiException {
+        List<InventoryForm> forms = new ArrayList<>();
+        forms.add(createTestInventoryForm("nonexistent_barcode", 100));
+        
+        dto.bulkAddInventory(forms); // Should throw ApiException
     }
 } 
