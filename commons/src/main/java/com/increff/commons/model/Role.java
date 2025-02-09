@@ -1,4 +1,4 @@
-package com.increff.server.model;
+package com.increff.commons.model;
 
 public enum Role {
     SUPERVISOR,

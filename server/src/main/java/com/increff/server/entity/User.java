@@ -1,10 +1,11 @@
 package com.increff.server.entity;
 
 import javax.persistence.*;
+
+import com.increff.commons.model.Role;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import com.increff.server.model.Role;
 
 @Entity
 @Getter

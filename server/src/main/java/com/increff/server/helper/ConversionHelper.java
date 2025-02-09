@@ -7,6 +7,9 @@ import com.increff.commons.util.TimeZoneUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
+import com.increff.server.spring.SupervisorConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.increff.commons.model.LoginData;
 
 public class ConversionHelper {
 
@@ -230,5 +233,21 @@ public class ConversionHelper {
         return reports.stream()
                 .map(ConversionHelper::convertToDailySalesData)
                 .collect(Collectors.toList());
+    }
+
+    // User conversions
+    public static User convertToUser(SignupForm form, SupervisorConfig supervisorConfig, PasswordEncoder passwordEncoder) {
+        User user = new User();
+        user.setEmail(form.getEmail());
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        user.setRole(supervisorConfig.isSupervisor(form.getEmail()) ? Role.SUPERVISOR : Role.OPERATOR);
+        return user;
+    }
+
+    public static LoginData convertToLoginData(User user) {
+        LoginData data = new LoginData();
+        data.setEmail(user.getEmail());
+        data.setRole(user.getRole().toString());
+        return data;
     }
 }

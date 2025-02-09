@@ -23,15 +23,13 @@ public class AuthController {
     private UserDto userDto;
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public ResponseEntity<String> signup(@RequestBody SignupForm form) throws ApiException {
-        userDto.signup(form);
-        return ResponseEntity.ok("User created successfully");
+    public LoginData signup(@RequestBody SignupForm form) throws ApiException {
+        return userDto.signup(form);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<LoginData> login(@RequestBody LoginForm form) throws ApiException {
-        LoginData loginData = userDto.login(form);
-        return ResponseEntity.ok(loginData);
+    public LoginData login(@RequestBody LoginForm form) throws ApiException {
+        return userDto.login(form);
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
@@ -44,7 +42,7 @@ public class AuthController {
 
     @ApiOperation(value = "Get current user information")
     @RequestMapping(value = "/user-info", method = RequestMethod.GET)
-    public ResponseEntity<LoginData> getUserInfo() throws ApiException {
-        return ResponseEntity.ok(userDto.getUserInfo());
+    public LoginData getUserInfo() throws ApiException {
+        return userDto.getUserInfo();
     }
 } 

@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
@@ -53,12 +52,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // This should come last
             .anyRequest().authenticated()
             .and()
-            // .exceptionHandling()
-            // .authenticationEntryPoint((request, response, authException) -> {
-            //     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            //     response.getWriter().write("Unauthorized: Authentication is required");
-            // })
-            // .and()
             .formLogin().disable();
     }
 

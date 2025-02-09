@@ -6,7 +6,7 @@ import com.increff.commons.model.LoginData;
 import com.increff.commons.model.LoginForm;
 import com.increff.commons.model.SignupForm;
 import com.increff.server.entity.User;
-import com.increff.server.model.Role;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Collections;
 import com.increff.commons.exception.ApiException;
 import org.springframework.security.core.Authentication;
+import com.increff.server.helper.ConversionHelper;
 
 @Service
 public class UserDto extends AbstractDto {
@@ -30,21 +31,18 @@ public class UserDto extends AbstractDto {
     @Autowired
     private SupervisorConfig supervisorConfig;
 
-    public User signup(SignupForm form) throws ApiException {
+    public LoginData signup(SignupForm form) throws ApiException {
         checkValid(form);
-        String email = form.getEmail().toLowerCase().trim();
-        
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(form.getPassword()));
-        user.setRole(supervisorConfig.isSupervisor(email) ? Role.SUPERVISOR : Role.OPERATOR);
-        
-        return userService.add(user);
+        normalize(form);
+        User user = ConversionHelper.convertToUser(form, supervisorConfig, passwordEncoder);
+        User addedUser = userService.add(user);
+
+        return ConversionHelper.convertToLoginData(addedUser);
     }
 
     public LoginData login(LoginForm form) throws ApiException {
         checkValid(form);
-
+        normalize(form);
         String email = form.getEmail().toLowerCase().trim();
         User user = userService.getByEmail(email);
         if (Objects.isNull(user) || !passwordEncoder.matches(form.getPassword(), user.getPassword())) {
@@ -58,7 +56,7 @@ public class UserDto extends AbstractDto {
         );
         SecurityContextHolder.getContext().setAuthentication(auth);
         
-        return new LoginData(user.getEmail(), user.getRole().name());
+        return ConversionHelper.convertToLoginData(user);
     }
 
     public LoginData getUserInfo() throws ApiException {
@@ -73,6 +71,6 @@ public class UserDto extends AbstractDto {
             throw new ApiException("User not found");
         }
 
-        return new LoginData(user.getEmail(), user.getRole().name());
+        return ConversionHelper.convertToLoginData(user);
     }
 } 
