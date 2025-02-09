@@ -21,12 +21,12 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
-        updatedAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
+        createdAt = TimeZoneUtil.getCurrentUTCDateTime();
+        updatedAt = TimeZoneUtil.getCurrentUTCDateTime();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = TimeZoneUtil.toUTC(ZonedDateTime.now());
+        updatedAt = TimeZoneUtil.getCurrentUTCDateTime();
     }
 }

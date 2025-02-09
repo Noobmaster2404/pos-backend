@@ -2,11 +2,11 @@ package com.increff.server.helper;
 
 import com.increff.commons.model.*;
 import com.increff.server.entity.*;
+import com.increff.commons.util.TimeZoneUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
-import java.time.ZonedDateTime;
 
 public class ConversionHelper {
 
@@ -206,6 +206,7 @@ public class ConversionHelper {
 
     public static Order convertToOrder(OrderForm form, Map<String, Product> barcodeToProduct) {
         Order order = new Order();
+        order.setOrderTime(TimeZoneUtil.getCurrentUTCDateTime());
         order.setOrderItems(form.getOrderItems().stream()
             .map(itemForm -> convertToOrderItem(itemForm, barcodeToProduct.get(itemForm.getBarcode()), order))
             .collect(Collectors.toList()));
@@ -214,7 +215,6 @@ public class ConversionHelper {
             .sum());
         order.setInvoiceGenerated(false);
         order.setInvoicePath(null);
-        order.setOrderTime(ZonedDateTime.now());
         return order;
     }
 

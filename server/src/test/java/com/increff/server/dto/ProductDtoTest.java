@@ -13,6 +13,9 @@ import com.increff.commons.model.ClientForm;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.AbstractUnitTest;
 import com.increff.commons.model.PaginatedData;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 public class ProductDtoTest extends AbstractUnitTest {
 
@@ -249,5 +252,109 @@ public class ProductDtoTest extends AbstractUnitTest {
         assertEquals(1, products.getPage());
         assertEquals(1, products.getTotalPages());
         assertFalse(products.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByNamePrefix() throws ApiException {
+        // Add multiple products with similar names
+        ProductForm form1 = createTestProductForm("barcode1", "Test Product A", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "Test Product B", 200.0);
+        ProductForm form3 = createTestProductForm("barcode3", "Different Name", 300.0);
+        
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+        dto.addProduct(form3);
+        
+        // Search with prefix "Test"
+        PaginatedData<ProductData> result = dto.getProductsByNamePrefix("Test", 0);
+        
+        assertEquals(2, result.getData().size());
+        assertEquals(2, result.getTotalItems());
+        assertEquals(0, result.getPage());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
+        
+        // Verify product details
+        List<String> productNames = result.getData().stream()
+            .map(ProductData::getProductName)
+            .collect(Collectors.toList());
+        assertTrue(productNames.contains("test product a"));
+        assertTrue(productNames.contains("test product b"));
+    }
+
+    @Test
+    public void testBulkAddProducts() throws ApiException {
+        // Create multiple product forms
+        List<ProductForm> forms = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            ProductForm form = createTestProductForm(
+                "barcode" + i,
+                "Test Product " + i,
+                100.0 * i
+            );
+            forms.add(form);
+        }
+        
+        // Bulk add products
+        List<ProductData> addedProducts = dto.bulkAddProducts(forms);
+        
+        // Verify results
+        assertEquals(3, addedProducts.size());
+        
+        // Verify each product
+        for (int i = 0; i < addedProducts.size(); i++) {
+            ProductData product = addedProducts.get(i);
+            assertEquals("barcode" + (i + 1), product.getBarcode());
+            assertEquals("test product " + (i + 1), product.getProductName());
+            assertEquals(Double.valueOf(100.0 * (i + 1)), product.getMrp());
+            assertEquals(testClientId, product.getClientId());
+            assertEquals("test client", product.getClientName());
+        }
+        
+        // Verify products are in database
+        PaginatedData<ProductData> allProducts = dto.getAllProducts(0);
+        assertEquals(3, allProducts.getTotalItems());
+    }
+
+    @Test(expected = ApiException.class)
+    public void testBulkAddProductsWithDuplicateBarcode() throws ApiException {
+        List<ProductForm> forms = new ArrayList<>();
+        
+        // Add two products with same barcode
+        forms.add(createTestProductForm("barcode1", "Test Product 1", 100.0));
+        forms.add(createTestProductForm("barcode1", "Test Product 2", 200.0));
+        
+        dto.bulkAddProducts(forms); // Should throw ApiException
+    }
+
+    @Test(expected = ApiException.class)
+    public void testBulkAddTooManyProducts() throws ApiException {
+        List<ProductForm> forms = new ArrayList<>();
+        
+        // Try to add more than 5000 products
+        for (int i = 0; i < 5001; i++) {
+            forms.add(createTestProductForm(
+                "barcode" + i,
+                "Test Product " + i,
+                100.0
+            ));
+        }
+        
+        dto.bulkAddProducts(forms); // Should throw ApiException
+    }
+
+    @Test
+    public void testGetProductsByNamePrefixCaseInsensitive() throws ApiException {
+        ProductForm form = createTestProductForm("barcode1", "Test Product", 100.0);
+        dto.addProduct(form);
+        
+        // Search with different cases
+        PaginatedData<ProductData> result1 = dto.getProductsByNamePrefix("test", 0);
+        PaginatedData<ProductData> result2 = dto.getProductsByNamePrefix("TEST", 0);
+        PaginatedData<ProductData> result3 = dto.getProductsByNamePrefix("Test", 0);
+        
+        assertEquals(1, result1.getTotalItems());
+        assertEquals(1, result2.getTotalItems());
+        assertEquals(1, result3.getTotalItems());
     }
 } 

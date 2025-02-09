@@ -317,12 +317,57 @@ public class OrderDtoTest extends AbstractUnitTest {
         assertFalse(orders.isHasNext());
     }
 
-    // @Test(expected = ApiException.class)
-    // public void testInvalidDateRange() throws ApiException {
-    //     OrderSearchForm searchForm = new OrderSearchForm();
-    //     searchForm.setStartDate(LocalDate.now());
-    //     searchForm.setEndDate(LocalDate.now().minusDays(1)); // End date before start date
+    @Test(expected = ApiException.class)
+    public void testInvalidDateRange() throws ApiException {
+        OrderSearchForm searchForm = new OrderSearchForm();
+        LocalDate today = LocalDate.now();
+        searchForm.setStartDate(today);
+        searchForm.setEndDate(today.minusDays(1));
+        dto.getOrdersByDateRange(searchForm, 0);
+    }
+
+    @Test(expected = ApiException.class)
+    public void testGenerateInvoiceForNonExistentOrder() throws ApiException {
+        dto.generateInvoice(999); // Non-existent order ID
+    }
+
+    @Test(expected = ApiException.class)
+    public void testDownloadInvoiceForNonExistentOrder() throws ApiException {
+        dto.downloadInvoice(999); // Non-existent order ID
+    }
+
+    @Test(expected = ApiException.class)
+    public void testDownloadInvoiceBeforeGeneration() throws ApiException {
+        // Create and add an order
+        List<OrderItemForm> items = new ArrayList<>();
+        items.add(createTestOrderItem(testBarcode, 10, 90.0));
+        OrderForm form = createTestOrderForm(items);
+        OrderData orderData = dto.addOrder(form);
         
-    //     dto.getOrdersByDateRange(searchForm, 0);
-    // }
+        // Try to download before generating
+        dto.downloadInvoice(orderData.getOrderId());
+    }
+
+    @Test
+    public void testGenerateInvoiceForAlreadyInvoicedOrder() throws ApiException {
+        // Create and add an order
+        List<OrderItemForm> items = new ArrayList<>();
+        items.add(createTestOrderItem(testBarcode, 10, 90.0));
+        OrderForm form = createTestOrderForm(items);
+        OrderData orderData = dto.addOrder(form);
+        
+        // Generate invoice first time
+        String firstInvoicePath = dto.generateInvoice(orderData.getOrderId());
+        
+        // Try to generate again
+        String secondInvoicePath = dto.generateInvoice(orderData.getOrderId());
+        
+        // Verify both paths are the same
+        assertEquals(firstInvoicePath, secondInvoicePath);
+        
+        // Verify order status
+        OrderData updatedOrder = dto.getOrder(orderData.getOrderId());
+        assertTrue(updatedOrder.getInvoiceGenerated());
+        assertEquals(firstInvoicePath, updatedOrder.getInvoicePath());
+    }
 } 

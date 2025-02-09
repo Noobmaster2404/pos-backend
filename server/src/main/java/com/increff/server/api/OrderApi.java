@@ -22,11 +22,13 @@ public class OrderApi {
     private OrderDao orderDao;
 
     public Order addOrder(Order order) throws ApiException {
-        // Validate selling price against MRP for each order item
         for (OrderItem item : order.getOrderItems()) {
             if (item.getSellingPrice() > item.getProduct().getMrp()) {
                 throw new ApiException("Selling price cannot be higher than MRP for product: " + item.getProduct().getBarcode());
             }
+        }
+        if (Objects.nonNull(order.getOrderTime())) {
+            order.setOrderTime(TimeZoneUtil.toUTC(order.getOrderTime()));
         }
         
         orderDao.insert(order);
