@@ -37,10 +37,10 @@ public class ProductApiTest extends AbstractUnitTest {
     }
 
     // Helper method to create a test product
-    private Product createTestProduct(String barcode, String name, Double mrp) {
+    private Product createTestProduct(String barcode, String productName, Double mrp) {
         Product product = new Product();
         product.setBarcode(barcode);
-        product.setProductName(name);
+        product.setProductName(productName.toLowerCase());
         product.setClient(testClient);
         product.setMrp(mrp);
         product.setImagePath("test.jpg");
@@ -72,18 +72,6 @@ public class ProductApiTest extends AbstractUnitTest {
         
         List<Product> products = productApi.getAllProducts(0);
         assertEquals(2, products.size());
-    }
-
-    @Test
-    public void testGetProductsByNamePrefix() throws ApiException {
-        Product product1 = createTestProduct("barcode1", "apple", 100.0);
-        Product product2 = createTestProduct("barcode2", "banana", 200.0);
-        productApi.addProduct(product1);
-        productApi.addProduct(product2);
-        
-        List<Product> products = productApi.getCheckProductsByNamePrefix("app", 0);
-        assertEquals(1, products.size());
-        assertEquals("apple", products.get(0).getProductName());
     }
 
     @Test
@@ -136,29 +124,6 @@ public class ProductApiTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetProductsByClientId() throws ApiException {
-        Product product1 = createTestProduct("barcode1", "test product 1", 100.0);
-        Product product2 = createTestProduct("barcode2", "test product 2", 200.0);
-        productApi.addProduct(product1);
-        productApi.addProduct(product2);
-        
-        List<Product> products = productApi.getCheckProductsByClientId(testClient.getClientId(), 0);
-        assertEquals(2, products.size());
-    }
-
-    @Test
-    public void testGetCountMethods() throws ApiException {
-        Product product1 = createTestProduct("barcode1", "apple", 100.0);
-        Product product2 = createTestProduct("barcode2", "banana", 200.0);
-        productApi.addProduct(product1);
-        productApi.addProduct(product2);
-        
-        assertEquals(2, productApi.getTotalCount());
-        assertEquals(1, productApi.getCountByNamePrefix("app"));
-        assertEquals(2, productApi.getCountByClientId(testClient.getClientId()));
-    }
-
-    @Test
     public void testGetProductsByBarcodes() throws ApiException {
         Product product1 = createTestProduct("barcode1", "test product 1", 100.0);
         Product product2 = createTestProduct("barcode2", "test product 2", 200.0);
@@ -175,5 +140,60 @@ public class ProductApiTest extends AbstractUnitTest {
         productApi.addProduct(product);
         
         productApi.getCheckProductsByBarcodes(Arrays.asList("barcode1", "nonexistent")); // Should throw ApiException
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductName() throws ApiException {
+        // Add multiple products with lowercase names
+        Product product1 = createTestProduct("barcode1", "test apple", 100.0);
+        Product product2 = createTestProduct("barcode2", "test banana", 200.0);
+        Product product3 = createTestProduct("barcode3", "test apple", 300.0);
+        productApi.addProduct(product1);
+        productApi.addProduct(product2);
+        productApi.addProduct(product3);
+
+        // Test with matching product name
+        List<Product> appleProducts = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test ap", 0);
+        assertEquals(2, appleProducts.size());
+        assertTrue(appleProducts.stream().anyMatch(p -> p.getBarcode().equals("barcode1")));
+        assertTrue(appleProducts.stream().anyMatch(p -> p.getBarcode().equals("barcode3")));
+
+        // Test with non-matching product name
+        List<Product> noProducts = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "orange", 0);
+        assertEquals(0, noProducts.size());
+
+        // Test with null product name (should return all products for the client)
+        List<Product> allProducts = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), null, 0);
+        assertEquals(3, allProducts.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePagination() throws ApiException {
+        // Add 15 products
+        for (int i = 0; i < 15; i++) {
+            Product product = createTestProduct("barcode" + i, "test apple", 100.0 + i);
+            productApi.addProduct(product);
+        }
+
+        // Test pagination - page 0 (PAGE_SIZE is 10)
+        List<Product> firstPage = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 0);
+        assertEquals(10, firstPage.size());
+
+        // Test pagination - page 1
+        List<Product> secondPage = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 1);
+        assertEquals(5, secondPage.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePartialMatch() throws ApiException {
+        // Create products with lowercase names
+        Product product1 = createTestProduct("barcode1", "test apple red", 100.0);
+        Product product2 = createTestProduct("barcode2", "test apple green", 200.0);
+        productApi.addProduct(product1);
+        productApi.addProduct(product2);
+
+        // Test with partial product name
+        List<Product> products = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test apple", 0);
+        assertEquals(2, products.size());
     }
 } 

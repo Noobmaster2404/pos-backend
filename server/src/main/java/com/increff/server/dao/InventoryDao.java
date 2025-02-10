@@ -48,5 +48,4 @@ public class InventoryDao extends AbstractDao<Inventory> {
         cq.select(root).where(root.get("product").get("productId").in(productIds));
         return em.createQuery(cq).getResultList();
     }
-    //TODO: Add funciton for join here
 }

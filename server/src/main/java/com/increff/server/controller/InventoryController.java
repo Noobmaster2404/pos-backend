@@ -37,7 +37,7 @@ public class InventoryController {
         return dto.getAllInventory(page);
     }
 
-    //removed endpoint
+    //removed endpoint from frontend
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/search")
     @ApiOperation(value = "Get inventory by product ID")

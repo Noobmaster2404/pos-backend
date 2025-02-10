@@ -8,13 +8,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.Objects;
 
 @Repository
 public class ProductDao extends AbstractDao<Product> {
 
-    @Value("${PAGE_SIZE}")
-    private Integer PAGE_SIZE;
+    private Integer PAGE_SIZE=10;
 
     public ProductDao() {
         super(Product.class);
@@ -33,54 +32,29 @@ public class ProductDao extends AbstractDao<Product> {
                  .orElse(null);
     }
 
-    public List<Product> selectByNamePrefix(String prefix, Integer pageNo) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(root).where(
-            cb.like(
-                cb.lower(root.get("productName")), 
-                prefix.toLowerCase() + "%"
-            )
-        );
-        
-        return em.createQuery(cq)
-                 .setFirstResult(pageNo * PAGE_SIZE)
-                 .setMaxResults(PAGE_SIZE)
-                 .getResultList();
-    }
-
-    public List<Product> selectByClientId(Integer clientId, Integer page) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(root).where(cb.equal(root.get("client").get("clientId"), clientId));
-        
-        return em.createQuery(cq)
-                 .setFirstResult(page * PAGE_SIZE)
-                 .setMaxResults(PAGE_SIZE)
-                 .getResultList();
-    }
-
-    public long countByNamePrefix(String prefix) {
+    public long countByClientIdAndProductName(Integer clientId, String productName) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Product> root = cq.from(Product.class);
-        cq.select(cb.count(root)).where(
-            cb.like(
-                cb.lower(root.get("productName")), 
-                prefix.toLowerCase() + "%"
-            )
-        );
-        return em.createQuery(cq).getSingleResult();
-    }
+        cq.select(cb.count(root));
 
-    public long countByClientId(Integer clientId) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(cb.count(root))
-          .where(cb.equal(root.get("client").get("clientId"), clientId));
+        if (Objects.isNull(clientId)) {
+            if (Objects.isNull(productName) || productName.isEmpty()) {
+                // No filters
+            } else {
+                cq.where(cb.like(root.get("productName"), productName + "%"));
+            }
+        } else {
+            if (Objects.isNull(productName) || productName.isEmpty()) {
+                cq.where(cb.equal(root.get("client").get("clientId"), clientId));
+            } else {
+                cq.where(cb.and(
+                    cb.equal(root.get("client").get("clientId"), clientId),
+                    cb.like(root.get("productName"), productName + "%")
+                ));
+            }
+        }
+
         return em.createQuery(cq).getSingleResult();
     }
 
@@ -100,5 +74,33 @@ public class ProductDao extends AbstractDao<Product> {
         cq.select(root).where(root.get("barcode").in(barcodes));
         
         return em.createQuery(cq).getResultList();
+    }
+
+    public List<Product> selectByClientIdAndProductName(Integer clientId, String productName, Integer page) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Product> cq = cb.createQuery(Product.class);
+        Root<Product> root = cq.from(Product.class);
+
+        if (Objects.isNull(clientId)) {
+            if (Objects.isNull(productName) || productName.isEmpty()) {
+                cq.select(root);
+            } else {
+                cq.select(root).where(cb.like(root.get("productName"), productName + "%"));
+            }
+        } else {
+            if (Objects.isNull(productName)) {
+                cq.select(root).where(cb.equal(root.get("client").get("clientId"), clientId));
+            } else {
+                cq.select(root).where(cb.and(
+                    cb.equal(root.get("client").get("clientId"), clientId),
+                    cb.like(root.get("productName"), productName + "%")
+                ));
+            }
+        }
+
+        return em.createQuery(cq)
+                .setFirstResult(page * PAGE_SIZE)
+                .setMaxResults(PAGE_SIZE)
+                .getResultList();
     }
 }

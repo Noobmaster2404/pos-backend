@@ -21,7 +21,6 @@ public class Product extends BaseEntity {
 
     @Column(length = 255, nullable = false)
     private String productName;
-    //TODO: See if we have to change productName to name for this file
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

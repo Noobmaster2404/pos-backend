@@ -34,6 +34,11 @@ public class ProductApi {
         return dao.selectAll(page);
     }
 
+    @Transactional(readOnly = true)
+    public List<Product> getProductsByClientIdAndProductName(Integer clientId, String productName, Integer page) throws ApiException {
+        return dao.selectByClientIdAndProductName(clientId, productName, page);
+    }
+
     public Product updateProductById(Integer productId, Product product) throws ApiException {
         Product existingProduct = dao.select(productId);
         if (Objects.isNull(existingProduct)) {
@@ -57,18 +62,6 @@ public class ProductApi {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getCheckProductsByNamePrefix(String productName, Integer page) throws ApiException {
-        if (Objects.isNull(productName) || productName.isEmpty()) {
-            return getAllProducts(page);
-        }
-        List<Product> products = dao.selectByNamePrefix(productName, page);
-        if (products.isEmpty()) {
-            throw new ApiException("No products found with name prefix: " + productName);
-        }
-        return products;
-    }
-
-    @Transactional(readOnly = true)
     public Product getCheckProductByBarcode(String barcode) throws ApiException {
         Product product = dao.selectByBarcode(barcode);
         if(Objects.isNull(product)){
@@ -86,13 +79,8 @@ public class ProductApi {
         return product;
     }
 
-    @Transactional(readOnly = true)
-    public List<Product> getCheckProductsByClientId(Integer clientId, Integer page) throws ApiException {
-        List<Product> products = dao.selectByClientId(clientId, page);
-        if (products.isEmpty()) {
-            throw new ApiException("No products found for client ID: " + clientId);
-        }
-        return products;
+    public long getCountByClientIdAndProductName(Integer clientId, String productName) {
+        return dao.countByClientIdAndProductName(clientId, productName);
     }
 
     @Transactional(readOnly = true)
@@ -120,16 +108,6 @@ public class ProductApi {
     @Transactional(readOnly = true)
     public long getTotalCount() {
         return dao.count();
-    }
-
-    @Transactional(readOnly = true)
-    public long getCountByNamePrefix(String prefix) {
-        return dao.countByNamePrefix(prefix);
-    }
-
-    @Transactional(readOnly = true)
-    public long getCountByClientId(Integer clientId) {
-        return dao.countByClientId(clientId);
     }
 
     @Transactional(readOnly = true)

@@ -34,20 +34,6 @@ public class ProductDto extends AbstractDto {
     @Value("${PAGE_SIZE}")
     private Integer PAGE_SIZE;
 
-    public PaginatedData<ProductData> getProductsByNamePrefix(String productName, Integer page) throws ApiException {
-        List<Product> products = productFlow.getProductsByNamePrefix(productName, page);
-        List<Integer> clientIds = products.stream()
-            .map(product -> product.getClient().getClientId())
-            .distinct()
-            .collect(Collectors.toList());  
-
-        Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
-        List<ProductData> productData = ConversionHelper.convertToProductData(products, clientNamesMap);
-        long totalCount = productApi.getCountByNamePrefix(productName);
-
-        return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
-    }
-
     public ProductData getProductByBarcode(String barcode) throws ApiException {
         Product product = productFlow.getProductByBarcode(barcode);
         Client client = clientApi.getCheckClientById(product.getClient().getClientId());
@@ -55,13 +41,31 @@ public class ProductDto extends AbstractDto {
         return ConversionHelper.convertToProductData(product,client.getClientName());
     }
 
-    public PaginatedData<ProductData> getProductsByClientId(Integer clientId, Integer page) throws ApiException {
-        List<Product> products = productFlow.getProductsByClientId(clientId, page);
-        Client client = clientApi.getCheckClientById(clientId);
-        long totalCount = productApi.getCountByClientId(clientId);
-        List<ProductData> productData = ConversionHelper.convertToProductData(products, client.getClientName());
+    public PaginatedData<ProductData> getProductsByClientIdAndProductName(Integer clientId, String productName, Integer page) throws ApiException {
+        productName = normalizeSearchQuery(productName);
+        validateSearchParams(page);
 
-        return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
+        if(Objects.nonNull(clientId)){
+            Client client = clientApi.getCheckClientById(clientId);
+            List<Product> products = productFlow.getProductsByClientIdAndProductName(clientId, productName, page);
+            long totalCount = productApi.getCountByClientIdAndProductName(clientId, productName);
+            List<ProductData> productData = ConversionHelper.convertToProductData(products, client.getClientName());
+
+            return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
+        }
+        else{
+            List<Product> products = productFlow.getProductsByClientIdAndProductName(clientId, productName, page);
+            long totalCount = productApi.getCountByClientIdAndProductName(clientId, productName);
+            List<Integer> clientIds = products.stream()
+                .map(product -> product.getClient().getClientId())
+                .distinct()
+                .collect(Collectors.toList());  
+
+            Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
+            List<ProductData> productData = ConversionHelper.convertToProductData(products, clientNamesMap);
+            
+            return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
+        }
     }
 
     public PaginatedData<ProductData> getAllProducts(Integer page) throws ApiException {
@@ -129,6 +133,23 @@ public class ProductDto extends AbstractDto {
                 throw new ApiException("Invalid image format. Only PNG, JPG, and JPEG files are allowed");
             }
             form.setImagePath(imagePath);
+        }
+    }
+
+    private String normalizeSearchQuery(String query) {
+        if (Objects.isNull(query)) {
+            return null;
+        }
+        String normalized = query.trim();
+        return normalized.isEmpty() ? null : normalized.toLowerCase();
+    }
+
+    private void validateSearchParams(Integer page) throws ApiException {
+        if (Objects.isNull(page)) {
+            throw new ApiException("Page number cannot be null");
+        }
+        if (page < 0) {
+            throw new ApiException("Page number cannot be negative");
         }
     }
 

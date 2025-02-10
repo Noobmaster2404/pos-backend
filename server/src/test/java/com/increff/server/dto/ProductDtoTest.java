@@ -14,7 +14,6 @@ import com.increff.commons.exception.ApiException;
 import com.increff.server.AbstractUnitTest;
 import com.increff.commons.model.PaginatedData;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 public class ProductDtoTest extends AbstractUnitTest {
@@ -191,22 +190,6 @@ public class ProductDtoTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetByClientId() throws ApiException {
-        ProductForm form1 = createTestProductForm("barcode1", "Test Product 1", 100.0);
-        ProductForm form2 = createTestProductForm("barcode2", "Test Product 2", 200.0);
-        
-        dto.addProduct(form1);
-        dto.addProduct(form2);
-        
-        PaginatedData<ProductData> products = dto.getProductsByClientId(testClientId, 0);
-        assertEquals(2, products.getData().size());
-        assertEquals(2, products.getTotalItems());
-        assertEquals(0, products.getPage());
-        assertEquals(1, products.getTotalPages());
-        assertFalse(products.isHasNext());
-    }
-
-    @Test
     public void testGetByBarcode() throws ApiException {
         ProductForm form = createTestProductForm("barcode1", "Test Product", 100.0);
         ProductData added = dto.addProduct(form);
@@ -252,34 +235,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         assertEquals(1, products.getPage());
         assertEquals(1, products.getTotalPages());
         assertFalse(products.isHasNext());
-    }
-
-    @Test
-    public void testGetProductsByNamePrefix() throws ApiException {
-        // Add multiple products with similar names
-        ProductForm form1 = createTestProductForm("barcode1", "Test Product A", 100.0);
-        ProductForm form2 = createTestProductForm("barcode2", "Test Product B", 200.0);
-        ProductForm form3 = createTestProductForm("barcode3", "Different Name", 300.0);
-        
-        dto.addProduct(form1);
-        dto.addProduct(form2);
-        dto.addProduct(form3);
-        
-        // Search with prefix "Test"
-        PaginatedData<ProductData> result = dto.getProductsByNamePrefix("Test", 0);
-        
-        assertEquals(2, result.getData().size());
-        assertEquals(2, result.getTotalItems());
-        assertEquals(0, result.getPage());
-        assertEquals(1, result.getTotalPages());
-        assertFalse(result.isHasNext());
-        
-        // Verify product details
-        List<String> productNames = result.getData().stream()
-            .map(ProductData::getProductName)
-            .collect(Collectors.toList());
-        assertTrue(productNames.contains("test product a"));
-        assertTrue(productNames.contains("test product b"));
     }
 
     @Test
@@ -344,17 +299,161 @@ public class ProductDtoTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetProductsByNamePrefixCaseInsensitive() throws ApiException {
-        ProductForm form = createTestProductForm("barcode1", "Test Product", 100.0);
+    public void testGetProductsByClientIdAndProductNameExactMatch() throws ApiException {
+        // Add test products
+        ProductForm form1 = createTestProductForm("barcode1", "test apple", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "test banana", 200.0);
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+
+        // Test exact match
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "test apple", 0);
+        assertEquals(1, result.getData().size());
+        assertEquals("test apple", result.getData().get(0).getProductName());
+        assertEquals(1, result.getTotalItems());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePartialMatch() throws ApiException {
+        // Add test products
+        ProductForm form1 = createTestProductForm("barcode1", "test apple red", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "test apple green", 200.0);
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+
+        // Test partial match
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "test app", 0);
+        assertEquals(2, result.getData().size());
+        assertEquals(2, result.getTotalItems());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameCaseInsensitive() throws ApiException {
+        // Add test product
+        ProductForm form = createTestProductForm("barcode1", "test apple", 100.0);
         dto.addProduct(form);
+
+        // Test with different cases
+        PaginatedData<ProductData> result1 = dto.getProductsByClientIdAndProductName(testClientId, "TEST APPLE", 0);
+        PaginatedData<ProductData> result2 = dto.getProductsByClientIdAndProductName(testClientId, "Test Apple", 0);
+        PaginatedData<ProductData> result3 = dto.getProductsByClientIdAndProductName(testClientId, "test apple", 0);
+
+        assertEquals(1, result1.getData().size());
+        assertEquals(1, result2.getData().size());
+        assertEquals(1, result3.getData().size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameNoMatch() throws ApiException {
+        // Add test product
+        ProductForm form = createTestProductForm("barcode1", "test apple", 100.0);
+        dto.addProduct(form);
+
+        // Test no match
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "orange", 0);
+        assertEquals(0, result.getData().size());
+        assertEquals(0, result.getTotalItems());
+        assertEquals(0, result.getTotalPages());
+        assertFalse(result.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameNullProductName() throws ApiException {
+        // Add test products
+        ProductForm form1 = createTestProductForm("barcode1", "test apple", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "test banana", 200.0);
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+
+        // Test null product name
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, null, 0);
+        assertEquals(2, result.getData().size());
+        assertEquals(2, result.getTotalItems());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePagination() throws ApiException {
+        // Add 25 products
+        for (int i = 0; i < 25; i++) {
+            ProductForm form = createTestProductForm(
+                "barcode" + i, 
+                "test product " + i, 
+                100.0 + i
+            );
+            dto.addProduct(form);
+        }
+
+        // Test first page
+        PaginatedData<ProductData> page1 = dto.getProductsByClientIdAndProductName(testClientId, "test", 0);
+        assertEquals(10, page1.getData().size());
+        assertEquals(25, page1.getTotalItems());
+        assertEquals(3, page1.getTotalPages());
+        assertTrue(page1.isHasNext());
+
+        // Test second page
+        PaginatedData<ProductData> page2 = dto.getProductsByClientIdAndProductName(testClientId, "test", 1);
+        assertEquals(10, page2.getData().size());
+        assertEquals(25, page2.getTotalItems());
+        assertEquals(3, page2.getTotalPages());
+        assertTrue(page2.isHasNext());
+
+        // Test last page
+        PaginatedData<ProductData> page3 = dto.getProductsByClientIdAndProductName(testClientId, "test", 2);
+        assertEquals(5, page3.getData().size());
+        assertEquals(25, page3.getTotalItems());
+        assertEquals(3, page3.getTotalPages());
+        assertFalse(page3.isHasNext());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameWithNullClientId() throws ApiException {
+        // Add test products
+        ProductForm form1 = createTestProductForm("barcode1", "test apple", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "test banana", 200.0);
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+
+        // Test with null clientId
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(null, "test", 0);
+        assertEquals(2, result.getData().size());
+        assertEquals(2, result.getTotalItems());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
         
-        // Search with different cases
-        PaginatedData<ProductData> result1 = dto.getProductsByNamePrefix("test", 0);
-        PaginatedData<ProductData> result2 = dto.getProductsByNamePrefix("TEST", 0);
-        PaginatedData<ProductData> result3 = dto.getProductsByNamePrefix("Test", 0);
-        
-        assertEquals(1, result1.getTotalItems());
-        assertEquals(1, result2.getTotalItems());
-        assertEquals(1, result3.getTotalItems());
+        // Verify client names are present in response
+        assertEquals("test client", result.getData().get(0).getClientName());
+        assertEquals("test client", result.getData().get(1).getClientName());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameWithInvalidPage() throws ApiException {
+        try {
+            dto.getProductsByClientIdAndProductName(testClientId, "test", -1);
+            fail("Expected ApiException was not thrown");
+        } catch (ApiException e) {
+            assertEquals("Page number cannot be negative", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameWithEmptyString() throws ApiException {
+        // Add test products
+        ProductForm form1 = createTestProductForm("barcode1", "test apple", 100.0);
+        ProductForm form2 = createTestProductForm("barcode2", "test banana", 200.0);
+        dto.addProduct(form1);
+        dto.addProduct(form2);
+
+        // Test with empty string (should behave same as null)
+        PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "", 0);
+        assertEquals(2, result.getData().size());
+        assertEquals(2, result.getTotalItems());
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.isHasNext());
     }
 } 

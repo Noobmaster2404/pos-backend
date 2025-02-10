@@ -90,35 +90,12 @@ public class ProductFlowTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetProductsByNamePrefix() throws ApiException {
-        Product product1 = createTestProduct("barcode1", "apple", 100.0);
-        Product product2 = createTestProduct("barcode2", "banana", 200.0);
-        productFlow.addProduct(product1);
-        productFlow.addProduct(product2);
-        
-        List<Product> products = productFlow.getProductsByNamePrefix("app", 0);
-        assertEquals(1, products.size());
-        assertEquals("apple", products.get(0).getProductName());
-    }
-
-    @Test
     public void testGetProductByBarcode() throws ApiException {
         Product product = createTestProduct("barcode1", "test product", 100.0);
         productFlow.addProduct(product);
         
         Product retrieved = productFlow.getProductByBarcode("barcode1");
         assertEquals("barcode1", retrieved.getBarcode());
-    }
-
-    @Test
-    public void testGetProductsByClientId() throws ApiException {
-        Product product1 = createTestProduct("barcode1", "test product 1", 100.0);
-        Product product2 = createTestProduct("barcode2", "test product 2", 200.0);
-        productFlow.addProduct(product1);
-        productFlow.addProduct(product2);
-        
-        List<Product> products = productFlow.getProductsByClientId(testClient.getClientId(), 0);
-        assertEquals(2, products.size());
     }
 
     @Test(expected = ApiException.class)
@@ -135,8 +112,96 @@ public class ProductFlowTest extends AbstractUnitTest {
         productFlow.updateProductById(999, updateData); // Should throw ApiException
     }
 
-    @Test(expected = ApiException.class)
-    public void testGetProductsByInvalidClientId() throws ApiException {
-        productFlow.getProductsByClientId(999, 0); // Should throw ApiException
+    @Test
+    public void testGetProductsByClientIdAndProductNameExactMatch() throws ApiException {
+        // Create and add test products
+        Product product1 = createTestProduct("barcode1", "test apple", 100.0);
+        Product product2 = createTestProduct("barcode2", "test banana", 200.0);
+        productFlow.addProduct(product1);
+        productFlow.addProduct(product2);
+
+        // Test exact match
+        List<Product> products = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test apple", 0);
+        assertEquals(1, products.size());
+        assertEquals("test apple", products.get(0).getProductName());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePartialMatch() throws ApiException {
+        // Create and add test products
+        Product product1 = createTestProduct("barcode1", "test apple red", 100.0);
+        Product product2 = createTestProduct("barcode2", "test apple green", 200.0);
+        productFlow.addProduct(product1);
+        productFlow.addProduct(product2);
+
+        // Test partial match
+        List<Product> products = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test appl", 0);
+        assertEquals(2, products.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameNoMatch() throws ApiException {
+        // Create and add test product
+        Product product = createTestProduct("barcode1", "test apple", 100.0);
+        productFlow.addProduct(product);
+
+        // Test no match
+        List<Product> products = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "orange", 0);
+        assertEquals(0, products.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameNullProductName() throws ApiException {
+        // Create and add test products
+        Product product1 = createTestProduct("barcode1", "test apple", 100.0);
+        Product product2 = createTestProduct("barcode2", "test banana", 200.0);
+        productFlow.addProduct(product1);
+        productFlow.addProduct(product2);
+
+        // Test null product name (should return all products for client)
+        List<Product> products = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), null, 0);
+        assertEquals(2, products.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNamePagination() throws ApiException {
+        // Add 15 products
+        for (int i = 0; i < 15; i++) {
+            Product product = createTestProduct("barcode" + i, "test product " + i, 100.0 + i);
+            productFlow.addProduct(product);
+        }
+
+        // Test first page (should return 10 products)
+        List<Product> firstPage = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 0);
+        assertEquals(10, firstPage.size());
+
+        // Test second page (should return 5 products)
+        List<Product> secondPage = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 1);
+        assertEquals(5, secondPage.size());
+    }
+
+    @Test
+    public void testGetProductsByClientIdAndProductNameMultipleClients() throws ApiException {
+        // Create second client
+        Client client2 = new Client();
+        client2.setClientName("test client 2");
+        client2.setPhone("9876543210");
+        client2.setEmail("test2@test.com");
+        client2.setEnabled(true);
+        Client secondClient = clientApi.addClient(client2);
+
+        // Add products for both clients
+        Product product1 = createTestProduct("barcode1", "test apple", 100.0);
+        product1.setClient(testClient);
+        Product product2 = createTestProduct("barcode2", "test apple", 200.0);
+        product2.setClient(secondClient);
+        
+        productFlow.addProduct(product1);
+        productFlow.addProduct(product2);
+
+        // Test products for first client
+        List<Product> clientProducts = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test appl", 0);
+        assertEquals(1, clientProducts.size());
+        assertEquals(testClient.getClientId(), clientProducts.get(0).getClient().getClientId());
     }
 } 

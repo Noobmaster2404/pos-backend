@@ -3,7 +3,6 @@ package com.increff.server.flow;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Product;
 import com.increff.server.api.ProductApi;
-import com.increff.server.api.ClientApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +17,6 @@ public class ProductFlow {
 
     @Autowired
     private ProductApi productApi;
-    
-    @Autowired
-    private ClientApi clientApi;
 
     public Product addProduct(Product product) throws ApiException {
         return productApi.addProduct(product);
@@ -44,19 +40,12 @@ public class ProductFlow {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> getProductsByNamePrefix(String productName, Integer page) throws ApiException {
-        return productApi.getCheckProductsByNamePrefix(productName, page);
+    public List<Product> getProductsByClientIdAndProductName(Integer clientId, String productName, Integer page) throws ApiException {
+        return productApi.getProductsByClientIdAndProductName(clientId, productName, page);
     }
 
     @Transactional(readOnly = true)
     public Product getProductByBarcode(String barcode) throws ApiException {
         return productApi.getCheckProductByBarcode(barcode);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Product> getProductsByClientId(Integer clientId, Integer page) throws ApiException {
-        clientApi.getCheckClientById(clientId);
-        
-        return productApi.getCheckProductsByClientId(clientId, page);
     }
 }

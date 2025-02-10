@@ -33,7 +33,6 @@ public class InventoryFlow {
         return inventoryApi.updateInventoryById(productId, inventory);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public List<Inventory> bulkAddInventory(List<Inventory> inventories) throws ApiException {
         List<Inventory> addedInventories = new ArrayList<>();
         for (Inventory inventory : inventories) {

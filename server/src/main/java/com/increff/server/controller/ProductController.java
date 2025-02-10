@@ -29,15 +29,6 @@ public class ProductController {
         return dto.getAllProducts(page);
     }
 
-    @ApiOperation(value = "Get products by name")
-    @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public PaginatedData<ProductData> getProductsByNamePrefix(
-            @RequestParam String productName,
-            @RequestParam(defaultValue = "0") Integer page) throws ApiException {
-        return dto.getProductsByNamePrefix(productName, page);
-    }
-
     @ApiOperation(value = "Get products by barcode")
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(method = RequestMethod.GET, value = "/search-barcode")
@@ -67,12 +58,13 @@ public class ProductController {
         return dto.bulkAddProducts(forms);
     }
 
-    @ApiOperation(value = "Get products by client ID")
+    @ApiOperation(value = "Get products client id and product name")
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(method = RequestMethod.GET, value = "/by-client")
-    public PaginatedData<ProductData> getProductsByClientId(
-            @RequestParam(value = "clientId", required = true) Integer clientId,
+    @RequestMapping(method = RequestMethod.GET, value = "/search")
+    public PaginatedData<ProductData> getProductsByClientIdAndProductName(
+            @RequestParam(value = "clientId", required = false) Integer clientId,
+            @RequestParam(value = "productName", required = false) String productName,
             @RequestParam(defaultValue = "0") Integer page) throws ApiException {
-        return dto.getProductsByClientId(clientId, page);
+        return dto.getProductsByClientIdAndProductName(clientId, productName, page);
     }
 }
