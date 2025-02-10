@@ -19,5 +19,5 @@ public class SalesReportForm {
     @PastOrPresent(message = "End date must not be in future")
     private LocalDate endDate;
     
-    private Integer clientId; // Exact client name after selection from search
+    private Integer clientId;
 } 

@@ -24,7 +24,6 @@ public class UserDao extends AbstractDao<User> {
         CriteriaQuery<User> cq = cb.createQuery(User.class);
         Root<User> root = cq.from(User.class);
         
-        // Create email predicate
         Predicate emailPredicate = cb.equal(root.get("email"), email);
         cq.where(emailPredicate);
         

@@ -139,7 +139,7 @@ public class OrderDto extends AbstractDto {
             
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"invoice_" + orderId + ".pdf\"")
                     .body(resource);
         } catch (MalformedURLException e) {

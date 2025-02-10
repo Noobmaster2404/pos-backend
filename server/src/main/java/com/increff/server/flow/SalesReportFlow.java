@@ -41,7 +41,7 @@ public class SalesReportFlow {
         
         for (Order order : orders) {
             for (OrderItem item : order.getOrderItems()) {
-                if (clientId != null && !item.getProduct().getClient().getClientId().equals(clientId)) {
+                if (Objects.nonNull(clientId) && !item.getProduct().getClient().getClientId().equals(clientId)) {
                     continue;
                 }
                 
