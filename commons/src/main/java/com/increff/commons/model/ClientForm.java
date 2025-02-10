@@ -16,7 +16,6 @@ public class ClientForm {
     @NotBlank(message = "Client name cannot be blank")
     @Size(max = 255, message = "Client name cannot exceed 255 characters")
     private String clientName;
-    //@NotBlank = not null, not empty, and not only whitespace
     
     @NotNull(message = "Phone number cannot be null")
     @NotBlank(message = "Phone number cannot be blank")

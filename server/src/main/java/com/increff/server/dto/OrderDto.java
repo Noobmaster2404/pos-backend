@@ -122,9 +122,7 @@ public class OrderDto extends AbstractDto {
             .collect(Collectors.toMap(Product::getProductId, product -> product));
         List<OrderData> orderDataList = ConversionHelper.convertToOrderData(orders, orderItemsMap, productMap);
 
-        long totalCount = orderApi.getCountByDateRange(startDate, endDate);
-
-        return new PaginatedData<>(orderDataList, page, totalCount, PAGE_SIZE);
+        return new PaginatedData<>(orderDataList, page, PAGE_SIZE);
     }
 
 

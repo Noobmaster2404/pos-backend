@@ -150,26 +150,6 @@ public class OrderApiTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetCountByDateRange() throws ApiException {
-        Order order1 = createTestOrder(100.0);
-        Order order2 = createTestOrder(200.0);
-        
-        OrderItem item1 = createTestOrderItem(order1, 1, 100.0);
-        OrderItem item2 = createTestOrderItem(order2, 2, 100.0);
-        
-        order1.getOrderItems().add(item1);
-        order2.getOrderItems().add(item2);
-        
-        orderApi.addOrder(order1);
-        orderApi.addOrder(order2);
-        
-        ZonedDateTime startDate = TimeZoneUtil.toUTC(ZonedDateTime.now().minusDays(1));
-        ZonedDateTime endDate = TimeZoneUtil.toUTC(ZonedDateTime.now().plusDays(1));
-        
-        assertEquals(2, orderApi.getCountByDateRange(startDate, endDate));
-    }
-
-    @Test
     public void testOrderWithMultipleItems() throws ApiException {
         Order order = createTestOrder(300.0);
         OrderItem item1 = createTestOrderItem(order, 1, 100.0);

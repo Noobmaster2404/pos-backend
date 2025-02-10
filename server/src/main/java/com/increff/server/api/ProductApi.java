@@ -79,10 +79,6 @@ public class ProductApi {
         return product;
     }
 
-    public long getCountByClientIdAndProductName(Integer clientId, String productName) {
-        return dao.countByClientIdAndProductName(clientId, productName);
-    }
-
     @Transactional(readOnly = true)
     public Map<Integer, String> getBarcodesByProductIds(List<Integer> productIds) throws ApiException {
         List<Product> products = dao.selectByProductIds(productIds);

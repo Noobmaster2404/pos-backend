@@ -7,7 +7,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 
 @Transactional
 public abstract class AbstractDao<T> {
@@ -15,8 +14,7 @@ public abstract class AbstractDao<T> {
     @PersistenceContext
     protected EntityManager em;
 
-    @Value("${PAGE_SIZE}")
-    private Integer PAGE_SIZE;
+    private Integer PAGE_SIZE = 10;
 
     private Class<T> entityClass;
 
@@ -43,7 +41,7 @@ public abstract class AbstractDao<T> {
         cq.select(root);
         return em.createQuery(cq)
                 .setFirstResult(page * PAGE_SIZE)
-                .setMaxResults(PAGE_SIZE)
+                .setMaxResults(PAGE_SIZE+1)
                 .getResultList();
     }
 

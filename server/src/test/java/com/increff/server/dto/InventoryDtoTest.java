@@ -72,9 +72,7 @@ public class InventoryDtoTest extends AbstractUnitTest {
         
         PaginatedData<InventoryData> inventories = dto.getAllInventory(0);
         assertEquals(1, inventories.getData().size());
-        assertEquals(1, inventories.getTotalItems());
         assertEquals(0, inventories.getPage());
-        assertEquals(1, inventories.getTotalPages());
         assertFalse(inventories.isHasNext());
     }
 
@@ -99,25 +97,19 @@ public class InventoryDtoTest extends AbstractUnitTest {
         // Test first page
         PaginatedData<InventoryData> page1 = dto.getAllInventory(0);
         assertEquals(10, page1.getData().size());
-        assertEquals(25, page1.getTotalItems());
         assertEquals(0, page1.getPage());
-        assertEquals(3, page1.getTotalPages());
         assertTrue(page1.isHasNext());
         
         // Test second page
         PaginatedData<InventoryData> page2 = dto.getAllInventory(1);
         assertEquals(10, page2.getData().size());
-        assertEquals(25, page2.getTotalItems());
         assertEquals(1, page2.getPage());
-        assertEquals(3, page2.getTotalPages());
         assertTrue(page2.isHasNext());
 
         // Test last page
         PaginatedData<InventoryData> page3 = dto.getAllInventory(2);
         assertEquals(5, page3.getData().size());
-        assertEquals(25, page3.getTotalItems());
         assertEquals(2, page3.getPage());
-        assertEquals(3, page3.getTotalPages());
         assertFalse(page3.isHasNext());
     }
 
@@ -183,9 +175,7 @@ public class InventoryDtoTest extends AbstractUnitTest {
     public void testEmptyPage() throws ApiException {
         PaginatedData<InventoryData> inventories = dto.getAllInventory(0);
         assertEquals(0, inventories.getData().size());
-        assertEquals(0, inventories.getTotalItems());
         assertEquals(0, inventories.getPage());
-        assertEquals(0, inventories.getTotalPages());
         assertFalse(inventories.isHasNext());
     }
 
@@ -196,9 +186,7 @@ public class InventoryDtoTest extends AbstractUnitTest {
         
         PaginatedData<InventoryData> inventories = dto.getAllInventory(1); // Second page
         assertEquals(0, inventories.getData().size());
-        assertEquals(1, inventories.getTotalItems());
         assertEquals(1, inventories.getPage());
-        assertEquals(1, inventories.getTotalPages());
         assertFalse(inventories.isHasNext());
     }
 

@@ -9,7 +9,6 @@ import com.increff.server.helper.ConversionHelper;
 import com.increff.commons.exception.ApiException;
 import com.increff.server.entity.Client;
 import com.increff.commons.model.PaginatedData;
-import com.increff.server.api.ProductApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,6 @@ public class ProductDto extends AbstractDto {
     @Autowired
     private ClientApi clientApi;
 
-    @Autowired
-    private ProductApi productApi;
-
     @Value("${PAGE_SIZE}")
     private Integer PAGE_SIZE;
 
@@ -48,14 +44,12 @@ public class ProductDto extends AbstractDto {
         if(Objects.nonNull(clientId)){
             Client client = clientApi.getCheckClientById(clientId);
             List<Product> products = productFlow.getProductsByClientIdAndProductName(clientId, productName, page);
-            long totalCount = productApi.getCountByClientIdAndProductName(clientId, productName);
             List<ProductData> productData = ConversionHelper.convertToProductData(products, client.getClientName());
 
-            return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
+            return new PaginatedData<>(productData, page, PAGE_SIZE);
         }
         else{
             List<Product> products = productFlow.getProductsByClientIdAndProductName(clientId, productName, page);
-            long totalCount = productApi.getCountByClientIdAndProductName(clientId, productName);
             List<Integer> clientIds = products.stream()
                 .map(product -> product.getClient().getClientId())
                 .distinct()
@@ -64,13 +58,12 @@ public class ProductDto extends AbstractDto {
             Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
             List<ProductData> productData = ConversionHelper.convertToProductData(products, clientNamesMap);
             
-            return new PaginatedData<>(productData, page, totalCount, PAGE_SIZE);
+            return new PaginatedData<>(productData, page, PAGE_SIZE);
         }
     }
 
     public PaginatedData<ProductData> getAllProducts(Integer page) throws ApiException {
         List<Product> products = productFlow.getAllProducts(page);
-        long totalCount = productApi.getTotalCount();
 
         List<Integer> clientIds = products.stream()
             .map(product -> product.getClient().getClientId())
@@ -79,7 +72,7 @@ public class ProductDto extends AbstractDto {
         Map<Integer, String> clientNamesMap = clientApi.getCheckClientNamesByIds(clientIds);
         List<ProductData> productDataList = ConversionHelper.convertToProductData(products, clientNamesMap);
 
-        return new PaginatedData<>(productDataList, page, totalCount, PAGE_SIZE);
+        return new PaginatedData<>(productDataList, page, PAGE_SIZE);
     }
 
     public ProductData addProduct(ProductForm form) throws ApiException {

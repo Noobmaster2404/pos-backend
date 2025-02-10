@@ -102,9 +102,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 0);
         assertEquals(1, orders.getData().size());
-        assertEquals(1, orders.getTotalItems());
         assertEquals(0, orders.getPage());
-        assertEquals(1, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 
@@ -115,9 +113,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 0);
         assertEquals(0, orders.getData().size());
-        assertEquals(0, orders.getTotalItems());
         assertEquals(0, orders.getPage());
-        assertEquals(0, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 
@@ -137,9 +133,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> page1 = dto.getOrdersByDateRange(searchForm, 0);
         assertEquals(10, page1.getData().size());
-        assertEquals(25, page1.getTotalItems());
         assertEquals(0, page1.getPage());
-        assertEquals(3, page1.getTotalPages());
         assertTrue(page1.isHasNext());
         
         // Test second page
@@ -147,9 +141,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> page2 = dto.getOrdersByDateRange(searchForm, 1);
         assertEquals(10, page2.getData().size());
-        assertEquals(25, page2.getTotalItems());
         assertEquals(1, page2.getPage());
-        assertEquals(3, page2.getTotalPages());
         assertTrue(page2.isHasNext());
 
         // Test last page
@@ -157,9 +149,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> page3 = dto.getOrdersByDateRange(searchForm, 2);
         assertEquals(5, page3.getData().size());
-        assertEquals(25, page3.getTotalItems());
         assertEquals(2, page3.getPage());
-        assertEquals(3, page3.getTotalPages());
         assertFalse(page3.isHasNext());
     }
 
@@ -244,9 +234,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 1);
         assertEquals(0, orders.getData().size());
-        assertEquals(1, orders.getTotalItems());
         assertEquals(1, orders.getPage());
-        assertEquals(1, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 
@@ -279,9 +267,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 0);
         assertEquals(1, orders.getData().size());
-        assertEquals(1, orders.getTotalItems());
         assertEquals(0, orders.getPage());
-        assertEquals(1, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 
@@ -293,9 +279,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 0);
         assertEquals(0, orders.getData().size());
-        assertEquals(0, orders.getTotalItems());
         assertEquals(0, orders.getPage());
-        assertEquals(0, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 
@@ -311,9 +295,7 @@ public class OrderDtoTest extends AbstractUnitTest {
         searchForm.setEndDate(getEndDate());
         PaginatedData<OrderData> orders = dto.getOrdersByDateRange(searchForm, 1);
         assertEquals(0, orders.getData().size());
-        assertEquals(1, orders.getTotalItems());
         assertEquals(1, orders.getPage());
-        assertEquals(1, orders.getTotalPages());
         assertFalse(orders.isHasNext());
     }
 

@@ -8,7 +8,6 @@ import com.increff.server.flow.InventoryFlow;
 import com.increff.server.helper.ConversionHelper;
 import com.increff.server.api.ProductApi;
 import com.increff.commons.exception.ApiException;
-import com.increff.server.api.InventoryApi;
 import com.increff.commons.model.PaginatedData;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,6 @@ public class InventoryDto extends AbstractDto {
     @Autowired
     private ProductApi productApi;
 
-    @Autowired
-    private InventoryApi inventoryApi;
-
     @Value("${PAGE_SIZE}")
     private Integer PAGE_SIZE;
 
@@ -49,7 +45,6 @@ public class InventoryDto extends AbstractDto {
 
     public PaginatedData<InventoryData> getAllInventory(Integer page) throws ApiException {
         List<Inventory> inventories = inventoryFlow.getAllInventory(page);
-        long totalCount = inventoryApi.getTotalCount();
 
         List<Integer> productIds = inventories.stream()
             .map(inventory -> inventory.getProduct().getProductId())
@@ -58,7 +53,7 @@ public class InventoryDto extends AbstractDto {
         Map<Integer, String> productIdBarcodeMap = productApi.getBarcodesByProductIds(productIds);
         List<InventoryData> inventoryData = ConversionHelper.convertToInventoryData(inventories, productIdBarcodeMap);
 
-        return new PaginatedData<>(inventoryData, page, totalCount, PAGE_SIZE);
+        return new PaginatedData<>(inventoryData, page, PAGE_SIZE);
     }
 
     public InventoryData getInventoryById(Integer productId) throws ApiException {

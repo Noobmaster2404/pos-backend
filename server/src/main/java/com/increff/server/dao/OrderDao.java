@@ -7,15 +7,13 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.JoinType;
 import java.time.ZonedDateTime;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.increff.server.entity.Order;
 
 @Repository
 public class OrderDao extends AbstractDao<Order> {
 
-    @Value("${PAGE_SIZE}")
-    private Integer PAGE_SIZE;
+    private Integer PAGE_SIZE = 10;
     
     public OrderDao() {
         super(Order.class);
@@ -35,7 +33,7 @@ public class OrderDao extends AbstractDao<Order> {
         
         return em.createQuery(cq)
                  .setFirstResult(page * PAGE_SIZE)
-                 .setMaxResults(PAGE_SIZE)
+                 .setMaxResults(PAGE_SIZE+1)
                  .getResultList();
     }
 
@@ -67,18 +65,5 @@ public class OrderDao extends AbstractDao<Order> {
                  .stream()
                  .findFirst()
                  .orElse(null);
-    }
-
-    public long countByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Order> root = cq.from(Order.class);
-        cq.select(cb.count(root)).where(
-            cb.and(
-                cb.greaterThanOrEqualTo(root.get("orderTime"), startDate),
-                cb.lessThanOrEqualTo(root.get("orderTime"), endDate)
-            )
-        );
-        return em.createQuery(cq).getSingleResult();
     }
 } 

@@ -32,32 +32,6 @@ public class ProductDao extends AbstractDao<Product> {
                  .orElse(null);
     }
 
-    public long countByClientIdAndProductName(Integer clientId, String productName) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<Product> root = cq.from(Product.class);
-        cq.select(cb.count(root));
-
-        if (Objects.isNull(clientId)) {
-            if (Objects.isNull(productName) || productName.isEmpty()) {
-                // No filters
-            } else {
-                cq.where(cb.like(root.get("productName"), productName + "%"));
-            }
-        } else {
-            if (Objects.isNull(productName) || productName.isEmpty()) {
-                cq.where(cb.equal(root.get("client").get("clientId"), clientId));
-            } else {
-                cq.where(cb.and(
-                    cb.equal(root.get("client").get("clientId"), clientId),
-                    cb.like(root.get("productName"), productName + "%")
-                ));
-            }
-        }
-
-        return em.createQuery(cq).getSingleResult();
-    }
-
     public List<Product> selectByProductIds(List<Integer> productIds) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Product> cq = cb.createQuery(Product.class);
@@ -100,7 +74,7 @@ public class ProductDao extends AbstractDao<Product> {
 
         return em.createQuery(cq)
                 .setFirstResult(page * PAGE_SIZE)
-                .setMaxResults(PAGE_SIZE)
+                .setMaxResults(PAGE_SIZE+1)
                 .getResultList();
     }
 }

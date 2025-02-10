@@ -76,9 +76,7 @@ public class ProductDtoTest extends AbstractUnitTest {
         
         PaginatedData<ProductData> products = dto.getAllProducts(0);
         assertEquals(2, products.getData().size());
-        assertEquals(2, products.getTotalItems());
         assertEquals(0, products.getPage());
-        assertEquals(1, products.getTotalPages());
         assertFalse(products.isHasNext());
     }
 
@@ -97,25 +95,19 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test first page (page size is 10)
         PaginatedData<ProductData> page1 = dto.getAllProducts(0);
         assertEquals(10, page1.getData().size());
-        assertEquals(25, page1.getTotalItems());
         assertEquals(0, page1.getPage());
-        assertEquals(3, page1.getTotalPages()); // 25 items / 10 per page = 3 pages
         assertTrue(page1.isHasNext());
         
         // Test second page
         PaginatedData<ProductData> page2 = dto.getAllProducts(1);
         assertEquals(10, page2.getData().size());
-        assertEquals(25, page2.getTotalItems());
         assertEquals(1, page2.getPage());
-        assertEquals(3, page2.getTotalPages());
         assertTrue(page2.isHasNext());
 
         // Test third (last) page
         PaginatedData<ProductData> page3 = dto.getAllProducts(2);
         assertEquals(5, page3.getData().size());
-        assertEquals(25, page3.getTotalItems());
         assertEquals(2, page3.getPage());
-        assertEquals(3, page3.getTotalPages());
         assertFalse(page3.isHasNext());
     }
 
@@ -218,9 +210,7 @@ public class ProductDtoTest extends AbstractUnitTest {
     public void testEmptyPage() throws ApiException {
         PaginatedData<ProductData> products = dto.getAllProducts(0);
         assertEquals(0, products.getData().size());
-        assertEquals(0, products.getTotalItems());
         assertEquals(0, products.getPage());
-        assertEquals(0, products.getTotalPages());
         assertFalse(products.isHasNext());
     }
 
@@ -231,9 +221,7 @@ public class ProductDtoTest extends AbstractUnitTest {
         
         PaginatedData<ProductData> products = dto.getAllProducts(1); // Second page
         assertEquals(0, products.getData().size());
-        assertEquals(1, products.getTotalItems());
         assertEquals(1, products.getPage());
-        assertEquals(1, products.getTotalPages());
         assertFalse(products.isHasNext());
     }
 
@@ -268,7 +256,7 @@ public class ProductDtoTest extends AbstractUnitTest {
         
         // Verify products are in database
         PaginatedData<ProductData> allProducts = dto.getAllProducts(0);
-        assertEquals(3, allProducts.getTotalItems());
+        assertEquals(3, allProducts.getData().size());
     }
 
     @Test(expected = ApiException.class)
@@ -310,8 +298,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "test apple", 0);
         assertEquals(1, result.getData().size());
         assertEquals("test apple", result.getData().get(0).getProductName());
-        assertEquals(1, result.getTotalItems());
-        assertEquals(1, result.getTotalPages());
         assertFalse(result.isHasNext());
     }
 
@@ -326,8 +312,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test partial match
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "test app", 0);
         assertEquals(2, result.getData().size());
-        assertEquals(2, result.getTotalItems());
-        assertEquals(1, result.getTotalPages());
         assertFalse(result.isHasNext());
     }
 
@@ -356,8 +340,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test no match
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "orange", 0);
         assertEquals(0, result.getData().size());
-        assertEquals(0, result.getTotalItems());
-        assertEquals(0, result.getTotalPages());
         assertFalse(result.isHasNext());
     }
 
@@ -372,8 +354,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test null product name
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, null, 0);
         assertEquals(2, result.getData().size());
-        assertEquals(2, result.getTotalItems());
-        assertEquals(1, result.getTotalPages());
         assertFalse(result.isHasNext());
     }
 
@@ -392,22 +372,16 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test first page
         PaginatedData<ProductData> page1 = dto.getProductsByClientIdAndProductName(testClientId, "test", 0);
         assertEquals(10, page1.getData().size());
-        assertEquals(25, page1.getTotalItems());
-        assertEquals(3, page1.getTotalPages());
         assertTrue(page1.isHasNext());
 
         // Test second page
         PaginatedData<ProductData> page2 = dto.getProductsByClientIdAndProductName(testClientId, "test", 1);
         assertEquals(10, page2.getData().size());
-        assertEquals(25, page2.getTotalItems());
-        assertEquals(3, page2.getTotalPages());
         assertTrue(page2.isHasNext());
 
         // Test last page
         PaginatedData<ProductData> page3 = dto.getProductsByClientIdAndProductName(testClientId, "test", 2);
         assertEquals(5, page3.getData().size());
-        assertEquals(25, page3.getTotalItems());
-        assertEquals(3, page3.getTotalPages());
         assertFalse(page3.isHasNext());
     }
 
@@ -422,8 +396,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test with null clientId
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(null, "test", 0);
         assertEquals(2, result.getData().size());
-        assertEquals(2, result.getTotalItems());
-        assertEquals(1, result.getTotalPages());
         assertFalse(result.isHasNext());
         
         // Verify client names are present in response
@@ -452,8 +424,6 @@ public class ProductDtoTest extends AbstractUnitTest {
         // Test with empty string (should behave same as null)
         PaginatedData<ProductData> result = dto.getProductsByClientIdAndProductName(testClientId, "", 0);
         assertEquals(2, result.getData().size());
-        assertEquals(2, result.getTotalItems());
-        assertEquals(1, result.getTotalPages());
         assertFalse(result.isHasNext());
     }
 } 

@@ -173,7 +173,7 @@ public class ProductFlowTest extends AbstractUnitTest {
 
         // Test first page (should return 10 products)
         List<Product> firstPage = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 0);
-        assertEquals(10, firstPage.size());
+        assertEquals(11, firstPage.size());
 
         // Test second page (should return 5 products)
         List<Product> secondPage = productFlow.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 1);

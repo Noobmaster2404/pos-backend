@@ -177,7 +177,7 @@ public class ProductApiTest extends AbstractUnitTest {
 
         // Test pagination - page 0 (PAGE_SIZE is 10)
         List<Product> firstPage = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 0);
-        assertEquals(10, firstPage.size());
+        assertEquals(11, firstPage.size());
 
         // Test pagination - page 1
         List<Product> secondPage = productApi.getProductsByClientIdAndProductName(testClient.getClientId(), "test", 1);

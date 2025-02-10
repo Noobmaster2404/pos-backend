@@ -8,5 +8,4 @@ import lombok.Setter;
 public class FieldErrorData {
     private String field;
     private String message;
-    //status code as well
 } 

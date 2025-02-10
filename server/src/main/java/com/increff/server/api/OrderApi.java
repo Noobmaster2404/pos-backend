@@ -82,9 +82,4 @@ public class OrderApi {
         orderDao.update(existingOrder);
         return existingOrder;
     }
-
-    @Transactional(readOnly = true)
-    public long getCountByDateRange(ZonedDateTime startDate, ZonedDateTime endDate) {
-        return orderDao.countByDateRange(startDate, endDate);
-    }
 } 
