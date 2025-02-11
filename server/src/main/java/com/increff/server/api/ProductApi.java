@@ -101,10 +101,10 @@ public class ProductApi {
         return products;
     }
 
-    @Transactional(readOnly = true)
-    public long getTotalCount() {
-        return dao.count();
-    }
+    // @Transactional(readOnly = true)
+    // public long getTotalCount() {
+    //     return dao.count();
+    // }
 
     @Transactional(readOnly = true)
     public List<Product> getCheckProductsByBarcodes(List<String> barcodes) throws ApiException {

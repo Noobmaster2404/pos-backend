@@ -83,20 +83,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                        "/webjars/**");
     }
 
-    // @Bean
-    // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    //     http
-    //         .cors(cors -> cors.configurationSource(request -> {
-    //             CorsConfiguration config = new CorsConfiguration();
-    //             config.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-    //             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    //             config.setAllowedHeaders(Arrays.asList("*"));
-    //             config.setAllowCredentials(true);
-    //             return config;
-    //         }));
-    //     return http.build();
-    // }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

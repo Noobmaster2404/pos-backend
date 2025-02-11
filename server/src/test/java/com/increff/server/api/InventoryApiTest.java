@@ -155,14 +155,6 @@ public class InventoryApiTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testGetTotalCount() throws ApiException {
-        Inventory inventory = createTestInventory(100);
-        inventoryApi.addInventory(inventory);
-        
-        assertEquals(1, inventoryApi.getTotalCount());
-    }
-
-    @Test
     public void testAddZeroQuantity() throws ApiException {
         Inventory inventory = createTestInventory(0);
         Inventory added = inventoryApi.addInventory(inventory);

@@ -52,12 +52,4 @@ public abstract class AbstractDao<T> {
     public T select(Integer id) {
         return em.find(entityClass, id);
     }
-
-    public long count() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<T> root = cq.from(entityClass);
-        cq.select(cb.count(root));
-        return em.createQuery(cq).getSingleResult();
-    }
 }

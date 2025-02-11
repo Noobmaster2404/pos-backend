@@ -67,8 +67,8 @@ public class InventoryApi {
         return inventories;
     }
 
-    @Transactional(readOnly = true)
-    public long getTotalCount() {
-        return dao.count();
-    }
+    // @Transactional(readOnly = true)
+    // public long getTotalCount() {
+    //     return dao.count();
+    // }
 }
